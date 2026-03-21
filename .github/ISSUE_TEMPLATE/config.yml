@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Changelog
+    url: https://github.com/tg12/phantomtide/blob/main/CHANGELOG.md
+    about: See what has changed in each release
+  - name: Browse all open issues
+    url: https://github.com/tg12/phantomtide/issues
+    about: See what is already being tracked before opening a new issue
