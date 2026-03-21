@@ -6,6 +6,18 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.8.2 — 2026-03-21
+
+**Collector fix: NOTAM and DailyMem restored**
+
+Both NOTAM and DailyMem broadcast warning collectors were failing silently on every cycle due to a Python 3.14 / pydantic v1 incompatibility in the shared text enrichment layer. The enrichment module was designed with a graceful fallback, but the exception guard was too narrow — it caught `ImportError` only, not the `ConfigError` that pydantic v1 raises when it cannot infer a type under Python 3.14. Both collectors now operate cleanly and produce full output on every cycle.
+
+- NOTAM: restored, collecting via SWIM JMS
+- DailyMem: restored, all five NAVAREA/HYDROPAC files parsing
+- Text enrichment fallback now activates correctly when the primary NLP pipeline is unavailable
+
+---
+
 ## v1.8.1 — 2026-03-21
 
 **Hotfix**
