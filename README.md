@@ -14,11 +14,8 @@ The intelligence signal is the gap.
 
 ---
 
-<!-- Add screenshots here — capture from a live session
-     ![Dashboard overview](docs/screenshots/overview.png)
-     ![Risk zone overlay](docs/screenshots/risk-zones.png)
-     ![Event detail panel](docs/screenshots/detail.png)
--->
+![Phantom Tide — full dashboard overview](docs/screenshots/overview.png)
+*Full dashboard — 51,000+ live events across the global ocean surface. 30-second refresh.*
 
 ---
 
@@ -40,31 +37,47 @@ Phantom Tide does not tell you what these mean. It tells you they exist, where t
 
 ---
 
-## What analysts work with
+## Platform
 
-**Live map** — dark global chart, refreshes every 30 seconds, covers the full ocean surface.
+### Live intelligence map
 
-**Cross-source contradictions** — the platform continuously compares independent sources. Where they disagree, that disagreement is surfaced, not suppressed.
+![North Atlantic — weather mesh and vessel density](docs/screenshots/atlantic.png)
+*North Atlantic mid-zoom. Weather mesh shows continuous sea state interpolated from sensor networks. Triangle opacity encodes data confidence — dense coverage is opaque, sparse coverage fades. AIS vessel tracks visible as directional markers.*
 
-**Risk zone overlay** — algorithmically scored threat areas across a global grid, with convex hull footprints that reflect the actual event distribution. Labels emerge progressively as you zoom in — the world does not look like it is on fire from orbit.
+---
 
-**Ocean state layer** — continuous wave height and wind field interpolated from sparse sensor networks. Triangle opacity communicates data confidence. Where instruments are dense, the picture is sharp. Where they are sparse, you see the edge of what is known.
+### Risk zone overlay
 
-**19 warning categories** — GPS jamming, mine hazard, piracy, military exercise, submarine operations, rocket/missile range, SAR and distress, volcanic and seismic hazard, restricted area, naval operations, pollution, wreck hazard, offshore construction, cable operations, ice hazard, survey ops, amphibious operations, and navigational warnings. Each has its own visual treatment.
+![Risk zones — Persian Gulf and Red Sea](docs/screenshots/risk_zones.png)
+*Persian Gulf and Red Sea. Cross-source risk scoring across a global grid. CRITICAL zones show where multiple independent warning streams converge. Labels emerge progressively as you zoom — at world scale only the highest-scored zones are visible.*
 
-**Spatial geometry** — text-based warnings render their full geographic footprint: exercise polygons, cable routes, exclusion circles. Not just a centroid pin.
+---
 
-**Proximity query** — right-click any position to find every event within a chosen radius. The map dims everything outside it. Sorted by category and distance.
+### Ocean state layer
 
-**Search** — filter the entire live picture by vessel identifier, location, or any text field. Non-matching events fade. Match count updates live.
+![Weather mesh — North Atlantic sensor network](docs/screenshots/weather_mesh.png)
+*North Atlantic wave height and wind field. Triangulated from sparse buoy sensor networks into a continuous field. NOTAM geometry overlays visible in teal — full polygon footprints, not centroid pins.*
 
-**Operational platform clustering** — offshore drilling units are grouped into field-level clusters. Active fields are marked. Fields with removed units show differently. Position history is retained.
+---
 
-**Source health monitoring** — every data pipeline is watched independently. Stale or degraded feeds are flagged with a visible indicator before they cause a missed event.
+### Event detail
 
-**Bitemporal time** — every event carries when it was observed and when this system learned about it. Events with a future expiry — active advisories, live restrictions — are never hidden by narrow time windows.
+![Event detail panel — AIS vessel](docs/screenshots/detail_panel.png)
+*Selected feature panel. Vessel detail with observation timestamp, ingestion time, and coordinate copy. The time bar shows when the phenomenon was observed versus when this system learned about it — a distinction that matters for delayed or cached sources.*
 
-**Intel tables** — structured panels for active advisories, critical notices, and recent warnings. Click any row to fly the map to the location.
+---
+
+### Proximity query
+
+![Proximity query — Persian Gulf 100nm radius](docs/screenshots/proximity_results.png)
+*Right-click any position to query all events within a chosen radius. Persian Gulf — 100nm query returns ranked results by source and distance. Everything outside the radius dims. The contradictions inside it surface.*
+
+---
+
+### Intel tables
+
+![Intel tables panel](docs/screenshots/intel_tables.png)
+*Bottom panel — structured tables for active advisories, critical notices, and recent warnings across all tracked categories. Click any row to fly the map directly to the event location.*
 
 ---
 
@@ -72,9 +85,17 @@ Phantom Tide does not tell you what these mean. It tells you they exist, where t
 
 It does not aggregate public social media. It does not scrape news. It does not guess intent.
 
-It works with observable signals. Positions, detections, frequencies, official notices. Physical reality and the official record. When those two things disagree, Phantom Tide shows you the disagreement.
+It works with observable signals — positions, detections, official notices, sensor readings. When the physical record and the official record disagree, Phantom Tide shows you the disagreement.
 
 Interpretation is yours.
+
+---
+
+## Warning categories
+
+19 distinct categories, each with its own visual treatment:
+
+GPS Jamming &nbsp;·&nbsp; Mine Hazard &nbsp;·&nbsp; Piracy / Armed Robbery &nbsp;·&nbsp; Seismic / Tsunami &nbsp;·&nbsp; Volcanic Hazard &nbsp;·&nbsp; Rocket / Missile Range &nbsp;·&nbsp; SAR / Distress &nbsp;·&nbsp; Submarine Operations &nbsp;·&nbsp; Amphibious Operations &nbsp;·&nbsp; Military Exercise &nbsp;·&nbsp; Restricted Area &nbsp;·&nbsp; Naval Operations &nbsp;·&nbsp; Pollution / Spill &nbsp;·&nbsp; Wreck Hazard &nbsp;·&nbsp; Offshore Construction &nbsp;·&nbsp; Cable / Pipeline &nbsp;·&nbsp; Ice Hazard &nbsp;·&nbsp; Survey Operations &nbsp;·&nbsp; Navigational Warning
 
 ---
 
