@@ -2,32 +2,54 @@
 
 **Global Maritime Intelligence Platform**
 
-> Most platforms show you what is there. This one shows you what is missing — and where.
+> Every other platform shows you what vessels report. This one shows you what vessels are hiding.
 
 ---
 
-The ocean broadcasts constantly. Vessel positions. Airspace closures. Sea state readings. Satellite detections. Official warnings. Phantom Tide ingests all of it simultaneously from nine independent streams and asks a single question: where does the physical record contradict the official one?
+The ocean broadcasts constantly. Vessel positions. Official warnings. Sea state readings. Satellite detections. Airspace notices. Nine independent streams, running simultaneously, cross-checked against each other in real time.
 
-The signal is in the gap.
+Most platforms pick one stream and call it a map.
 
-51,000+ live events. 30-second refresh. Global coverage.
+Phantom Tide asks a different question: **where does the physical record contradict the official one?**
+
+51,000+ live events. Nine independent pipelines. 30-second refresh. Global coverage.
 
 ---
 
 ![Phantom Tide — full dashboard overview](docs/screenshots/overview.png)
-*Full dashboard. Nine independent data pipelines converging on a single live map. Risk zones computed from cross-source agreement — the more independent streams that converge on the same area, the higher the score.*
+*Full dashboard. Nine independent data pipelines converging on a single live map. Risk zones emerge where multiple independent warning streams converge — the more independent sources agree, the higher the score, the more certain the signal.*
 
 ---
 
-## The core insight
+## The landscape
 
-Most dashboards are mirrors. They reflect what vessels report, what authorities publish, what sensors transmit. Phantom Tide treats those broadcasts as claims — and checks them against independent physical evidence.
+Every maritime platform in public use is an AIS mirror.
 
-A vessel can lie about its position. An authority can issue a notice without explanation. A sensor can go silent. The interesting question is never "what is being reported" — it is "what does the physical record say, and does it match?"
+[Marine Cadastre](https://hub.marinecadastre.gov/pages/vesseltraffic) is a NOAA/BOEM planning tool, built in 2007 for offshore energy regulators. It serves archived historical vessel density charts. The most recent data available as of this writing is a batch labelled "October to December 2025." It is not a live intelligence tool. It was never designed to be.
 
-When it does not match, Phantom Tide flags the contradiction, locates it precisely, and shows you everything else in the area.
+[MarineTraffic](https://www.marinetraffic.com). [VesselFinder](https://www.vesselfinder.com). [Vesseltracker](https://www.vesseltracker.com). These are directories with a map layer. They show you what ships claim, where they claim to be. They do not ask whether the claim is true. When a vessel goes dark, the dot disappears. That is considered normal. Nothing flags it.
 
-**Absence is the signal. Presence is the baseline.**
+[Global Fishing Watch](https://globalfishingwatch.org) is a single-domain tool for fishing vessel monitoring. One data type. One sector. Narrow by design. It uses AIS. AIS is self-reported.
+
+[Beholder](https://beholder.me) does not load.
+
+**The common failure mode:** every one of these platforms treats a vessel broadcast as ground truth. The moment a vessel switches off its transponder — or spoofs its position, or drifts into a warned corridor — the platform has nothing to say. It shows the last known location and waits.
+
+Phantom Tide does not wait. It has other sources running.
+
+---
+
+## What the other sources see
+
+A vessel can silence its transponder. It cannot silence a satellite.
+
+It cannot remove itself from the record of a maritime broadcast warning it entered. It cannot undo a GPS interference reading from a sensor network three hundred miles away. It cannot erase the track that ocean buoy telemetry has been recording while its AIS was off.
+
+This is the operational difference. Not data volume. Not refresh rate. **Independent corroboration across streams that cannot be simultaneously manipulated.**
+
+When position A (broadcast) diverges from position B (satellite), Phantom Tide flags the divergence. When a vessel disappears inside an active warning zone, it is not treated as a normal gap. When GPS interference spreads outward from a fixed point over three consecutive days, the system records the geometry of that spread.
+
+No AIS mirror catches any of this. The vessel is simply gone.
 
 ---
 
@@ -43,11 +65,11 @@ Mine-hazard warnings appearing in shipping lanes that were clear last week.
 
 A distress activation in a zone with no advisory and no follow-up traffic.
 
-Aircraft in a holding pattern fifty miles from a known spoofing corridor.
+Aircraft in a holding pattern fifty miles from an active spoofing corridor.
 
-A region where the risk score is climbing — not because one warning appeared, but because four independent streams are converging on the same coordinates simultaneously.
+A region where four independent streams are converging on the same coordinates simultaneously — and the risk score is climbing because of it.
 
-Phantom Tide does not tell you what these mean. It tells you they exist, where they are, when they were first detected, and what else is nearby.
+Phantom Tide does not tell you what these mean. It tells you they exist, precisely where they are, when they were first detected, and what else is in the vicinity.
 
 ---
 
@@ -56,48 +78,48 @@ Phantom Tide does not tell you what these mean. It tells you they exist, where t
 ### Live intelligence map
 
 ![North Atlantic — weather mesh and vessel density](docs/screenshots/atlantic.png)
-*North Atlantic. Continuous sea state field interpolated from sparse sensor networks — triangle opacity encodes data confidence. Dense coverage is opaque; sparse coverage fades. Vessel tracks visible as directional markers.*
+*North Atlantic. Continuous sea state field derived from sparse sensor networks — triangle opacity encodes data confidence. Dense sensor coverage is opaque; sparse coverage fades. No AIS mirror shows this layer because no AIS mirror has it.*
 
 ---
 
 ### Risk zone overlay
 
 ![Risk zones — Persian Gulf and Red Sea](docs/screenshots/risk_zones.png)
-*Persian Gulf and Red Sea. CRITICAL zones emerge where multiple independent warning streams converge on the same grid cell. At world scale only the highest-scoring zones are labelled — zoom in and the resolution increases.*
+*Persian Gulf and Red Sea. Risk zones are not drawn by hand. They are computed — derived from cross-source agreement across independent warning streams. CRITICAL zones emerge where multiple streams converge on the same grid cell. The score is not one source's opinion. It is the agreement of several independent ones.*
 
 ---
 
 ### Ocean state layer
 
 ![Weather mesh — North Atlantic sensor network](docs/screenshots/weather_mesh.png)
-*Wave height and wind field across the North Atlantic. Airspace restriction geometry visible in teal — full polygon footprints, not centroid pins. The distinction matters: a centroid places an exclusion zone at its centre; the polygon shows you its actual boundary.*
+*Wave height and wind field interpolated across the North Atlantic from buoy sensor networks. Airspace restriction geometry shown in teal — full polygon footprints, not centroid pins. A centroid places an exclusion zone at its centre. The polygon shows its actual boundary.*
 
 ---
 
 ### Event detail
 
 ![Event detail panel — AIS vessel](docs/screenshots/detail_panel.png)
-*Selected feature detail. Time provenance bar shows when the phenomenon was observed versus when this system learned about it — a distinction that matters for delayed or cached sources. Expiry status for events with a declared end time.*
+*Selected feature detail. The time bar shows when the phenomenon was observed versus when this system learned about it — a distinction that exposes delayed sources and cached feeds. Every event carries an observation timestamp, an ingestion timestamp, and an expiry field where applicable.*
 
 ---
 
 ### Proximity query
 
 ![Proximity query — Persian Gulf 100nm radius](docs/screenshots/proximity_results.png)
-*Right-click any point on the map and query everything within a chosen radius. Persian Gulf — 100nm query returns all active events ranked by source and distance. Everything outside the radius dims. The contradictions inside it surface.*
+*Right-click any position. Query everything within a chosen radius. Persian Gulf — 100nm query returns all active events across all active streams, ranked by source and distance. Everything outside the radius dims. The contradictions inside it surface.*
 
 ---
 
 ### Intel tables
 
 ![Intel tables panel](docs/screenshots/intel_tables.png)
-*Structured tables for active advisories, critical notices, and recent warnings across all 19 tracked categories. Click any row to fly the map directly to that event. The tables are the dashboard's second axis — spatial on the map, categorical in the tables.*
+*Structured tables for active advisories, critical notices, and broadcast warnings. 19 tracked categories. Click any row to fly the map to that event. The tables surface what the map's spatial view flattens — categorical breadth, not just geographic density.*
 
 ---
 
 ## Warning categories
 
-19 distinct categories. Each has its own colour, symbol, and classification logic. They are not cosmetic — they drive the risk scoring and the cross-source contradiction detection.
+19 categories. Each has independent classification logic, its own colour encoding, and feeds directly into the risk scoring layer. They are not labels. They are inputs to the contradiction engine.
 
 GPS Jamming &nbsp;·&nbsp; Mine Hazard &nbsp;·&nbsp; Piracy / Armed Robbery &nbsp;·&nbsp; Seismic / Tsunami &nbsp;·&nbsp; Volcanic Hazard &nbsp;·&nbsp; Rocket / Missile Range &nbsp;·&nbsp; SAR / Distress &nbsp;·&nbsp; Submarine Operations &nbsp;·&nbsp; Amphibious Operations &nbsp;·&nbsp; Military Exercise &nbsp;·&nbsp; Restricted Area &nbsp;·&nbsp; Naval Operations &nbsp;·&nbsp; Pollution / Spill &nbsp;·&nbsp; Wreck Hazard &nbsp;·&nbsp; Offshore Construction &nbsp;·&nbsp; Cable / Pipeline &nbsp;·&nbsp; Ice Hazard &nbsp;·&nbsp; Survey Operations &nbsp;·&nbsp; Navigational Warning
 
@@ -105,11 +127,11 @@ GPS Jamming &nbsp;·&nbsp; Mine Hazard &nbsp;·&nbsp; Piracy / Armed Robbery &nb
 
 ## What it does not do
 
-It does not aggregate social media. It does not scrape news. It does not guess intent. It does not produce intelligence assessments.
+It does not aggregate social media. It does not scrape news. It does not guess intent. It does not produce intelligence assessments or recommendations.
 
-It works with observable physical signals — positions, detections, official notices, sensor readings. When those signals agree, the map is quiet. When they disagree, the map tells you where and by how much.
+It works with observable physical signals — positions, detections, official notices, sensor readings. When those signals agree, the map is quiet. When they disagree, the map tells you exactly where and by how much.
 
-Interpretation is yours.
+**Interpretation is yours.**
 
 ---
 
@@ -117,7 +139,7 @@ Interpretation is yours.
 
 Phantom Tide is not publicly available.
 
-If you believe you have a use case, open an access request issue or contact directly.
+If you believe you have a use case, open an access request issue or contact directly. Requests without a stated context will not receive a response.
 
 ---
 
