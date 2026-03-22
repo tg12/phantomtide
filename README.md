@@ -185,9 +185,13 @@ Upcoming work already identified in the roadmap:
 - MARAD advisory ingestion
 - ICC-CCS IMB live piracy ingestion
 - convergence score system
+- expanded SWPC ingestion for HF blackout, X-ray flux, and magnetic-field
+  context
 - AIS spoofing detection
 - Open-Meteo or Copernicus marine weather upgrade
 - aircraft loiter analysis
+- interesting-aircraft watchlists using plane-alert-db and optional Planefence
+  / Plane-Alert APIs
 - GUIDE collector hardening
 
 These are planned items, not implied capabilities.

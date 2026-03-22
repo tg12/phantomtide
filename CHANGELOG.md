@@ -19,6 +19,9 @@ Dates are UTC. Versions follow semantic versioning.
   aware advisory rendering, and analyst workflow support.
 - Upcoming work is documented explicitly rather than implied through feature
   language.
+- Vision docs now include planned SWPC expansion for HF / GNSS attribution and
+  a new interesting-aircraft watchlist feature built around plane-alert-db and
+  optional Planefence feeds.
 
 ---
 
