@@ -6,6 +6,47 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.9.1 — 2026-03-22
+
+**Hotfixes from deployment hardening regression**
+
+Three bugs introduced in v1.9.0 deployment hardening, fixed immediately.
+
+- **Collectors silently broken** — `USER phantom` (non-root container user) could not write to Docker-managed volumes that were created under root in prior runs. NDBC, NGA_MIS, DailyMem, and NOTAM collectors all write file caches to `/app/data/`; VIIRS and AIS appeared unaffected because VIIRS loaded from a pre-existing volume and AIS is pure in-memory. Non-root user reverted. The correct fix for a hosted deployment is an entrypoint script that fixes volume ownership before dropping privileges — noted in roadmap.
+- **App port removed** — `docker-compose.yml` changed app from `ports: 8000:8000` to `expose` only, making it unreachable without going through Caddy. Restored `8000:8000` for local dev. Caddy remains available at `:80` for proxy-layer testing.
+- **Intel table row click** — clicking any row in the NOTAM, DailyMem, or SMAPS intel tables was closing the table and not flying the map to the item. Root cause: `closeTablesPanel()` was called before `focusMapOnLocation()`, and the `map.invalidateSize()` triggered inside `closeTablesPanel()` via `requestAnimationFrame` fired after the flyTo animation started, cancelling it mid-flight. Fixed by removing `closeTablesPanel()` from all three table click handlers. Table now stays open; map pans correctly.
+
+---
+
+## v1.9.0 — 2026-03-22
+
+**Public-facing redesign, deployment hardening, documentation consolidation**
+
+### Public site
+
+- CSS design system rewritten (`frontend/css/site.css`). Removed frosted glass, warm paper gradient, pill buttons, and shadows — replaced with a flat dark cool palette (`#0c1925` base), accent-bordered cards, 4px-radius square buttons, and a monospace footer. Light theme roadmap added as commented variable set for future implementation.
+- About page: Open Graph, Twitter Card, and JSON-LD structured data (`WebPage` + `SoftwareApplication` schema) added for SEO and social sharing. Above-the-fold hero CTA pair added (primary + outline). Licensing section expanded with commercial restriction and safety limitation language.
+- Legal notice page completely rewritten. Now covers: acceptance, IP ownership, permitted and restricted use, safety-critical system exclusion, no professional advice, third-party data, accuracy limitations, no-warranty clause (ALL CAPS), limitation of liability (ALL CAPS, £100 cap), indemnification, export/sanctions compliance, governing law, severability, entire agreement. Breadcrumb JSON-LD added.
+
+### Deployment hardening
+
+- `.dockerignore` added. Excludes `secrets/`, `.env*`, `.git/`, `__pycache__`, tests, and documentation from the build context — live credentials can no longer be baked into an image.
+- `Dockerfile`: removed `pip install --upgrade` (versions now pinned to `requirements.txt` at build time); added `phantom` non-root system user; container now runs as `USER phantom`.
+- `docker-compose.yml`: all internal service ports (`5432`, `8123`, `9000`, `6379`) changed from `ports:` to `expose:` — not reachable from the host. Hardcoded passwords replaced with `${VAR}` env var references; `POSTGRES_PASSWORD`, `CLICKHOUSE_PASSWORD`, and `MINIO_SECRET_KEY` have no defaults and require `.env`. `minio:latest` pinned to a specific release tag. Named `internal` bridge network added isolating all services. `CADDY_DOMAIN` threaded through to Caddy service.
+- `infra/caddy/Caddyfile`: `{$CADDY_DOMAIN::80}` pattern — HTTP-only locally, automatic HTTPS in production by setting `CADDY_DOMAIN`. Security headers added: `X-Frame-Options DENY`, `X-Content-Type-Options nosniff`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security`, scoped `Content-Security-Policy` (CartoDB/OSM tiles allowlisted). `Server` and `X-Powered-By` headers removed. gzip + zstd compression. Upstream health check via `/api/health`.
+- `run.sh`: `ensure_env()` added — creates `.env` from `.env.example` on first run and auto-generates 48-char hex random passwords for `POSTGRES_PASSWORD`, `CLICKHOUSE_PASSWORD`, and `MINIO_SECRET_KEY` if blank; idempotent on subsequent runs. Port check updated to 80/443 only (DB ports no longer host-bound). Launch banner updated to reflect Caddy entrypoint.
+- `.env.example`: `POSTGRES_HOST` default corrected to `postgis` (matches Compose service name); `NOTAM_REST_URL` entry added.
+
+### Documentation
+
+- Deleted stale files: `CHANGE_LOG_AGENT_NOTES.txt`, `UI_UX_ISSUES_AND_REQUIREMENTS.txt`, `UI_UX_WIREFRAME_AND_RECOMMENDATIONS.txt`, `REDDIT_BRIEF.txt`, `NAV_WARNINGS_SOURCE.txt`.
+- `PHANTOM_TIDE_ROADMAP.txt` rewritten. Stripped session-by-session build log (preserved in git). Added Design Principles section (subtraction first, priority-driven, progressive disclosure, analyst-first workflow, visible memory, time consistency) and four open strategic questions for the next UX sprint.
+- `LAUNCH_BRIEF.txt` added: internal positioning document covering competitive differentiation vs. vessel trackers, geopolitical aggregators, and professional platforms. Includes honest review campaign spec.
+- `REDDIT_POST_DRAFT.txt` added: post draft for r/OSINT, r/geospatial, r/netsec, r/maritime with per-subreddit angle notes and honest review / beer offer.
+- `README.md` and `DATA_SOURCES.txt` updated to reflect current collector state.
+
+---
+
 ## v1.8.2 — 2026-03-21
 
 **Collector fix: NOTAM and DailyMem restored**
