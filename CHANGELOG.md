@@ -6,6 +6,22 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## Unreleased
+
+**Documentation and positioning refresh**
+
+- Public and internal README files now separate shipped capabilities from
+  roadmap items, reducing overclaim risk.
+- Source registry and review notes now reflect the live codebase state,
+  including SWPC, GUIDE, and GPS advisory integrations.
+- Public-facing copy now explains the platform's current strengths more
+  directly: contradiction detection, GPS interference attribution, geometry-
+  aware advisory rendering, and analyst workflow support.
+- Upcoming work is documented explicitly rather than implied through feature
+  language.
+
+---
+
 ## v1.9.1 — 2026-03-22
 
 **Hotfixes**

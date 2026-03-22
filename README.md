@@ -1,162 +1,227 @@
 # Phantom Tide
 
-**Global Maritime Intelligence Platform**
+**Cross-domain maritime intelligence from open signals, not headlines**
 
-> The ocean is not transparent. Most platforms pretend it is.
+> The useful signal is usually not the dot on the map. It is the gap between
+> what is being broadcast and what the rest of the environment says is true.
 
 ---
 
-Phantom Tide is a live cross-domain intelligence dashboard built on a single architectural conviction: that the most significant events at sea are not what is being broadcast — they are the contradictions between what is broadcast and what independent physical evidence shows.
+Phantom Tide is a maritime and airspace intelligence platform built around that
+idea. It does not treat AIS, notices, weather, aircraft, or satellite
+detections as separate products. It evaluates them together.
 
-It answers three questions simultaneously, without clicking:
+The result is a working picture that answers three questions quickly:
 
-1. **Where** is the highest risk right now?
-2. **What** is driving that risk?
-3. **How certain is the signal** — and how much is noise?
+1. Where is the most interesting contradiction right now?
+2. Which sources agree, and which ones do not?
+3. How much confidence should an analyst place in that signal?
 
-Noise is not hidden. It is displayed explicitly. A risk score driven by a single source looks different from a score driven by multi-source corroboration. That distinction is the product.
+Current release: **v1.9.1**
 
 ---
 
 ![Phantom Tide — full dashboard overview](docs/screenshots/overview.png)
-*Full dashboard — 51,000+ live events across the global ocean surface. Risk zones emerge from cross-source convergence, not from any single data stream. 30-second refresh.*
+*Global overview. The point is not that many things are happening. The point is
+which things should not be happening together.*
 
 ---
 
-## What makes it different
+## What It Does Today
 
-Most maritime tools are single-domain. They show vessel positions, or piracy incidents, or weather. Some show two of these. They are useful for what they do.
+Phantom Tide currently combines live and slow-moving sources across vessel
+tracking, aircraft activity, official advisories, environmental sensors, GPS
+disruption reporting, and space-weather context.
 
-Phantom Tide fuses nine independent streams across five domains simultaneously:
+Shipped platform capabilities:
 
-**Vessel positions** — broadcast positions from vessels at sea, quality-scored and tracked over time.
+- Cross-source global map with live and reference layers in one surface
+- Computed risk zones from source convergence rather than single-source alerts
+- Geometry-aware rendering for points, circles, routes, and polygons
+- Intel tables for SMAPS, DailyMem, NOTAM, GUIDE GPS disruptions, and GPS
+  constellation bulletins
+- Rule-based hypotheses with evidence event IDs and confidence tiers
+- Space-weather context for Kp, DST, flare, and HF risk
+- GPS interference attribution using SWPC, GUIDE, NOTAM / DailyMem, and GPS
+  advisory data together
+- Ocean-state mesh and wind overlay from NDBC ship, buoy, and wave stations
+- Detail panel with observation, ingest, expiry, and geometry context
+- Radius-based proximity query for local investigative triage
 
-**Satellite detection** — passive sensor data from orbital systems that does not depend on a vessel's willingness to broadcast. A vessel can silence its transponder. It cannot silence a satellite.
+What it does not do:
 
-**Ocean sensor networks** — live physical environment readings from instrumented buoys: wave height, wind speed, sea state, temperature. Environmental context that changes the interpretation of everything else.
-
-**Maritime broadcast warnings** — the raw official safety publications transmitted to vessels at sea across global nav areas. Not a sanitised API summary. The actual source text, parsed in full, with full polygon geometry. This is the layer that captures GPS jamming corridors, mine hazard areas, live-fire exercise zones, submarine operations, and 15 other categories — updated daily from the authoritative source.
-
-**Airspace** — active airspace notices, rendered as full polygon footprints rather than centroid pins. Cross-referenced with maritime activity below them.
-
-**Aircraft positions** — live air traffic, connecting the air and sea pictures in a single view.
-
-**Piracy and incident records** — historical and current incident data across global maritime corridors.
-
-**Drilling platform positions** — offshore operational unit locations, clustered by field proximity, tracked for drift.
-
-**Cross-domain risk scoring** — a computed grid that accumulates signal weight from all active streams simultaneously. When multiple independent sources converge on the same coordinates, the risk score rises. When they diverge, the contradiction is flagged.
-
-The core insight this is built on: **absence is the signal**. AIS present is normal. AIS absent in a cell where satellite detection is active is the interesting event. A nav warning active in a corridor where vessel traffic has dropped is worth looking at. The platform is designed to surface these gaps, not hide them.
+- It does not aggregate social media.
+- It does not scrape news and relabel it as intelligence.
+- It does not hide uncertainty behind a single composite score.
 
 ---
+
+## Why It Is Different
+
+Most maritime tools are good at one of these jobs:
+
+- show vessel positions
+- show incidents
+- show weather
+- show advisories
+
+Phantom Tide is built for the boundary between them.
+
+Examples:
+
+- A vessel broadcasts position A while satellite detection suggests position B.
+- A GPS interference advisory is live, but space-weather conditions suggest a
+  natural ionospheric explanation may be plausible.
+- Traffic disappears from a corridor while warnings and weather remain active.
+- Aircraft hold near a maritime disruption area while the sea picture below
+  changes.
+
+The platform is strongest when multiple weak signals become one strong question.
+
+---
+
+## What Is Live Right Now
+
+Current integrated sources:
+
+- AIS vessel positions
+- OpenSky aircraft positions
+- NDBC ship and buoy observations
+- NDBC sar2 wave and weather station averages
+- SMAPS special advisories
+- DailyMem broadcast warnings
+- NOTAM airspace notices
+- VIIRS night-light and thermal detections
+- NOAA SWPC space-weather conditions
+- USCG NAVCEN GUIDE GPS disruption reports
+- GPS Operational Advisory RSS bulletins
+- MODU offshore drilling unit positions
+
+Important qualifier:
+
+Historical piracy context exists, but live piracy ingestion is still planned.
+Phantom Tide does not currently claim a real-time piracy feed.
+
+---
+
+## What It Reveals Well
 
 ![North Atlantic — weather mesh and vessel density](docs/screenshots/atlantic.png)
-*North Atlantic mid-zoom. The weather mesh is a continuous sea state field interpolated from sparse buoy networks — triangle opacity encodes sensor confidence. Dense coverage is opaque; sparse coverage fades. Vessel tracks visible as directional markers.*
+*North Atlantic mid-zoom. Environmental context changes how every movement
+pattern should be interpreted.*
+
+Phantom Tide is particularly useful for:
+
+- dark-vessel and AIS-contradiction workflows
+- GPS interference triage
+- airspace and maritime overlap analysis
+- advisory-heavy regional monitoring
+- identifying when multiple public signals start telling the same story
+
+It is less useful if the task is only "show me this ship" or "show me the
+latest headlines."
 
 ---
 
-## What it reveals
+## Platform Views
 
-A vessel transmitting position A while passive satellite detection places it at B.
-
-GPS interference radiating outward from a fixed point across three consecutive days.
-
-An exercise cancelled six days before its declared end date. No explanation on record.
-
-Mine-hazard warnings in shipping lanes that were clear last week.
-
-A distress activation in a zone with no advisory and no follow-up traffic.
-
-Aircraft in a holding pattern fifty miles from an active spoofing corridor.
-
-A region where the composite risk score is climbing — not because one warning appeared, but because four independent streams are converging on the same grid cell simultaneously.
-
-Phantom Tide does not tell you what these mean. It tells you they exist, where they are, when they first appeared, and what else is nearby.
-
----
-
-## Platform
-
-### Risk zone overlay
+### Risk Zones
 
 ![Risk zones — Persian Gulf and Red Sea](docs/screenshots/risk_zones.png)
-*Persian Gulf and Red Sea. Risk zones are computed from cross-source agreement — not manually drawn. CRITICAL zones emerge where multiple independent warning streams converge on the same area. At world scale only the highest-scoring zones are labelled; zoom in and resolution increases.*
+*Risk zones are computed from cross-source convergence. A serious zone should
+exist because independent signals overlap, not because a designer drew it.*
 
----
-
-### Ocean state layer
+### Ocean State Layer
 
 ![Weather mesh — North Atlantic sensor network](docs/screenshots/weather_mesh.png)
-*Wave height and wind field across the North Atlantic. Airspace restriction geometry in teal — full polygon footprints, not centroid pins. A centroid places an exclusion zone at its centre. The polygon shows its actual boundary.*
+*Wave and wind context from sparse sensor networks, rendered as a continuous
+field for operational reading rather than a pile of isolated station markers.*
 
----
-
-### Event detail
+### Event Detail
 
 ![Event detail — HYDROLANT ice hazard broadcast warning](docs/screenshots/detail_panel.png)
-*Selected feature detail. A HYDROLANT ice hazard warning — the full polygon footprint rendered on the map, full source text and expiry in the panel. The time bar shows observation time versus ingestion time. Events with a declared expiry show their status.*
+*Detail view keeps the source, geometry, and time semantics visible. A map pin
+without provenance is decoration.*
 
----
-
-### Proximity query
+### Proximity Query
 
 ![Proximity query — English Channel 100nm radius](docs/screenshots/proximity_results.png)
-*Right-click any position. Query all active events within a chosen radius. English Channel — 100nm query returns ranked results across all active sources. Everything outside dims. The contradictions inside surface.*
+*Right-click any position to rank nearby activity across source types. Useful
+for drilling into a corridor, port approach, or disruption cell.*
 
----
-
-### Intel tables
+### Intel Tables
 
 ![Intel tables panel](docs/screenshots/intel_tables.png)
-*Structured tables for active advisories, critical notices, and broadcast warnings across all 19 tracked categories. Click any row to fly the map directly to that event.*
+*Structured analyst tables keep high-value sources readable and jump the map to
+the relevant area without forcing a layer hunt.*
 
 ---
 
-## Warning categories
+## Current Feature Set
 
-19 categories. Each has independent classification logic, its own visual treatment, and feeds directly into the cross-source risk layer.
+Analyst-facing features available now:
 
-GPS Jamming &nbsp;·&nbsp; Mine Hazard &nbsp;·&nbsp; Piracy / Armed Robbery &nbsp;·&nbsp; Seismic / Tsunami &nbsp;·&nbsp; Volcanic Hazard &nbsp;·&nbsp; Rocket / Missile Range &nbsp;·&nbsp; SAR / Distress &nbsp;·&nbsp; Submarine Operations &nbsp;·&nbsp; Amphibious Operations &nbsp;·&nbsp; Military Exercise &nbsp;·&nbsp; Restricted Area &nbsp;·&nbsp; Naval Operations &nbsp;·&nbsp; Pollution / Spill &nbsp;·&nbsp; Wreck Hazard &nbsp;·&nbsp; Offshore Construction &nbsp;·&nbsp; Cable / Pipeline &nbsp;·&nbsp; Ice Hazard &nbsp;·&nbsp; Survey Operations &nbsp;·&nbsp; Navigational Warning
+- layer toggles with per-layer counts
+- reduced-motion aware map interaction
+- clickable intel rows with detail-panel preservation
+- geometry-aware jump targets
+- "showing X of Y" transparency for intel-table limits
+- plain-English space-weather status instead of NOAA jargon
+- on-demand hypothesis evaluation endpoint
+
+Known limitations:
+
+- GUIDE still needs a stable report-id keyed row / coordinate join
+- dense point rendering still depends on culling and restraint at world zoom
+- the current hypothesis layer is useful, but still lighter than the planned
+  convergence-scoring system
 
 ---
 
-## What it does not do
+## Coming Next
 
-It does not aggregate social media. It does not scrape news. It does not guess intent.
+Upcoming work already identified in the roadmap:
 
-It works with observable physical signals — positions, detections, official notices, sensor readings. When those signals agree, the map is quiet. When they disagree, Phantom Tide shows you the disagreement.
+- MARAD advisory ingestion
+- ICC-CCS IMB live piracy ingestion
+- convergence score system
+- AIS spoofing detection
+- Open-Meteo or Copernicus marine weather upgrade
+- aircraft loiter analysis
+- GUIDE collector hardening
 
-This is a research platform, not a certified intelligence product. Risk scores are heuristic aggregations of public open-data signals. They are not intelligence assessments and carry no official weight. Interpretation is yours.
+These are planned items, not implied capabilities.
 
 ---
 
 ## Access
 
-Phantom Tide is not publicly available.
+Phantom Tide is not publicly open at the moment.
 
-If you believe you have a use case, open an access request issue or contact directly. Requests without a stated context will not receive a response.
+If you have a concrete use case, open an access request issue or contact
+directly with enough context to explain why the platform is relevant.
 
 ---
 
 ## Feedback
 
-This repository is the public interface for platform feedback. Source code is not here.
+This repository is the public interface for feedback. The application code
+itself is not published here.
 
 | | |
 |---|---|
 | [Report a bug](https://github.com/tg12/phantomtide/issues/new?template=bug_report.md) | Something is broken or behaving unexpectedly |
-| [Request a feature](https://github.com/tg12/phantomtide/issues/new?template=feature_request.md) | An idea for something the platform should do |
-| [General feedback](https://github.com/tg12/phantomtide/issues/new?template=feedback.md) | Observations, questions, workflow notes |
-| [All open issues](https://github.com/tg12/phantomtide/issues) | See what is already tracked |
+| [Request a feature](https://github.com/tg12/phantomtide/issues/new?template=feature_request.md) | A concrete capability the platform should add |
+| [General feedback](https://github.com/tg12/phantomtide/issues/new?template=feedback.md) | Workflow notes, questions, or review comments |
+| [All open issues](https://github.com/tg12/phantomtide/issues) | Existing public feedback |
 
 ---
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md). Current release: **v1.8.2**
+See [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
-*Phantom Tide &mdash; JS Labs*
+*Phantom Tide - JS Labs*
 *&copy; 2026 James Sawyer*
