@@ -17,7 +17,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.9.1**
+Current release: **v1.9.4**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -42,6 +42,8 @@ Shipped platform capabilities:
 - Geometry-aware rendering for points, circles, routes, and polygons
 - Intel tables for SMAPS, DailyMem, NOTAM, GUIDE GPS disruptions, and GPS
   constellation bulletins
+- Two-slot intel briefing queue with persistent ordering, promote controls, and
+  compact-screen handling
 - Rule-based hypotheses with evidence event IDs and confidence tiers
 - Space-weather context for Kp, DST, flare, and HF risk
 - GPS interference attribution using SWPC, GUIDE, NOTAM / DailyMem, and GPS
@@ -49,6 +51,8 @@ Shipped platform capabilities:
 - Ocean-state mesh and wind overlay from NDBC ship, buoy, and wave stations
 - Detail panel with observation, ingest, expiry, and geometry context
 - Radius-based proximity query for local investigative triage
+- Onboarding, keyboard shortcuts, and clearer feedback states for refresh,
+  collection, and briefing actions
 
 What it does not do:
 

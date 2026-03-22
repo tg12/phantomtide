@@ -6,22 +6,40 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## Unreleased
+## v1.9.4 — 2026-03-22
 
-**Documentation and positioning refresh**
+**Intel panel layout and footer visibility**
 
+- The intel strip now keeps a clearer two-panel layout on wider screens, with active briefing cards using more of the available lower-page space.
+- Footer links and attribution were enlarged and given stronger contrast so platform ownership and navigation remain legible.
+
+---
+
+## v1.9.3 — 2026-03-22
+
+**Public page design and phone layout**
+
+- Public pages now use a denser, less generic layout with a split hero, signal framing, and stronger editorial hierarchy.
+- About page copy now makes clearer that Phantom Tide is not a chatbot layer over maritime data.
+- Mobile layout for public pages now reorganizes earlier with clearer tap targets and full-width actions on smaller screens.
+- Static HTML routes now revalidate more reliably, reducing the chance of stale public pages after a rebuild.
+
+---
+
+## v1.9.2 — 2026-03-22
+
+**Analyst workflow and documentation**
+
+- Intel briefings now default to a calmer two-stream queue instead of a binary
+  hide or restore flow. Analysts can promote and reorder streams without losing
+  context.
+- Onboarding, keyboard shortcuts, confirmation dialogs, toast feedback, and
+  improved empty states make the platform's interaction model clearer on both
+  desktop and compact screens.
+- Frontend cache headers were tightened so rebuilt deployments are less likely
+  to leave users on stale dashboard bundles.
 - Public and internal README files now separate shipped capabilities from
-  roadmap items, reducing overclaim risk.
-- Source registry and review notes now reflect the live codebase state,
-  including SWPC, GUIDE, and GPS advisory integrations.
-- Public-facing copy now explains the platform's current strengths more
-  directly: contradiction detection, GPS interference attribution, geometry-
-  aware advisory rendering, and analyst workflow support.
-- Upcoming work is documented explicitly rather than implied through feature
-  language.
-- Vision docs now include planned SWPC expansion for HF / GNSS attribution and
-  a new interesting-aircraft watchlist feature built around plane-alert-db and
-  optional Planefence feeds.
+  roadmap items and reflect the current analyst workflow more accurately.
 
 ---
 
