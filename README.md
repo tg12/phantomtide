@@ -94,15 +94,15 @@ Phantom Tide does not tell you what these mean. It tells you they exist, where t
 
 ### Event detail
 
-![Event detail panel — AIS vessel](docs/screenshots/detail_panel.png)
-*Selected feature detail. The time bar distinguishes when a phenomenon was observed from when this system learned about it — a distinction that matters for delayed or cached sources. Events with a declared end time show expiry status.*
+![Event detail — HYDROLANT ice hazard broadcast warning](docs/screenshots/detail_panel.png)
+*Selected feature detail. A HYDROLANT ice hazard warning — the full polygon footprint rendered on the map, full source text and expiry in the panel. The time bar shows observation time versus ingestion time. Events with a declared expiry show their status.*
 
 ---
 
 ### Proximity query
 
-![Proximity query — Persian Gulf 100nm radius](docs/screenshots/proximity_results.png)
-*Right-click any position. Query all active events within a chosen radius. Everything outside the radius dims. The contradictions inside it surface.*
+![Proximity query — English Channel 100nm radius](docs/screenshots/proximity_results.png)
+*Right-click any position. Query all active events within a chosen radius. English Channel — 100nm query returns ranked results across all active sources. Everything outside dims. The contradictions inside surface.*
 
 ---
 
