@@ -19,6 +19,8 @@ The result is a working picture that answers three questions quickly:
 
 Current release: **v1.9.1**
 
+Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
+
 ---
 
 ![Phantom Tide — full dashboard overview](docs/screenshots/overview.png)
