@@ -6,6 +6,16 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.10.0 - 2026-03-23
+
+**ICC-CCS live piracy, convergence zones, and map clarity**
+
+- Added ICC-CCS IMB live piracy incidents as a first-class source, including a dedicated analyst table and map layer.
+- Shipped the first convergence release: Phantom Tide now scores multi-source overlap by map cell and renders those cells directly on the dashboard.
+- The dashboard now tells the operator when convergence cells are being hidden by zoom level instead of leaving the overlay ambiguous.
+- When every source layer is enabled, the interface now warns that the map is in its noisiest state.
+- Dense global layers received another performance pass so overview use is less expensive when multiple feeds are shown together.
+
 ## v1.9.5 - 2026-03-23
 
 **MARAD, source trust visibility, and release-sync cleanup**

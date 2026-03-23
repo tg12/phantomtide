@@ -17,7 +17,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.9.5**
+Current release: **v1.10.0**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -44,11 +44,12 @@ disruption reporting, and space-weather context.
 Shipped platform capabilities:
 
 - Cross-source global map with live and reference layers in one surface
-- Computed risk zones from source convergence rather than single-source alerts
+- Convergence zones computed from multi-source overlap rather than single-source alerts
 - Geometry-aware rendering for points, circles, routes, and polygons
 - Intel tables for SMAPS, DailyMem, NOTAM, GUIDE GPS disruptions, and GPS
   constellation bulletins
 - MARAD advisory table and map layer for regional U.S. maritime threat context
+- ICC-CCS piracy table and map layer for live incident monitoring
 - Two-slot intel briefing queue with persistent ordering, promote controls, and
   compact-screen handling
 - Rule-based hypotheses with evidence event IDs and confidence tiers
@@ -110,13 +111,15 @@ Current integrated sources:
 - NOAA SWPC space-weather conditions
 - USCG NAVCEN GUIDE GPS disruption reports
 - MARAD MSCI maritime advisories
+- ICC-CCS IMB live piracy incidents
 - GPS Operational Advisory RSS bulletins
 - MODU offshore drilling unit positions
 
 Important qualifier:
 
-Historical piracy context exists, but live piracy ingestion is still planned.
-Phantom Tide does not currently claim a real-time piracy feed.
+The piracy feed is current-year ICC-CCS incident reporting, not a universal
+global instant-notification bus. It is high-value live context, but still one
+source in a broader convergence model.
 
 ---
 
@@ -189,8 +192,8 @@ Known limitations:
 
 - GUIDE still needs a stable report-id keyed row / coordinate join
 - dense point rendering still depends on culling and restraint at world zoom
-- the current hypothesis layer is useful, but still lighter than the planned
-  convergence-scoring system
+- convergence is now live, but several planned weight families are still
+  missing, including AIS spoof/gap, dark-vessel, and aircraft-loiter signals
 
 ---
 
@@ -198,8 +201,7 @@ Known limitations:
 
 Upcoming work already identified in the roadmap:
 
-- ICC-CCS IMB live piracy ingestion
-- convergence score system
+- convergence weighting expansion and analyst-ranked queueing
 - expanded SWPC ingestion for HF blackout, X-ray flux, and magnetic-field
   context
 - AIS spoofing detection
