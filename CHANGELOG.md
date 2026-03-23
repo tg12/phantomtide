@@ -6,6 +6,17 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.9.5 - 2026-03-23
+
+**MARAD, source trust visibility, and release-sync cleanup**
+
+- Added MARAD MSCI advisories to the live platform surface, including a dedicated analyst table and map layer for regional U.S. maritime threat notices.
+- Source health now distinguishes between live, cache-backed, and failed states for slower reference collectors so degraded sources are visible instead of silently reading healthy.
+- Public-feed collectors now use stronger browser-like request headers, reducing avoidable upstream blocking on HTML and RSS fetches.
+- Public documentation is now explicitly aligned with the shipped internal release so the docs repo and application release marker stay in step.
+
+---
+
 ## v1.9.4 — 2026-03-22
 
 **Intel panel layout and footer visibility**

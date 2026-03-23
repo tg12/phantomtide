@@ -17,9 +17,15 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.9.4**
+Current release: **v1.9.5**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
+
+## Repository Role
+
+- `phantomtide` is the public documentation, changelog, and release-notes repo.
+- `phantom-tide` is the private application and operations repo.
+- Public release notes here should track the shipped release in the private repo.
 
 ---
 
@@ -42,6 +48,7 @@ Shipped platform capabilities:
 - Geometry-aware rendering for points, circles, routes, and polygons
 - Intel tables for SMAPS, DailyMem, NOTAM, GUIDE GPS disruptions, and GPS
   constellation bulletins
+- MARAD advisory table and map layer for regional U.S. maritime threat context
 - Two-slot intel briefing queue with persistent ordering, promote controls, and
   compact-screen handling
 - Rule-based hypotheses with evidence event IDs and confidence tiers
@@ -50,6 +57,8 @@ Shipped platform capabilities:
   advisory data together
 - Ocean-state mesh and wind overlay from NDBC ship, buoy, and wave stations
 - Detail panel with observation, ingest, expiry, and geometry context
+- Source health reporting with explicit live, cache-backed, and failed states
+  for slower reference collectors
 - Radius-based proximity query for local investigative triage
 - Onboarding, keyboard shortcuts, and clearer feedback states for refresh,
   collection, and briefing actions
@@ -100,6 +109,7 @@ Current integrated sources:
 - VIIRS night-light and thermal detections
 - NOAA SWPC space-weather conditions
 - USCG NAVCEN GUIDE GPS disruption reports
+- MARAD MSCI maritime advisories
 - GPS Operational Advisory RSS bulletins
 - MODU offshore drilling unit positions
 
@@ -188,7 +198,6 @@ Known limitations:
 
 Upcoming work already identified in the roadmap:
 
-- MARAD advisory ingestion
 - ICC-CCS IMB live piracy ingestion
 - convergence score system
 - expanded SWPC ingestion for HF blackout, X-ray flux, and magnetic-field
