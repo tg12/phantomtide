@@ -15,6 +15,7 @@ Dates are UTC. Versions follow semantic versioning.
 - The dashboard now tells the operator when convergence cells are being hidden by zoom level instead of leaving the overlay ambiguous.
 - When every source layer is enabled, the interface now warns that the map is in its noisiest state.
 - Dense global layers received another performance pass so overview use is less expensive when multiple feeds are shown together.
+- Access handling now degrades more cleanly when the edge cannot recover a public client IP. Legitimate users who previously hit false "Non-Public IP Address Detected" blocks now get a short manual verification step instead of an immediate hard failure, and that prompt data is not retained.
 
 ## v1.9.5 - 2026-03-23
 
