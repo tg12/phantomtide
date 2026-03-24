@@ -6,6 +6,16 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.10.1 - 2026-03-24
+
+**Intel table reliability and data freshness**
+
+- Fixed intel table refresh behavior: analyst tables now update consistently regardless of panel visibility, eliminating stale data when reopening briefing panels.
+- Enhanced event sorting to ensure newest items appear at the top of all intel tables.
+- Maintained full backward compatibility with existing API consumers while improving data consistency.
+
+---
+
 ## v1.10.0 - 2026-03-23
 
 **ICC-CCS live piracy, convergence zones, and map clarity**
