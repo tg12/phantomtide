@@ -17,7 +17,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.12.0**
+Current release: **v1.14.0-dev**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -117,6 +117,11 @@ Current integrated sources:
 - FleetLeaks sanctioned vessel AIS positions with spoofing anomaly scores
 - TankerTrackers maritime risk zone polygons (183 named zones)
 - TankerTrackers seized and Iran Navy vessel registry
+- NERACOOS ERDDAP oceanographic moorings (Gulf of Maine fixed stations)
+- Aircraft watchlist cross-reference (16,000-entry ICAO registry — military,
+  government, police, coastguard, and other tracked categories)
+- AIS vessel watchlist (PLAN/CCG fleet and notable yachts by MMSI)
+- Military installation static layer (647 geocoded bases)
 
 Important qualifier:
 
@@ -210,8 +215,9 @@ Upcoming work already identified in the roadmap:
 - AIS spoofing detection
 - Open-Meteo or Copernicus marine weather upgrade
 - aircraft loiter analysis
-- interesting-aircraft watchlists using plane-alert-db and optional Planefence
-  / Plane-Alert APIs
+- Planefence live feed integration (SDR station perimeter alerts)
+- vessel watchlist alert table in intel panel (PLAN/CCG + yacht matches)
+- convergence scoring for tracked aircraft near maritime incidents
 - GUIDE collector hardening
 
 These are planned items, not implied capabilities.

@@ -6,6 +6,57 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.14.0-dev — 2026-03-26
+
+**Aircraft watchlist intelligence layer**
+
+- Live aircraft positions from OpenSky are now cross-referenced against a
+  16,000-entry ICAO hex registry of tracked aircraft at the moment they are
+  ingested. Matched aircraft include military, government, police, coastguard,
+  medevac, and other operationally relevant categories.
+- Matched aircraft render on the map with a pulsating red glow marker so
+  they are immediately distinguishable from ordinary air traffic.
+- A homepage alert banner appears when any tracked aircraft are currently
+  spotted, showing how many and which registrations / categories they belong
+  to. The banner updates on every refresh cycle.
+- AIS vessel positions are now cross-referenced against a registry of 92
+  People's Liberation Army Navy and China Coast Guard vessels plus 12
+  notable yachts by MMSI.
+- A static military installation layer is now available in the map controls.
+  647 geocoded bases can be toggled on as red-star markers. The layer loads
+  on first enable and does not affect the normal refresh cycle.
+- New analyst endpoint `/api/intel/aircraft-alerts` returns all currently
+  spotted watchlist aircraft with registration, operator, category, and
+  position details.
+
+---
+
+## v1.13.0 — 2026-03-26
+
+**Frontend layer rollout, NERACOOS oceanographic moorings, and scheduler hardening**
+
+- Sanctioned vessel fleet map layer now live. FleetLeaks vessels with a spoofing
+  score of 1 or higher display with a dashed red border indicator; score 2 or 3
+  draws a distinct alert icon. Layer toggle and per-vessel detail popup included.
+- TankerTrackers maritime risk zones overlay now rendered on the map. Toggle in
+  the layer control shows or hides the 183 named polygon zones. Zones load
+  independently of the event refresh cycle.
+- Seized vessel and Iran Navy registry now appears as a distinct map layer. Seized
+  vessels and Iran Navy vessels render with separate icon styles and popup detail.
+- NERACOOS ERDDAP oceanographic moorings integrated. Six Gulf of Maine fixed
+  mooring stations (air temperature, wind, wave height, wave period, sea surface
+  temperature, salinity, pressure) collected at 60-minute intervals with no
+  authentication required. Stations: A01, B01, E01, M01, N01 met and wave arrays.
+- Backend scheduler refactored. All slow-polling reference collectors now share a
+  single wrapper function and a table-driven registration pattern. Adding a new
+  reference source requires one registry entry rather than a bespoke function.
+- Startup preload registry unified on the same pattern — eight sources now use
+  the common loader rather than eight identical functions.
+- Source colors, shapes, and staleness thresholds wired for FleetLeaks,
+  TankerTrackers seized, and NERACOOS in the frontend constant tables.
+
+---
+
 ## v1.12.0 — 2026-03-26
 
 **Sanctioned fleet intelligence layer**
