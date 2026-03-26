@@ -6,6 +6,29 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.11.0 — 2026-03-26
+
+**Data freshness and source reliability**
+
+- GPS disruption events now reflect their actual report date rather than the
+  collection time. Previously, all GUIDE events appeared with the same timestamp;
+  they now carry the date the disruption was first reported to NAVCEN.
+- Coordinate extraction improved across all text-based sources. Three additional
+  formats are now recognized, including labeled lat/lon pairs and signed decimal
+  coordinates. Sources that previously placed events at 0,0 due to unrecognized
+  coordinate notation now resolve correctly.
+- Datetime parsing hardened against non-standard concatenated date-time strings
+  used in certain official maritime data feeds.
+- Provenance and confidence metadata extended to two additional sources, giving
+  the analyst layer more signal on which position and timestamp fields are
+  authoritative versus inferred.
+- Convergence scoring and rule evaluation now use a consistent datetime parser
+  across all comparison paths, eliminating a class of silent mismatches.
+- Several resilience improvements to collectors that face upstream WAF
+  protection, including retry logic and structured fallback logging.
+
+---
+
 ## v1.10.1 - 2026-03-24
 
 **Intel table reliability and data freshness**
