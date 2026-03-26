@@ -17,7 +17,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.10.1**
+Current release: **v1.12.0**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -114,6 +114,9 @@ Current integrated sources:
 - ICC-CCS IMB live piracy incidents
 - GPS Operational Advisory RSS bulletins
 - MODU offshore drilling unit positions
+- FleetLeaks sanctioned vessel AIS positions with spoofing anomaly scores
+- TankerTrackers maritime risk zone polygons (183 named zones)
+- TankerTrackers seized and Iran Navy vessel registry
 
 Important qualifier:
 

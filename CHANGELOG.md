@@ -6,6 +6,29 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.12.0 — 2026-03-26
+
+**Sanctioned fleet intelligence layer**
+
+- Four new data sources integrated covering sanctioned vessel tracking, maritime
+  risk zone context, and seized vessel monitoring.
+- Live AIS positions are now collected for known sanctioned vessels alongside
+  spoofing anomaly signals: whole-degree position rounding, impossible speed for
+  vessel type, and missing heading data. Each vessel carries a spoofing score
+  from 0 to 3 derived from these flags.
+- Sanctions cross-reference data from multiple agencies (OFAC, EU, UK FCDO,
+  Canada, Switzerland, Australia, UN) merged into vessel records by IMO number
+  at collection time.
+- 183 named maritime risk zone polygons integrated covering chokepoints, conflict
+  zones, and high-risk transit corridors.
+- Seized and Iran Navy vessel registry integrated with last known position data.
+- New API endpoints expose sanctioned vessel lists with filters (vessel type,
+  spoofing score, sanctioning agency), maritime risk zone polygons, and the
+  sanctions registry by IMO.
+- Frontend map layer for sanctioned vessels is in the next release.
+
+---
+
 ## v1.11.0 — 2026-03-26
 
 **Data freshness and source reliability**
