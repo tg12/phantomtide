@@ -17,7 +17,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.16.1**
+Current release: **v1.16.2**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -54,6 +54,10 @@ Shipped platform capabilities:
 - Detail panel with observation, ingest, expiry, and geometry context
 - Source health reporting with explicit live, cache-backed, and failed states
   for slower reference collectors
+- Reference infrastructure overlays for military, energy, datacenter, and
+  strategic nodes such as cable landings, converter stations, and industrial
+  chokepoints
+- Thermal anomaly alerts that pivot directly into nearby infrastructure context
 - Radius-based proximity query for local investigative triage
 - Onboarding, keyboard shortcuts, and clearer feedback states for refresh,
   collection, and briefing actions
@@ -119,6 +123,10 @@ Current integrated sources:
 - AIS vessel watchlist (PLAN/CCG fleet and notable vessels)
 - Military installation reference layer
 - Nuclear and energy infrastructure reference layer
+- Data center reference layer
+- Strategic infrastructure overlay (cables, landing points, pipelines,
+  converter stations, data-gravity nodes, energy buffers, and selected
+  industrial chokepoints)
 - EMODnet submarine cables, pipelines, and wind farm overlay
 
 ---

@@ -6,6 +6,27 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.16.2 — 2026-03-27
+
+**Strategic infrastructure overlay and infrastructure-aware thermal alerts**
+
+- Added a strategic infrastructure overlay that combines cables, landing
+  stations, pipelines, converter nodes, data-gravity sites, energy buffers,
+  space ground-segment sites, and selected industrial chokepoints into one
+  map layer.
+- Fixed infrastructure marker rendering so data centers, energy facilities,
+  and strategic overlay points now appear reliably on the map instead of
+  silently disappearing on schema mismatches.
+- Thermal anomaly alerts now evaluate nearby infrastructure context more
+  broadly, including eligible strategic nodes in addition to energy
+  facilities, data centers, and military reference points.
+- Improved click-through workflow from thermal alerts into the relevant map
+  context layer.
+- Added internal render diagnostics for static infrastructure layers to speed
+  troubleshooting when a reference layer appears empty.
+
+---
+
 ## v1.16.1 — 2026-03-27
 
 **Infrastructure layer rendering, icon system overhaul, and data source reliability**
