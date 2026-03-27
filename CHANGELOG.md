@@ -6,6 +6,21 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.16.3 — 2026-03-27
+
+**Docker-safe static data packaging and rollback checkpoint**
+
+- Fixed a container-only packaging fault where reference infrastructure data
+  could disappear behind writable runtime volumes, leaving some static layers
+  empty even though local development looked correct.
+- Bundled the read-only infrastructure datasets and airport reference file into
+  the release image and added fallback lookup logic so strategic overlay, data
+  center, energy infrastructure, watchlist, and airport-reference lookups stay
+  available in Docker deployments.
+- Cut a release checkpoint tag so this build can be rolled back cleanly.
+
+---
+
 ## v1.16.2 — 2026-03-27
 
 **Strategic infrastructure overlay and infrastructure-aware thermal alerts**
