@@ -6,6 +6,21 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.16.4 — 2026-03-27
+
+**Slow-layer recovery, persistent runtime-data seeding, and container tuning**
+
+- Fixed seized-vessel and NERACOOS layers that could appear empty after a
+  fresh container start. Seized vessels now warm immediately on startup, and
+  NERACOOS moorings no longer fail their GeoJSON serialization path.
+- Hardened the Docker data model so bundled reference assets seed the
+  persistent runtime volume only when missing, preserving collected data across
+  rebuilds.
+- Added runtime process-priority support so container deployments can apply the
+  configured `nice`/`renice` policy instead of silently ignoring it.
+
+---
+
 ## v1.16.3 — 2026-03-27
 
 **Docker-safe static data packaging and rollback checkpoint**
