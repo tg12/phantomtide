@@ -17,7 +17,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.14.0-dev**
+Current release: **v1.15.0**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -209,16 +209,23 @@ Known limitations:
 
 Upcoming work already identified in the roadmap:
 
-- convergence weighting expansion and analyst-ranked queueing
-- expanded SWPC ingestion for HF blackout, X-ray flux, and magnetic-field
-  context
-- AIS spoofing detection
-- Open-Meteo or Copernicus marine weather upgrade
-- aircraft loiter analysis
-- Planefence live feed integration (SDR station perimeter alerts)
-- vessel watchlist alert table in intel panel (PLAN/CCG + yacht matches)
-- convergence scoring for tracked aircraft near maritime incidents
-- GUIDE collector hardening
+- USGS earthquake feed (undersea quakes as cable-cut and DART-anomaly context)
+- Environment Canada marine weather (fills northern Atlantic / Arctic gap)
+- CelesTrak GPS TLE enrichment (visible satellite count at disruption events, to
+  distinguish jamming from ionospheric interference)
+- EMODnet submarine cable, pipeline, and wind-farm overlays (Leaflet WMTS, no collector)
+- Open-Meteo marine weather mesh upgrade (full ocean grid at 1/4° resolution, replaces
+  sparse NDBC interpolation)
+- NWS active marine alert polygons (U.S. coastal zone context)
+- AviationWeather METAR and SIGMET collectors (weather at ports / naval bases,
+  volcanic ash and tropical cyclone polygons)
+- NDBC DART buoy anomaly detection (tsunami and underwater explosion proxy)
+- Convergence contributor breakdown — drill down from a scored cell to the
+  evidence events that drove the score
+- Vessel-in-zone correlation using shapely point-in-polygon at API serve time
+- Vessel watchlist alert table in intel panel (PLAN/CCG and yacht matches)
+- GUIDE collector hardening — stable report-id keyed row/coordinate join
+- DMI Arctic ice chart overlay and INCOIS Indian Ocean high-wave alerts
 
 These are planned items, not implied capabilities.
 

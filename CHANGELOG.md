@@ -6,6 +6,92 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.16.0 — 2026-03-27
+
+**Seismic and weather intelligence layers, EMODnet infrastructure overlay,
+nuclear plant reference layer, and VIIRS thermal proximity alert**
+
+This release adds two new live data sources, a European infrastructure overlay,
+a nuclear facilities reference layer, and a real-time thermal anomaly alert
+system.
+
+- **USGS earthquake feed** now live. Magnitude 2.5 and above worldwide, updated
+  every 15 minutes. Events appear as violet star markers scaled by magnitude (
+  small for below M5, medium for M5–6.5, large for M6.5+). Each popup shows
+  magnitude, depth, place, tsunami flag, PAGER alert level, and a direct link
+  to the USGS event page. Significant earthquakes (M5.5+) contribute to the
+  convergence score for nearby maritime cells — undersea quakes are direct
+  context for cable cuts, tsunami advisories, and acoustic propagation
+  affecting sonar-dependent vessels.
+
+- **Environment Canada marine weather warnings** now live. 30-minute updates
+  covering the Gulf of St Lawrence, Hudson Bay, and the Canadian Arctic —
+  waters not served by NDBC. Storm and hurricane warnings weight the
+  convergence score at 2×; gale and freezing spray warnings at 1.5×. Fills the
+  northern Atlantic intelligence gap that affects Russia's shadow fleet routes
+  and Arctic shipping corridors.
+
+- **EMODnet Human Activities overlay** added as a toggleable map layer for
+  European waters. Covers submarine cables, oil and gas pipelines, and offshore
+  wind farm polygons. No backend required — tiles are served directly from
+  EMODnet's public WMS endpoint. Toggle is in the map controls panel.
+
+- **Nuclear facilities reference layer** added. Approximately 250 nuclear power
+  plants worldwide filtered from a global power plant dataset, rendered as
+  toggleable reference markers. Clearly labelled as static reference data, not
+  live monitoring.
+
+- **VIIRS thermal proximity alert** added. When a satellite thermal detection
+  (VIIRS fire or night-time light anomaly) falls within 25 km of a nuclear
+  plant, coastal datacenter, or military base in the last 5 minutes, an orange
+  alert banner appears at the top of the map. The banner shows the number of
+  detections, the nearest facility name and distance, and links directly to the
+  thermal event on the map. Updates on every refresh cycle.
+
+- Three data pipeline bugs fixed: NERACOOS collector was crashing silently on
+  every run due to an unexpected keyword argument, causing the Gulf of Maine
+  mooring layer to always fall back to cache. USGS and ECCC event counts were
+  showing as zero in the source health panel due to a misconfigured store
+  routing table. All three sources now report correctly.
+
+---
+
+## v1.15.0 — 2026-03-27
+
+**Watchlist intelligence, sanctioned fleet layer, and infrastructure hardening**
+
+This release ships the aircraft and vessel watchlist layer, the sanctioned fleet
+frontend, the maritime risk zone overlay, and infrastructure updates to the Docker
+stack.
+
+- Live aircraft positions are now cross-referenced against a 16,000-entry ICAO hex
+  registry covering military, government, police, coastguard, medevac, and other
+  tracked categories. Matched aircraft render with a pulsating red glow marker and
+  are distinguishable from ordinary air traffic at a glance.
+- A homepage alert banner appears when any tracked aircraft are currently visible,
+  showing count and registration / category. Updates on every refresh cycle.
+- AIS vessel positions cross-referenced against 92 PLAN/CCG fleet MMSIs and 12
+  notable yacht MMSIs at ingest.
+- Military installation static reference layer available in the map controls: 647
+  geocoded bases rendered as red-star markers on toggle.
+- New analyst endpoint `/api/intel/aircraft-alerts` returns all currently spotted
+  watchlist aircraft with registration, operator, category, and position.
+- Sanctioned vessel fleet map layer live. FleetLeaks vessels with a spoofing score
+  of 2 or higher display a distinct alert icon; score 1 shows a dashed border.
+  Per-vessel popup includes IMO, type, flag, AIS status, sanctioner breakdown, and
+  spoofing score with per-agency sanction dates.
+- TankerTrackers maritime risk zone overlay: 183 named polygon zones rendered as a
+  toggleable layer. Zone name appears on hover.
+- Seized vessel and Iran Navy registry rendered as a distinct map layer: orange
+  anchor icon for seized tankers, red star for Iran Navy and IRGC assets.
+- Docker stack updated: ClickHouse confirmed on latest stable GA release
+  (v26.2.5.45-stable, multi-arch). MinIO pinned to final CVE-patched release
+  following repository archive.
+- Backend scheduler refactored to a table-driven registration pattern. Startup
+  preload registry unified. All slow reference collectors now share one wrapper.
+
+---
+
 ## v1.14.0-dev — 2026-03-26
 
 **Aircraft watchlist intelligence layer**
