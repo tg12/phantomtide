@@ -6,6 +6,56 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.16.1 — 2026-03-27
+
+**Infrastructure layer rendering, icon system overhaul, and data source reliability**
+
+This patch release resolves a set of silent rendering failures that were
+preventing critical infrastructure layers from appearing on the map, and
+ships a complete icon differentiation pass across all overlay types.
+
+- **Nuclear and energy infrastructure markers were not rendering.** The global
+  power plant dataset was loading correctly at the collector level but a
+  frontend symbol resolution path was falling back silently to a null icon,
+  resulting in markers that were present in the data but invisible on the map.
+  Fixed. Nuclear plants, conventional power stations, and associated energy
+  facilities now render with their correct symbols at all zoom levels.
+
+- **Data center layer was not populating.** The coastal datacenter reference
+  set used by the VIIRS thermal proximity alert was ingesting cleanly but the
+  map layer toggle was bound to a stale key following the v1.16.0 store
+  routing refactor. Markers were allocated but never dispatched to the render
+  pipeline. Fixed. Data centers now appear correctly when the layer is enabled,
+  and the VIIRS proximity alert now has the full facility set available for
+  proximity evaluation.
+
+- **Icon system redesigned across all overlay types.** With seventeen source
+  layers now active simultaneously, earlier icon choices were producing visual
+  collisions — different source types were using shapes and colours that were
+  too close to distinguish at a glance, particularly between satellite
+  detections, infrastructure reference points, and advisory anchors. Each
+  overlay type now carries a distinct symbol vocabulary:
+  - Satellite detections (SAR and imaging passes) use angular, radar-style
+    diamond markers in cool blue-white
+  - Energy and nuclear infrastructure uses a bold hexagon in amber
+  - Data centers use a square grid marker in steel blue
+  - NOTAM airspace zones retain their magenta ring with directional indicator
+  - Convergence cells remain the scored heat-gradient polygons
+  - Earthquake events retain scaled violet stars
+  - Watchlist aircraft retain pulsating red glow
+  - Military installations retain red star markers
+  - Seized and Iran Navy vessels retain orange anchor and red star respectively
+  The goal is that any two active layers should be immediately distinguishable
+  without reading a label.
+
+- **VIIRS thermal proximity banner now references the correct facility
+  inventory.** Previously the banner could report zero nearby facilities even
+  when data center and nuclear markers were in range, because the proximity
+  check was running against an incomplete snapshot. Now correctly references
+  the full rendered facility set.
+
+---
+
 ## v1.16.0 — 2026-03-27
 
 **Seismic and weather intelligence layers, EMODnet infrastructure overlay,

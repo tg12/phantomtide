@@ -17,15 +17,9 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.15.0**
+Current release: **v1.16.1**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
-
-## Repository Role
-
-- `phantomtide` is the public documentation, changelog, and release-notes repo.
-- `phantom-tide` is the private application and operations repo.
-- Public release notes here should track the shipped release in the private repo.
 
 ---
 
@@ -103,7 +97,7 @@ Current integrated sources:
 - AIS vessel positions
 - OpenSky aircraft positions
 - NDBC ship and buoy observations
-- NDBC sar2 wave and weather station averages
+- NDBC wave and weather station averages
 - SMAPS special advisories
 - DailyMem broadcast warnings
 - NOTAM airspace notices
@@ -114,20 +108,18 @@ Current integrated sources:
 - ICC-CCS IMB live piracy incidents
 - GPS Operational Advisory RSS bulletins
 - MODU offshore drilling unit positions
-- FleetLeaks sanctioned vessel AIS positions with spoofing anomaly scores
+- FleetLeaks sanctioned vessel positions with spoofing anomaly scores
 - TankerTrackers maritime risk zone polygons (183 named zones)
 - TankerTrackers seized and Iran Navy vessel registry
-- NERACOOS ERDDAP oceanographic moorings (Gulf of Maine fixed stations)
-- Aircraft watchlist cross-reference (16,000-entry ICAO registry — military,
-  government, police, coastguard, and other tracked categories)
-- AIS vessel watchlist (PLAN/CCG fleet and notable yachts by MMSI)
-- Military installation static layer (647 geocoded bases)
-
-Important qualifier:
-
-The piracy feed is current-year ICC-CCS incident reporting, not a universal
-global instant-notification bus. It is high-value live context, but still one
-source in a broader convergence model.
+- NERACOOS ERDDAP oceanographic moorings
+- USGS earthquake feed (M2.5+, worldwide)
+- Environment Canada marine weather warnings
+- Aircraft watchlist cross-reference (ICAO registry — military, government,
+  police, coastguard, and other tracked categories)
+- AIS vessel watchlist (PLAN/CCG fleet and notable vessels)
+- Military installation reference layer
+- Nuclear and energy infrastructure reference layer
+- EMODnet submarine cables, pipelines, and wind farm overlay
 
 ---
 
@@ -198,10 +190,9 @@ Analyst-facing features available now:
 
 Known limitations:
 
-- GUIDE still needs a stable report-id keyed row / coordinate join
-- dense point rendering still depends on culling and restraint at world zoom
-- convergence is now live, but several planned weight families are still
-  missing, including AIS spoof/gap, dark-vessel, and aircraft-loiter signals
+- Dense point rendering depends on culling and restraint at world zoom
+- Convergence scoring is live but several weight families are still in
+  development, including AIS spoof/gap, dark-vessel, and aircraft-loiter signals
 
 ---
 
@@ -209,22 +200,16 @@ Known limitations:
 
 Upcoming work already identified in the roadmap:
 
-- USGS earthquake feed (undersea quakes as cable-cut and DART-anomaly context)
-- Environment Canada marine weather (fills northern Atlantic / Arctic gap)
 - CelesTrak GPS TLE enrichment (visible satellite count at disruption events, to
   distinguish jamming from ionospheric interference)
-- EMODnet submarine cable, pipeline, and wind-farm overlays (Leaflet WMTS, no collector)
-- Open-Meteo marine weather mesh upgrade (full ocean grid at 1/4° resolution, replaces
-  sparse NDBC interpolation)
+- Open-Meteo marine weather mesh upgrade (full ocean grid at 1/4° resolution)
 - NWS active marine alert polygons (U.S. coastal zone context)
-- AviationWeather METAR and SIGMET collectors (weather at ports / naval bases,
+- AviationWeather METAR and SIGMET collectors (weather at ports and naval bases,
   volcanic ash and tropical cyclone polygons)
 - NDBC DART buoy anomaly detection (tsunami and underwater explosion proxy)
-- Convergence contributor breakdown — drill down from a scored cell to the
+- Convergence contributor breakdown — drill into a scored cell to see the
   evidence events that drove the score
-- Vessel-in-zone correlation using shapely point-in-polygon at API serve time
-- Vessel watchlist alert table in intel panel (PLAN/CCG and yacht matches)
-- GUIDE collector hardening — stable report-id keyed row/coordinate join
+- Vessel watchlist alert table in intel panel
 - DMI Arctic ice chart overlay and INCOIS Indian Ocean high-wave alerts
 
 These are planned items, not implied capabilities.
