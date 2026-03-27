@@ -17,7 +17,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.17.1**
+Current release: **v1.17.3**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -54,11 +54,14 @@ Shipped platform capabilities:
 - Detail panel with observation, ingest, expiry, and geometry context
 - Source health reporting with explicit live, cache-backed, and failed states
   for slower reference collectors
+- Layer toggles now mirror stale, cache-backed, and down source state
+  directly, and map-feed caps disclose "showing X of Y" when the API limit is hit
 - Reference infrastructure overlays for military, energy, datacenter, and
   strategic nodes such as cable landings, converter stations, and industrial
   chokepoints
 - Thermal anomaly alerts that pivot directly into nearby infrastructure context
-- Radius-based proximity query for local investigative triage
+- Radius-based proximity query with explicit distance ranking and nearby
+  datacenter context for local investigative triage
 - Onboarding, keyboard shortcuts, and clearer feedback states for refresh,
   collection, and briefing actions
 
@@ -173,8 +176,9 @@ without provenance is decoration.*
 ### Proximity Query
 
 ![Proximity query — English Channel 100nm radius](docs/screenshots/proximity_results.png)
-*Right-click any position to rank nearby activity across source types. Useful
-for drilling into a corridor, port approach, or disruption cell.*
+*Right-click any position to rank nearby activity with explicit distance and
+datacenter context across source types. Useful for drilling into a corridor,
+port approach, or disruption cell.*
 
 ### Intel Tables
 
@@ -189,10 +193,12 @@ the relevant area without forcing a layer hunt.*
 Analyst-facing features available now:
 
 - layer toggles with per-layer counts
+- layer toggles with stale/cache/down badges
 - reduced-motion aware map interaction
 - clickable intel rows with detail-panel preservation
 - geometry-aware jump targets
-- "showing X of Y" transparency for intel-table limits
+- "showing X of Y" transparency for intel-table and capped map/API layer limits
+- proximity-query tables with explicit distance-ranked event and datacenter rows
 - plain-English space-weather status instead of NOAA jargon
 - on-demand hypothesis evaluation endpoint
 

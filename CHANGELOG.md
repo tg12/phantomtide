@@ -6,6 +6,30 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.17.3 — 2026-03-27
+
+**Stable patch for proximity-query triage and health-state verification**
+
+- Right-click proximity results now render as structured tables with explicit
+  distance, source, signal, and observed-time columns.
+- Nearby datacenter reference hits now appear in proximity results even when
+  the datacenter layer is not enabled.
+- Added regression coverage for degraded NOTAM and mixed MIS health exposure
+  so cache-backed fallback states remain visible through the API.
+
+## v1.17.2 — 2026-03-27
+
+**Stable patch for alert workflow and operator state honesty**
+
+- Aircraft and VIIRS alert banners now live below the top bar in page flow
+  instead of covering map controls on compact screens.
+- Closing the current aircraft or VIIRS alert now stays closed across refreshes
+  until a newer alert replaces it.
+- Source-layer toggles now surface stale, cache-backed, and down state
+  directly in the sidebar.
+- Capped map/API layers now disclose "showing X of Y" instead of silently
+  truncating the visible feed.
+
 ## v1.17.1 — 2026-03-27
 
 **Reference data enrichment and watchlist updates**
