@@ -6,6 +6,42 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.17.1 — 2026-03-27
+
+**Reference data enrichment and watchlist updates**
+
+- Aircraft watchlist expanded to 16,010 entries. New additions include two
+  additional Roman Abramovich aircraft (LX-GVI, LX-LUX), a Bahrain Royal
+  Flight Boeing 747, and a Russian government Sukhoi Superjet.
+- Added fuel burn reference data for 79 aircraft types, enabling consumption
+  context in the aircraft detail panel.
+- Strategic infrastructure overlay schema fully normalised: all points now
+  carry consistent name and type fields across undersea cables, pipelines,
+  LNG terminals, chokepoints, satellite constellations, RF infrastructure,
+  financial nodes, maritime compliance hubs, and industrial sites.
+- Data category terminology updated across yacht, tracked-names, and aircraft
+  datasets for consistent professional language throughout the UI.
+
+---
+
+## v1.17.0 — 2026-03-27
+
+**Aircraft catalog enrichment, on-click cross-reference, and data cleanup**
+
+- Clicking any tracked OpenSky aircraft now pulls the full catalog record
+  instantly: the frontend binary-searches a pre-loaded ICAO index and fetches
+  enriched details only when a match exists, with no added latency for
+  unlisted aircraft.
+- The aircraft detail panel and popup now show the classification category as a
+  styled badge and individual label chips rather than plain comma-separated text.
+- Catalog search results include the category badge, aircraft type, and tag chips
+  per entry, making it easier to scan results at a glance.
+- Fixed a layout fault in the aircraft popup balloon where key/value rows
+  rendered without separation (labels and values ran together in a single line).
+- Other bug fixes and improvements
+
+---
+
 ## v1.16.4 — 2026-03-27
 
 **Slow-layer recovery, persistent runtime-data seeding, and container tuning**
