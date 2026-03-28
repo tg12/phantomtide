@@ -6,6 +6,27 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.23.0 — 2026-03-28
+
+**Aircraft mission enrichment, clearer aircraft detail, and release hygiene**
+
+- **Aircraft mission context from callsign and squawk data** — aircraft detail now adds
+  mission-family enrichment derived from callsign and squawk reference data. When available,
+  the panel shows mission badges, SAR cues, callsign conflict warnings, and concise
+  "why interesting" context instead of only registry metadata.
+- **Better aircraft scoring context** — convergence scoring now distinguishes SAR-active,
+  naval-patrol, and surveillance-style aircraft activity from generic loiter. Known
+  false-positive callsign families such as survey and weather-recon patterns are handled
+  more conservatively.
+- **New aircraft reference endpoints** — static API routes now expose callsign lookup,
+  squawk lookup, and aircraft mission-entity reference data for frontend cache warm-up
+  and analyst inspection.
+- **Airport data attribution** — the platform UI and documentation now credit
+  [`mwgg/Airports`](https://github.com/mwgg/Airports), whose `airports.json`
+  dataset is used for NOTAM airport fallback coordinates.
+- **Release metadata sync** — the dashboard header and both repo READMEs were updated so
+  the visible version now matches the shipped release.
+
 ## v1.22.0 — 2026-03-28
 
 **DART deep-ocean anomaly detection, GPS satellite enrichment, and aircraft fuel context**

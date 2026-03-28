@@ -17,7 +17,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.22.0**
+Current release: **v1.23.0**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -82,6 +82,12 @@ What it does not do:
 - It does not aggregate social media.
 - It does not scrape news and relabel it as intelligence.
 - It does not hide uncertainty behind a single composite score.
+
+## Data Acknowledgements
+
+- Airport reference coordinates used for NOTAM airport fallback and airport-centred
+  map jumps are sourced from [`mwgg/Airports`](https://github.com/mwgg/Airports).
+  Thanks to that project for maintaining a reusable airport dataset under the MIT license.
 
 ---
 
