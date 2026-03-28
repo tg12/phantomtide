@@ -6,6 +6,52 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.22.0 — 2026-03-28
+
+**DART deep-ocean anomaly detection, GPS satellite enrichment, and aircraft fuel context**
+
+Three new intelligence capabilities:
+
+- **NDBC DART anomaly layer** — Phantom Tide now monitors NOAA's network of deep-ocean
+  DART pressure buoys for water-column height anomalies. A deviation of more than three
+  standard deviations from the 24-hour rolling baseline fires an event on the map.
+  Without a corresponding seismic signal nearby, this flags a possible underwater event
+  or anomalous pressure source for analyst review. The layer uses teal diamond markers
+  scaled by the size of the deviation. Polling is every 15 minutes across up to 50
+  globally deployed stations.
+
+- **GPS disruption satellite context** — GUIDE GPS disruption reports and GPS advisory
+  events are now annotated at ingest time with the number of GPS satellites that should
+  have been visible from that location at the time of the report. When the expected count
+  is known, the detail panel can distinguish between full-constellation jamming (all
+  visible satellites affected) and ionospheric interference (low-elevation satellites only).
+  The orbital data comes from CelesTrak's GPS operations TLE file, refreshed every 6 hours.
+
+- **Aircraft fuel burn estimate** — The OpenSky detail panel now shows an estimated fuel
+  consumption rate when the aircraft's ICAO type code is matched in the watchlist database.
+  The estimate is in US gallons per hour from a reference table of 79 aircraft types.
+
+**Vessel-in-zone intelligence** (v1.21.0):
+
+- The sanctioned vessel list now includes the name of any TankerTrackers risk zone each
+  vessel is currently inside. A dedicated alert view surfaces LNG carriers and tankers
+  located inside the Strait of Hormuz, Bab-el-Mandeb, or Suez Canal zones specifically.
+
+**Convergence popup detail** (v1.21.0):
+
+- The convergence cell popup now shows the full evidence breakdown: each contributing
+  signal family with its weight, event count, and up to three contributing event IDs.
+  This makes it possible to trace exactly which sources contributed to a high-scoring
+  cell without leaving the map view.
+
+**Progressive zoom disclosure** (v1.21.0):
+
+- AIS vessel positions, aircraft positions, and VIIRS detections are now suppressed at
+  world zoom levels (below zoom 4). The map is significantly less cluttered at global
+  scale. Zooming in restores all markers immediately without a network request.
+
+---
+
 ## v1.20.0 — 2026-03-28
 
 **Aircraft intelligence improvements, UI polish, and full aircraft database update**

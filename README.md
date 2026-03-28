@@ -17,7 +17,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.20.0**
+Current release: **v1.22.0**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -62,6 +62,18 @@ Shipped platform capabilities:
 - Thermal anomaly alerts that pivot directly into nearby infrastructure context
 - Radius-based proximity query with explicit distance ranking and nearby
   datacenter context for local investigative triage
+- Vessel-in-zone correlation: FleetLeaks sanctioned vessels cross-referenced
+  against TankerTrackers polygons at API serve time, with LNG/tanker alerts for
+  Hormuz, Bab-el-Mandeb, and Suez zones
+- Convergence popup contributor breakdown showing signal family weights, event
+  counts, and contributing event IDs for each scored grid cell
+- Progressive zoom disclosure: dense real-time layers (AIS, aircraft, VIIRS)
+  suppressed at world zoom, rendered on drill-down without a refetch
+- GPS disruption events annotated with satellite visibility context using
+  CelesTrak TLE orbital data to distinguish jamming from ionospheric interference
+- NDBC DART deep-ocean pressure anomaly layer for tsunami and underwater event detection
+- Aircraft fuel burn context in the OpenSky detail panel when a watchlist
+  type-code match is available
 - Onboarding, keyboard shortcuts, and clearer feedback states for refresh,
   collection, and briefing actions
 
@@ -121,6 +133,7 @@ Current integrated sources:
 - NERACOOS ERDDAP oceanographic moorings
 - USGS earthquake feed (M2.5+, worldwide)
 - Environment Canada marine weather warnings
+- NDBC DART deep-ocean pressure anomaly detection (tsunami / underwater event proxy)
 - Aircraft watchlist cross-reference (ICAO registry — military, government,
   police, coastguard, and other tracked categories)
 - AIS vessel watchlist (PLAN/CCG fleet and notable vessels)
