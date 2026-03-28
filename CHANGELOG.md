@@ -6,6 +6,79 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.20.0 — 2026-03-28
+
+**Aircraft intelligence improvements, UI polish, and full aircraft database update**
+
+- Tracked (watchlist-matched) aircraft now pulsate with their ADS-B emitter category
+  color — rotorcraft in teal, heavy transport in amber, UAVs in green, and so on.
+  Previously all watchlist aircraft used a fixed red icon regardless of type.
+  Normal aircraft render as static markers; only watchlisted aircraft animate.
+- Four UI panels that retained dark backgrounds from an earlier theme have been
+  corrected to match the light cartographic style introduced in v1.19.0: the aircraft
+  alert banner, the VIIRS proximity banner, the weather mesh legend, and the MODU
+  cluster tooltip.
+- The aircraft database has been fully re-tagged. 15,636 records in the watchlist
+  database were updated to use structured, consistent category labels. Tags are now
+  consolidated into named categories — Cargo & Transport, Emergency & Rescue,
+  Military, Surveillance & ISR, Training & Education, and others — replacing a large
+  volume of informal, inconsistent, or ambiguous labels accumulated over time.
+
+---
+
+## v1.19.0 — 2026-03-28
+
+**Professional UI overhaul and aircraft type differentiation**
+
+- The map now uses a light basemap (CartoDB Positron) in place of the previous
+  dark tile layer.  All source colors and marker styles have been recalibrated
+  for legibility on white backgrounds.
+- Aircraft markers are now differentiated by ADS-B emitter category.  Heavy
+  transport aircraft, military aircraft, and special-mission platforms use
+  distinct icon sizes and colors; each icon includes expanding pulse rings
+  scaled to the category so dense clusters remain readable.  Reduced-motion
+  preference is respected.
+- Clicking any map marker or intel-table row now shows the originating source
+  as a colored accent strip and labeled badge in the detail panel.  Each source
+  has a distinct accent derived from its display color.
+- Layer toggles now hide sources with zero events and unchecked state by default.
+  A "show N inactive" link at the bottom of the sidebar reveals them on demand.
+  Sources with data or degraded health are always visible.
+- Hovering a source name in the map legend temporarily dims all other sources'
+  markers, isolating that source's spatial footprint without toggling layers.
+- Datacenter reference markers are larger and more legible at low zoom levels.
+
+---
+
+## v1.18.0 — 2026-03-28
+
+**VIIRS notifications, aircraft state resilience, and data freshness improvements**
+
+- VIIRS satellite proximity alerts now fire correctly.  The detection window
+  was corrected from 5 minutes to 24 hours to account for the 3-24 h NRT
+  delivery latency from NASA; alerts that were previously suppressed by the
+  narrow window are now evaluated and dispatched.
+- Proximity alerts for significant VIIRS thermal events near critical
+  infrastructure are now dispatched server-side every 5 minutes, with a 24-hour
+  deduplication window so each event is notified exactly once.  Set
+  `VIIRS_WEBHOOK_URL` to receive JSON POST delivery.
+- VIIRS offshore thermal scoring corrected: detections close to high-value
+  targets (nuclear and military facilities) no longer receive the routine
+  offshore noise penalty, so legitimate anomalies near those sites are
+  promoted to significance correctly.
+- OpenSky aircraft data now remains visible during API outages.  The collector
+  falls back to the most recent cached snapshot and reports a degraded status
+  rather than dropping the layer entirely.  Rate-limit back-off prevents
+  redundant requests when the daily credit quota is exhausted.
+- Reduced polling frequency for data sources that update infrequently: VIIRS
+  NRT (now 30 minutes), NDBC buoy observations (30 minutes), NGA broadcast
+  warnings (60 minutes), and NGA maritime safety notices (15 minutes).  This
+  brings each source's request cadence in line with its actual publication
+  schedule.
+- Environment variables `VIIRS_MAX_AGE_MINUTES`, `VIIRS_ALERT_RADIUS_KM`,
+  `OPENSKY_CACHE_PLAYBACK_MINUTES`, and `OPENSKY_CACHE_MAX_AGE_SECONDS` added
+  for operator-configurable tuning without code changes.
+
 ## v1.17.3 — 2026-03-27
 
 **Stable patch for proximity-query triage and health-state verification**
