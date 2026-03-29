@@ -6,6 +6,53 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.26.0 — 2026-03-29
+
+**NOTAM airport jumps, cleaner aircraft labels, and refreshed public docs**
+
+- **NOTAM table click-through now reaches the airport** — recent and critical
+  NOTAM rows/cards now recover airport coordinates from the notice `location`
+  code when the upstream event has no explicit map point. Common ICAO and IATA
+  designators such as `KSLC` and `SLC` now jump the map to the airport instead
+  of failing with an empty focus target.
+- **Aircraft label cleanup is now runtime-safe** — stale runtime data can no
+  longer leak junk watchlist labels such into aircraft detail views.
+- **Public docs refreshed** — README release metadata and screenshots were
+  updated together so the public repo reflects the current shipped UI rather
+  than an older build state.
+- **Airport data note clarified** — the application uses bundled airport
+  reference data derived from `mwgg/Airports` for NOTAM airport fallback and
+  airport-centred map jumps.
+
+---
+
+## v1.25.0 — 2026-03-29
+
+**Internal reliability hardening and AIS test coverage**
+
+- **Cache I/O unified** — eleven collectors previously each duplicated their own
+  JSON load/save logic. This is now a single implementation in `core/cache_io.py`
+  with atomic writes (temp file + rename) so a crash during a cache flush no longer
+  produces a partially-written file that breaks the next startup.
+- **AIS decoder test suite** — 64 new unit tests cover NMEA checksum validation,
+  payload bit extraction, unsigned/signed integer decoding, geo sentinel filtering,
+  timestamp reconstruction from NMEA `ais_ts_sec`, and full message parsing for
+  type 1, 18, 21, and 24 frames. AIS decoding was previously untested.
+- **VIIRS facility load failures now visible** — infrastructure dataset errors
+  (power plants, datacenters, military bases, strategic overlay) were previously
+  swallowed silently. They now log at ERROR level so operators can detect a missing
+  or corrupt data file without inspecting map output.
+- **Confidence model documented** — the four scoring concepts (`source_confidence`,
+  `quality_score`, `hypothesis.confidence`, `convergence.score`) are now defined
+  with their scales, purposes, and relationships in a single authoritative comment
+  block. They answer different questions and must not be collapsed.
+- **proxybroker import order corrected** — the standalone proxy discovery tool was
+  hardcoded to import `proxybroker2` (the Python 3.12+ fork). It now follows the
+  same pattern as the main runtime: try the official `constverum/ProxyBroker` first,
+  fall back to `proxybroker2` if not installed.
+
+---
+
 ## v1.24.0 — 2026-03-29
 
 **Aircraft tracking reliability, smarter hypothesis navigation, and broader NOTAM coverage**

@@ -17,7 +17,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.24.0**
+Current release: **v1.26.0**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -42,6 +42,9 @@ Shipped platform capabilities:
 - Geometry-aware rendering for points, circles, routes, and polygons
 - Intel tables for SMAPS, DailyMem, NOTAM, GUIDE GPS disruptions, and GPS
   constellation bulletins
+- NOTAM intel rows and recent cards can jump the map to airport coordinates
+  using bundled airport reference data even when the source only exposes an
+  airport designator
 - MARAD advisory table and map layer for regional U.S. maritime threat context
 - ICC-CCS piracy table and map layer for live incident monitoring
 - Two-slot intel briefing queue with persistent ordering, promote controls, and
@@ -87,7 +90,11 @@ What it does not do:
 
 - Airport reference coordinates used for NOTAM airport fallback and airport-centred
   map jumps are sourced from [`mwgg/Airports`](https://github.com/mwgg/Airports).
-  Thanks to that project for maintaining a reusable airport dataset under the MIT license.
+  The full Phantom Tide application bundle includes the airport reference JSON
+  used for that lookup path at runtime; this public-docs repo does not duplicate
+  the data file.
+- Thanks to `mwgg/Airports` and alexander-san for their contribution and
+  collaboration around the project and this release.
 
 ---
 

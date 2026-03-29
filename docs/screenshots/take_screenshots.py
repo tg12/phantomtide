@@ -1,0 +1,208 @@
+"""Screenshot script for Phantom Tide public docs.
+
+Takes all 12 screenshots needed for the public README, bypassing the
+onboarding modal by injecting the localStorage key via add_init_script
+so it is present before the page's own JS runs on every navigation.
+
+Usage (run from any directory):
+    python3 take_screenshots.py [--url http://localhost:8000]
+
+Default URL: https://phantom.labs.jamessawyer.co.uk
+Output: overwrites the PNG files in this directory.
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+import time
+from pathlib import Path
+
+try:
+    from playwright.sync_api import Page, sync_playwright
+except ImportError:
+    print("playwright not installed — run: pip install playwright && playwright install chromium")
+    sys.exit(1)
+
+OUT_DIR = Path(__file__).parent
+DEFAULT_URL = "http://localhost:8000"
+VIEWPORT = {"width": 1600, "height": 900}
+
+
+def wait_for_map(page: Page, extra_sleep: float = 3.0) -> None:
+    """Wait until the Leaflet map container is present, then pause for data."""
+    # The Leaflet container is injected synchronously at page load — reliable.
+    page.wait_for_selector(".leaflet-container", timeout=30_000)
+    # Wait for at least one tile OR marker to appear (optional — ignore timeout).
+    try:
+        page.wait_for_selector(
+            ".leaflet-tile-loaded, .leaflet-marker-icon",
+            timeout=10_000,
+        )
+    except Exception:
+        pass
+    # Fixed pause so async data fetches can complete before screenshot.
+    time.sleep(extra_sleep)
+
+
+def go(page: Page, url: str, extra_sleep: float = 3.0) -> None:
+    """Navigate to URL and wait for the map. Onboarding is suppressed by init script."""
+    page.goto(url, wait_until="domcontentloaded", timeout=60_000)
+    wait_for_map(page, extra_sleep=extra_sleep)
+
+
+def take(page: Page, name: str) -> None:
+    path = OUT_DIR / f"{name}.png"
+    page.screenshot(path=str(path), full_page=False)
+    print(f"  saved {path.name}")
+
+
+def click_if_present(page: Page, selector: str, delay: float = 0.6) -> None:
+    """Click the first matching element when present."""
+
+    btn = page.query_selector(selector)
+    if btn:
+        btn.click()
+        time.sleep(delay)
+
+
+def run(base_url: str) -> None:
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(headless=True)
+        ctx = browser.new_context(viewport=VIEWPORT)
+
+        # Inject the onboarding-seen key before ANY page navigation so the modal
+        # is never shown regardless of reload or navigation order.
+        ctx.add_init_script("localStorage.setItem('pt:onboarding:v1', '1');")
+
+        page = ctx.new_page()
+
+        print(f"Target: {base_url}")
+        print(f"Output: {OUT_DIR}\n")
+
+        # --- 1. overview: full dashboard at world zoom ---
+        print("overview")
+        go(page, base_url)
+        if page.evaluate("() => !document.getElementById('tables-panel')?.hidden"):
+            click_if_present(page, "#btn-tables", delay=0.5)
+        take(page, "overview")
+
+        # --- 2. sidebar: layer control panel open ---
+        print("sidebar")
+        go(page, base_url)
+        btn = page.query_selector("#layers-toggle, [aria-label*='layer' i], .layer-panel-toggle")
+        if btn:
+            btn.click()
+            time.sleep(0.6)
+        take(page, "sidebar")
+
+        # --- 3. intel_tables: intel panel open with tables loaded ---
+        print("intel_tables")
+        go(page, base_url)
+        click_if_present(page, "#btn-tables", delay=2.5)
+        take(page, "intel_tables")
+
+        # --- 4. source_health: health panel open ---
+        print("source_health")
+        go(page, base_url)
+        click_if_present(page, "#source-health-toggle", delay=1.2)
+        take(page, "source_health")
+
+        # --- 5. detail_panel: click a marker to open detail ---
+        print("detail_panel")
+        go(page, base_url)
+        page.evaluate("""() => {
+            const markers = document.querySelectorAll('.leaflet-marker-icon:not(.leaflet-marker-shadow)');
+            if (markers.length) markers[0].click();
+        }""")
+        time.sleep(1.0)
+        take(page, "detail_panel")
+
+        # --- 6. detail_panel_warning: click a nav-warning marker ---
+        print("detail_panel_warning")
+        go(page, base_url)
+        page.evaluate("""() => {
+            const markers = document.querySelectorAll('.leaflet-marker-icon');
+            for (const m of markers) {
+                const style = window.getComputedStyle(m);
+                if (style.filter && style.filter.includes('hue')) { m.click(); return; }
+            }
+            // Fallback: click any marker
+            const any = document.querySelector('.leaflet-marker-icon:not(.leaflet-marker-shadow)');
+            if (any) any.click();
+        }""")
+        time.sleep(1.0)
+        take(page, "detail_panel_warning")
+
+        # --- 7. detail_panel_notam: open intel tables, click a NOTAM row ---
+        print("detail_panel_notam")
+        go(page, base_url)
+        click_if_present(page, "#btn-tables", delay=2.5)
+        page.evaluate("""() => {
+            const rows = document.querySelectorAll('#notams-critical-table tr[data-idx]');
+            if (rows.length) rows[0].click();
+        }""")
+        time.sleep(1.0)
+        take(page, "detail_panel_notam")
+
+        # --- 8. risk_zones: convergence layer visible ---
+        print("risk_zones")
+        go(page, base_url)
+        page.evaluate("""() => {
+            const cb = document.querySelector('input[data-layer="convergence"], input[data-layer="risk_zones"]');
+            if (cb && !cb.checked) cb.click();
+        }""")
+        time.sleep(2.0)
+        take(page, "risk_zones")
+
+        # --- 9. weather_mesh: NDBC ocean state mesh ---
+        print("weather_mesh")
+        go(page, base_url)
+        page.evaluate("void map.setView([45, -40], 4)")
+        time.sleep(2.5)
+        take(page, "weather_mesh")
+
+        # --- 10. atlantic: regional view of North Atlantic ---
+        print("atlantic")
+        go(page, base_url)
+        page.evaluate("void map.setView([40, -30], 4)")
+        time.sleep(2.5)
+        take(page, "atlantic")
+
+        # --- 11. proximity_menu: right-click context menu ---
+        print("proximity_menu")
+        go(page, base_url)
+        map_el = page.query_selector("#map")
+        if map_el:
+            bb = map_el.bounding_box()
+            if bb:
+                page.mouse.click(
+                    bb["x"] + bb["width"] * 0.5,
+                    bb["y"] + bb["height"] * 0.5,
+                    button="right",
+                )
+                time.sleep(0.6)
+        take(page, "proximity_menu")
+
+        # --- 12. proximity_results: select a radius option ---
+        print("proximity_results")
+        page.evaluate("""() => {
+            const items = document.querySelectorAll('.prox-menu-item');
+            if (items.length > 1) items[1].click();
+        }""")
+        time.sleep(1.5)
+        take(page, "proximity_results")
+
+        browser.close()
+        print("\nDone.")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Take Phantom Tide docs screenshots")
+    parser.add_argument("--url", default=DEFAULT_URL, help="Base URL of the running app")
+    args = parser.parse_args()
+    run(args.url.rstrip("/"))
+
+
+if __name__ == "__main__":
+    main()
