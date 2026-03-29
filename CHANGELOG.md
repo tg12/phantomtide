@@ -6,9 +6,9 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## Next Release
+## v1.27.0 — 2026-03-30
 
-**Structured squawk context and safer aircraft mission inference**
+**Structured squawk context, maritime reference layers, and reliability fixes**
 
 - **Squawk meanings are now typed, not guessed from free text** — the aircraft
   squawk reference data is classified into categories such as emergency,
@@ -22,6 +22,12 @@ Dates are UTC. Versions follow semantic versioning.
   labels such as `Assigned by CCAMS`, ORCAM transit allocations, and frequency
   monitoring codes still appear as raw squawk context where relevant, but they
   no longer create misleading `Mission Operator` or `SQUAWK CONTEXT` badges.
+- **New maritime reference layers** — optional static overlays now add NOAA
+  submarine cables, NOAA vessel-routing measures, and MarineRegions EEZ
+  boundaries for infrastructure and jurisdiction context on the map.
+- **Upgrade-safe backend fixes** — the app now applies the missing ClickHouse
+  schema migration for older data volumes on startup, and AIS reconnect logic
+  now backs off exponentially instead of hammering a failing upstream feed.
 
 ## v1.26.0 — 2026-03-29
 
@@ -40,7 +46,7 @@ Dates are UTC. Versions follow semantic versioning.
 - **Airport data note clarified** — the application uses bundled airport
   reference data derived from `mwgg/Airports` for NOTAM airport fallback and
   airport-centred map jumps.
-- **Many small bug fixes and Quality of Life Improvements***
+- **Many small bug fixes and Quality of Life Improvements**
 
 ---
 
@@ -86,7 +92,7 @@ Dates are UTC. Versions follow semantic versioning.
   approximate map coordinates via a substantially expanded airport fallback table.
   Previously, NOTAMs from these regions landed in the no-coordinates fallback and were
   not visible on the map.
-- **Many small bug fixes and Quality of Life Improvements***
+- **Many small bug fixes and Quality of Life Improvements**
 
 ## v1.23.0 — 2026-03-28
 
