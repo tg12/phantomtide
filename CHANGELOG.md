@@ -6,6 +6,23 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## Next Release
+
+**Structured squawk context and safer aircraft mission inference**
+
+- **Squawk meanings are now typed, not guessed from free text** — the aircraft
+  squawk reference data is classified into categories such as emergency,
+  special-use, allocation, routing, monitoring, conspicuity, and ambiguous so
+  the app can distinguish operational meaning from ordinary ATC administration.
+- **UK-only squawk context is now geographically gated** — UK squawk meanings
+  no longer apply worldwide by default. They are only shown for aircraft in a
+  conservative UK-area envelope, while globally recognised emergency codes
+  remain visible everywhere.
+- **Administrative squawk codes no longer masquerade as mission context** —
+  labels such as `Assigned by CCAMS`, ORCAM transit allocations, and frequency
+  monitoring codes still appear as raw squawk context where relevant, but they
+  no longer create misleading `Mission Operator` or `SQUAWK CONTEXT` badges.
+
 ## v1.26.0 — 2026-03-29
 
 **NOTAM airport jumps, cleaner aircraft labels, and refreshed public docs**
@@ -23,6 +40,7 @@ Dates are UTC. Versions follow semantic versioning.
 - **Airport data note clarified** — the application uses bundled airport
   reference data derived from `mwgg/Airports` for NOTAM airport fallback and
   airport-centred map jumps.
+- **Many small bug fixes and Quality of Life Improvements***
 
 ---
 
@@ -46,10 +64,7 @@ Dates are UTC. Versions follow semantic versioning.
   `quality_score`, `hypothesis.confidence`, `convergence.score`) are now defined
   with their scales, purposes, and relationships in a single authoritative comment
   block. They answer different questions and must not be collapsed.
-- **proxybroker import order corrected** — the standalone proxy discovery tool was
-  hardcoded to import `proxybroker2` (the Python 3.12+ fork). It now follows the
-  same pattern as the main runtime: try the official `constverum/ProxyBroker` first,
-  fall back to `proxybroker2` if not installed.
+
 
 ---
 
