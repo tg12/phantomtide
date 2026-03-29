@@ -6,6 +6,26 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.24.0 — 2026-03-29
+
+**Aircraft tracking reliability, smarter hypothesis navigation, and broader NOTAM coverage**
+
+- **Hypothesis jump targets persist** — the `⊕` jump button in the hypothesis panel now
+  stays visible even after the underlying evidence events have aged out of the active
+  window. A representative position computed at hypothesis creation time serves as the
+  fallback, so an analyst reviewing an older hypothesis can still navigate the map to
+  the relevant area.
+- **MODU field clusters more accurately reflect operational status** — offshore drilling
+  platform markers now correctly classify STACKED, COLD STACKED, and INACTIVE platforms
+  as non-active alongside REMOVED platforms. Previously, only REMOVED was recognised, so
+  mothballed or suspended rigs were counted as active in field cluster statistics.
+- **Wider NOTAM geographic coverage** — NOTAMs from the Middle East, South and Southeast
+  Asia, Africa, South America, Canada, the Caribbean, and the Pacific now receive
+  approximate map coordinates via a substantially expanded airport fallback table.
+  Previously, NOTAMs from these regions landed in the no-coordinates fallback and were
+  not visible on the map.
+- **Many small bug fixes and Quality of Life Improvements***
+
 ## v1.23.0 — 2026-03-28
 
 **Aircraft mission enrichment, clearer aircraft detail, and release hygiene**
