@@ -6,6 +6,24 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.28.0 — 2026-03-30
+
+**Maritime context completion and runtime-state hardening**
+
+- **New maritime context overlays** — optional map layers now add maintained
+  shipping lanes/channels and deep-sea exploration areas to the existing cable,
+  routing, and EEZ context.
+- **Better vessel and alert context** — detail views now show derived maritime
+  context such as EEZ membership, maintained-route membership, nearest cable
+  distance, routing-control context, and exploration-area membership when the
+  reference data exists.
+- **Heavy overlays stay drill-down friendly** — the larger maritime reference
+  layers are lazy-loaded and culled to the current viewport so the map remains
+  usable at wider zoom levels.
+- **Runtime state is more upgrade-safe** — event snapshots and key caches now
+  follow the persistent application data path so deploys do not silently reset
+  important recent state.
+
 ## v1.27.0 — 2026-03-30
 
 **Structured squawk context, maritime reference layers, and reliability fixes**

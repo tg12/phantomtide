@@ -17,7 +17,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.27.0**
+Current release: **v1.28.0**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -63,7 +63,12 @@ Shipped platform capabilities:
   strategic nodes such as cable landings, converter stations, and industrial
   chokepoints
 - Static maritime reference overlays for submarine cables, vessel-routing
-  measures, and EEZ boundaries
+  measures, EEZ boundaries, maintained shipping lanes, and exploration areas
+- Derived maritime context in detail views: EEZ membership, maintained-route
+  membership, nearest cable distance, routing-control context, and exploration
+  area membership where reference data exists
+- Runtime snapshots and key caches now persist through the application data
+  path instead of resetting with image-local state
 - Thermal anomaly alerts that pivot directly into nearby infrastructure context
 - Radius-based proximity query with explicit distance ranking and nearby
   datacenter context for local investigative triage
