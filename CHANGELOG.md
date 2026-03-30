@@ -24,6 +24,10 @@ Dates are UTC. Versions follow semantic versioning.
   follow the persistent application data path so deploys do not silently reset
   important recent state.
 
+### Postmortem: weekend OOM incident
+
+- A concise postmortem and operational summary was published: [OOM postmortem](./docs/oom-postmortem.md)
+
 ## v1.27.0 — 2026-03-30
 
 **Structured squawk context, maritime reference layers, and reliability fixes**
