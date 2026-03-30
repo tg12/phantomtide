@@ -6,6 +6,32 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.29.0 — 2026-03-30
+
+**Evidence fidelity, analyst feedback, and faster startup**
+
+- **Raw-payload archiving** — the platform can now persist raw collector
+  payloads to a MinIO object store when configured (`ARCHIVE_ENABLED=1`).
+  OpenSky is the first source wired up. Payloads are stored under a
+  `source/YYYY/MM/DD/run_timestamp/hash.ext` key layout so any fetch can be
+  replayed exactly.
+- **Append-only EventRecord history** — processed events from all collectors
+  are now written to date-partitioned JSONL files under
+  `data/event_records/`. The writer is designed to be safe for large batches
+  (such as the 29,000-event VIIRS run) without blocking live HTTP traffic.
+- **Analyst feedback API** — a new `POST /api/labels` endpoint lets analysts
+  mark any event as `confirm`, `dismiss`, `review`, or `escalate` with an
+  optional free-text note. Labels persist to ClickHouse and fall back to a
+  local JSONL file when the database is unavailable.
+- **Replay smoke harness** — `scripts/replay_smoke.py` replays a day of
+  archived EventRecords through the full rule-evaluation pipeline. Suitable
+  for CI regression testing against yesterday's live data.
+- **Faster post-restart fresh data** — lightweight reference collectors
+  (MARAD, ICC, GUIDE, GPS advisory, TankerTrackers seized, NERACOOS, USGS,
+  ECCC) now fire 5 seconds after startup instead of being scattered across the
+  3-minute OOM-prevention stagger window. Heavy collectors (VIIRS, NDBC, NGA
+  MIS) remain staggered to protect constrained VPS hosts.
+
 ## v1.28.0 — 2026-03-30
 
 **Maritime context completion and runtime-state hardening**

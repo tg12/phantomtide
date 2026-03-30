@@ -17,7 +17,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.28.0**
+Current release: **v1.29.0**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -86,6 +86,15 @@ Shipped platform capabilities:
   type-code match is available
 - Onboarding, keyboard shortcuts, and clearer feedback states for refresh,
   collection, and briefing actions
+- Analyst feedback loop: any event can be labelled `confirm`, `dismiss`,
+  `review`, or `escalate` via `POST /api/labels` with an optional free-text
+  note for downstream triage
+- Raw-payload archiving to a MinIO object store when configured, with
+  date-partitioned EventRecord JSONL history for offline replay and regression
+  testing
+- Reference collector refreshes now arrive 5 seconds after startup (previously
+  scattered across a 3-minute window) so light advisory sources such as MARAD,
+  USGS, ECCC, and ICC are current within seconds of a container restart
 
 What it does not do:
 
