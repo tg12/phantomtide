@@ -10,6 +10,9 @@ Dates are UTC. Versions follow semantic versioning.
 
 - Next work is focused on production validation, replay-oriented hardening,
   and selective datasource triage rather than broad feed expansion.
+- To reduce load on the server, starter access now keeps selected high-churn
+  layers in preview mode with explicit UI messaging. If you want an API key
+  for a higher tier for now, contact James Sawyer.
 
 ## v1.31.0 — 2026-04-01
 
