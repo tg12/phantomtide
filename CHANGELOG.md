@@ -6,21 +6,25 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.30.0 in progress
+## [Unreleased] — v1.31.0 planning
 
-- Rebuilding the evidence-fidelity release from the shipped `v1.28.0`
-  baseline after the `v1.29.0` rollback.
-- Public README now describes the live stack in capability terms rather than
-  as a provider-by-provider inventory. `AIS (limited)` remains disclosed.
-- Public documentation now explicitly credits
-  [The OpenSky Network](https://opensky-network.org) for aircraft-state
-  coverage used by the platform.
-- USGS raw feed archiving now exists as the first replay-oriented archive
-  slice, and provenance survives cache reloads instead of being lost.
-- Compact-screen detail no longer gets covered by the sea-state legend when
-  the mobile detail drawer is open.
-- Public release markers are resynced so the README and changelog reflect the
-  real shipped state.
+- Next work is focused on selective datasource triage, production validation,
+  and replay-oriented hardening rather than broad feed expansion.
+
+## v1.30.0 — 2026-04-01
+
+- Evidence-fidelity release cut from the real shipped `v1.28.0` baseline after
+  the `v1.29.0` rollback.
+- Public README continues to describe the live stack in capability terms rather
+  than as a provider-by-provider inventory. `AIS (limited)` remains disclosed.
+- Runtime release metadata is now machine-readable, so the dashboard version
+  badge no longer depends on hardcoded frontend text.
+- Mobile detail handling is cleaner on compact screens; the sea-state legend no
+  longer sits on top of critical detail.
+- Maritime context is more trustworthy around the anti-meridian, reducing false
+  impressions of cable proximity near the date line.
+- Evidence-oriented backend work landed behind the scenes, including replay-
+  oriented raw archival expansion and lower-overhead refresh behavior.
 
 ## v1.29.0 — rolled back
 
