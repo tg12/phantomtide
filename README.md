@@ -33,29 +33,28 @@ which things should not be happening together.*
 
 ## What It Does Today
 
-Phantom Tide currently combines live and slow-moving sources across vessel
-tracking, aircraft activity, official advisories, environmental sensors, GPS
-disruption reporting, and space-weather context.
+Phantom Tide currently combines live, periodic, and reference layers across
+surface movement, air activity, official advisories, environmental context,
+GPS disruption reporting, and strategic infrastructure.
 
 Shipped platform capabilities:
 
 - Cross-source global map with live and reference layers in one surface
 - Convergence zones computed from multi-source overlap rather than single-source alerts
 - Geometry-aware rendering for points, circles, routes, and polygons
-- Intel tables for SMAPS, DailyMem, NOTAM, GUIDE GPS disruptions, and GPS
-  constellation bulletins
+- Intel tables for high-value notice, disruption, and advisory queues
 - NOTAM intel rows and recent cards can jump the map to airport coordinates
   using bundled airport reference data even when the source only exposes an
   airport designator
-- MARAD advisory table and map layer for regional U.S. maritime threat context
-- ICC-CCS piracy table and map layer for live incident monitoring
+- Advisory and incident tables for maritime, navigation, airspace, and safety
+  context
 - Two-slot intel briefing queue with persistent ordering, promote controls, and
   compact-screen handling
 - Rule-based hypotheses with evidence event IDs and confidence tiers
-- Space-weather context for Kp, DST, flare, and HF risk
-- GPS interference attribution using SWPC, GUIDE, NOTAM / DailyMem, and GPS
-  advisory data together
-- Ocean-state mesh and wind overlay from NDBC ship, buoy, and wave stations
+- Space-environment context for geomagnetic and HF risk
+- GPS interference attribution using environmental, notice, and constellation
+  health context together
+- Ocean-state mesh and wind overlay from sparse maritime sensor networks
 - Detail panel with observation, ingest, expiry, and geometry context
 - Source health reporting with explicit live, cache-backed, and failed states
   for slower reference collectors
@@ -81,11 +80,10 @@ Shipped platform capabilities:
   counts, and contributing event IDs for each scored grid cell
 - Progressive zoom disclosure: dense real-time layers (AIS, aircraft, VIIRS)
   suppressed at world zoom, rendered on drill-down without a refetch
-- GPS disruption events annotated with satellite visibility context using
-  CelesTrak TLE orbital data to distinguish jamming from ionospheric interference
-- NDBC DART deep-ocean pressure anomaly layer for tsunami and underwater event detection
-- Aircraft fuel burn context in the OpenSky detail panel when a watchlist
-  type-code match is available
+- GPS disruption events annotated with orbital visibility context to separate
+  jamming-like patterns from plausible environmental interference
+- Deep-ocean pressure anomaly context for tsunami and underwater event triage
+- Aircraft fuel-burn context when a tracked airframe can be matched reliably
 - Onboarding, keyboard shortcuts, and clearer feedback states for refresh,
   collection, and briefing actions
 
@@ -135,39 +133,23 @@ The platform is strongest when multiple weak signals become one strong question.
 
 ## What Is Live Right Now
 
-Current integrated sources:
+The public docs describe the live stack in capability terms rather than as a
+provider-by-provider source inventory.
 
-- AIS vessel positions
-- OpenSky aircraft positions
-- NDBC ship and buoy observations
-- NDBC wave and weather station averages
-- SMAPS special advisories
-- DailyMem broadcast warnings
-- NOTAM airspace notices
-- VIIRS night-light and thermal detections
-- NOAA SWPC space-weather conditions
-- USCG NAVCEN GUIDE GPS disruption reports
-- MARAD MSCI maritime advisories
-- ICC-CCS IMB live piracy incidents
-- GPS Operational Advisory RSS bulletins
-- MODU offshore drilling unit positions
-- FleetLeaks sanctioned vessel positions with spoofing anomaly scores
-- TankerTrackers maritime risk zone polygons (183 named zones)
-- TankerTrackers seized and Iran Navy vessel registry
-- NERACOOS ERDDAP oceanographic moorings
-- USGS earthquake feed (M2.5+, worldwide)
-- Environment Canada marine weather warnings
-- NDBC DART deep-ocean pressure anomaly detection (tsunami / underwater event proxy)
-- Aircraft watchlist cross-reference (ICAO registry — military, government,
-  police, coastguard, and other tracked categories)
-- AIS vessel watchlist (PLAN/CCG fleet and notable vessels)
-- Military installation reference layer
-- Nuclear and energy infrastructure reference layer
-- Data center reference layer
-- Strategic infrastructure overlay (cables, landing points, pipelines,
-  converter stations, data-gravity nodes, energy buffers, and selected
-  industrial chokepoints)
-- EMODnet submarine cables, pipelines, and wind farm overlay
+Current integrated coverage includes:
+
+- Surface vessel tracking from `AIS (limited)`, plus slower vessel watchlist,
+  sanctioned-fleet, and zone-crossing context
+- Public aircraft movement context with tracked-airframe enrichment and alerting
+- Multiple official maritime, navigation, airspace, and safety notice channels
+- Thermal, low-light, ocean-state, deep-ocean, geophysical, and
+  space-environment indicators
+- GPS disruption context combining field reports, constellation health, and
+  environmental conditions
+- Strategic and jurisdictional reference overlays for routes, facilities,
+  infrastructure, and selected industrial chokepoints
+- Analyst-facing correlation tooling such as proximity ranking,
+  vessel-in-zone detection, and cross-source risk surfaces
 
 ---
 
@@ -236,7 +218,7 @@ Analyst-facing features available now:
 - geometry-aware jump targets
 - "showing X of Y" transparency for intel-table and capped map/API layer limits
 - proximity-query tables with explicit distance-ranked event and datacenter rows
-- plain-English space-weather status instead of NOAA jargon
+- plain-English space-weather status instead of provider jargon
 - on-demand hypothesis evaluation endpoint
 
 Known limitations:
@@ -251,17 +233,14 @@ Known limitations:
 
 Upcoming work already identified in the roadmap:
 
-- CelesTrak GPS TLE enrichment (visible satellite count at disruption events, to
-  distinguish jamming from ionospheric interference)
-- Open-Meteo marine weather mesh upgrade (full ocean grid at 1/4° resolution)
-- NWS active marine alert polygons (U.S. coastal zone context)
-- AviationWeather METAR and SIGMET collectors (weather at ports and naval bases,
-  volcanic ash and tropical cyclone polygons)
-- NDBC DART buoy anomaly detection (tsunami and underwater explosion proxy)
-- Convergence contributor breakdown — drill into a scored cell to see the
-  evidence events that drove the score
-- Vessel watchlist alert table in intel panel
-- DMI Arctic ice chart overlay and INCOIS Indian Ocean high-wave alerts
+- richer orbital context for disruption-event attribution
+- denser marine weather and ocean-state context
+- additional coastal alert geometry in selected regions
+- aviation weather and hazard context around key ports and airfields
+- deeper underwater-event and anomalous-pressure correlation
+- richer scored-cell drilldown so operators can inspect the exact evidence mix
+- stronger vessel-watchlist and queueing workflows
+- selected polar and Indian Ocean context layers where they improve contradiction reading
 
 These are planned items, not implied capabilities.
 

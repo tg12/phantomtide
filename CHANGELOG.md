@@ -10,6 +10,8 @@ Dates are UTC. Versions follow semantic versioning.
 
 - Rebuilding the evidence-fidelity release from the shipped `v1.28.0`
   baseline after the `v1.29.0` rollback.
+- Public README now describes the live stack in capability terms rather than
+  as a provider-by-provider inventory. `AIS (limited)` remains disclosed.
 - Public documentation now explicitly credits
   [The OpenSky Network](https://opensky-network.org) for aircraft-state
   coverage used by the platform.
