@@ -17,9 +17,9 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.30.0**
+Current release: **v1.31.0**
 
-Next tracked release: **v1.31.0** (planning)
+Next tracked release: **v1.32.0** (planning)
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -60,9 +60,10 @@ Shipped platform capabilities:
   for slower reference collectors
 - Layer toggles now mirror stale, cache-backed, and down source state
   directly, and map-feed caps disclose "showing X of Y" when the API limit is hit
-- Reference infrastructure overlays for military, energy, datacenter, and
-  strategic nodes such as cable landings, converter stations, and industrial
-  chokepoints
+- Optional deployment access control with short-lived browser sessions for
+  protected installs
+- Reference infrastructure overlays for energy, datacenter, and strategic
+  nodes such as cable landings, converter stations, and industrial chokepoints
 - Static maritime reference overlays for submarine cables, vessel-routing
   measures, EEZ boundaries, maintained shipping lanes, and exploration areas
 - Derived maritime context in detail views: EEZ membership, maintained-route

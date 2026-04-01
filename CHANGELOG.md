@@ -6,10 +6,23 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.31.0 planning
+## [Unreleased] — v1.32.0 planning
 
-- Next work is focused on selective datasource triage, production validation,
-  and replay-oriented hardening rather than broad feed expansion.
+- Next work is focused on production validation, replay-oriented hardening,
+  and selective datasource triage rather than broad feed expansion.
+
+## v1.31.0 — 2026-04-01
+
+- Optional dashboard access control shipped for protected deployments via
+  short-lived browser sessions instead of exposing long-lived secrets in the
+  frontend.
+- Starter-tier defaults are intentionally lighter: dense premium-candidate
+  layers stay capped, and military-installation data is no longer exposed in
+  the public user-facing surface.
+- Slower-source truthfulness improved across NERACOOS freshness reporting,
+  NOAA DART pressure-anomaly polling, and direct NOTAM JMS ingestion.
+- Runtime split support and release metadata cleanup make the shipped stack
+  easier to operate and easier to describe consistently across docs.
 
 ## v1.30.0 — 2026-04-01
 
