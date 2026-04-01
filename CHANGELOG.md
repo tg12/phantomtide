@@ -13,6 +13,9 @@ Dates are UTC. Versions follow semantic versioning.
 - To reduce load on the server, starter access now keeps selected high-churn
   layers in preview mode with explicit UI messaging. If you want an API key
   for a higher tier for now, contact James Sawyer.
+- Public docs now explain the current access model more directly: anonymous
+  public access maps to `starter` tier where enabled, while higher tiers use an
+  operator-issued API key exchanged for a short-lived browser session.
 
 ## v1.31.0 — 2026-04-01
 
