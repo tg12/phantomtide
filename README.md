@@ -255,26 +255,18 @@ Public documentation, release notes, and issue tracking are open at
 The live instance is available at
 [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk).
 
-### Access Model
+### Starter Edition
 
-Phantom Tide deployments can run in either open or protected mode.
+Some public-facing Phantom Tide deployments use a lighter `starter` edition to
+reduce load on the server while keeping the core workflow usable.
 
-- Open public access, where enabled, should be understood as `starter` tier.
-- Protected deployments use a short-lived browser session instead of exposing a
-  long-lived secret in frontend code.
-- Higher tiers are unlocked by an operator-issued API key that is exchanged for
-  that short-lived browser session.
-- Selected high-churn layers may remain in preview mode on `starter` access to
-  reduce load on the server.
+- Selected high-churn or dense layers may stay in preview mode.
+- The public surface stays focused on the core investigative workflow rather
+  than the heaviest map volumes.
+- Higher-access deployments may expose more depth where appropriate.
 
-Practical meaning:
-
-- If a deployment is open, the browser can use the dashboard immediately with
-  `starter`-tier limits where configured.
-- If a deployment is protected, the browser prompts for an operator API key
-  before protected API routes are available.
-- The raw key is not intended to live in browser storage as a durable secret;
-  the deployment exchanges it for a short-lived session.
+The aim is straightforward: keep the public-facing experience responsive and
+honest about limits instead of overloading the live stack.
 
 ---
 
