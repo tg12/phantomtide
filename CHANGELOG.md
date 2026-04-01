@@ -6,16 +6,25 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.32.0 planning
+## [Unreleased] — v1.33.0 planning
 
 - Next work is focused on production validation, replay-oriented hardening,
-  and selective datasource triage rather than broad feed expansion.
-- To reduce load on the server, starter access now keeps selected high-churn
-  layers in preview mode with explicit UI messaging. Public-facing docs now
-  include a dedicated GitHub access-request path for higher-tier API keys.
-- Public docs now describe the lighter public-facing `starter` edition in
-  product terms, keeping the explanation focused on a faster, more approachable
-  starter experience instead of internal access-control mechanics.
+  VIIRS storage retention cleanup, and selective datasource triage rather than
+  broad feed expansion.
+
+## v1.32.0 — 2026-04-01
+
+- Public-facing starter access is clearer: the lighter `starter` edition now
+  has cleaner messaging, a dedicated GitHub access-request path for higher-tier
+  API keys, and a simpler `Access` entry flow for deployments that require a
+  key.
+- Investigative anomaly triage is more trustworthy: close-range VIIRS
+  proximity alerts near strategic context surface more reliably, misleading
+  global cable-distance readouts are suppressed, and key detail/banner copy is
+  easier to read.
+- Public release notes and support paths now match the live product more
+  closely, with access-request handling routed through GitHub issues instead of
+  ad hoc contact copy.
 
 ## v1.31.0 — 2026-04-01
 

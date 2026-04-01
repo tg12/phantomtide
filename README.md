@@ -17,9 +17,9 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.31.0**
+Current release: **v1.32.0**
 
-Next tracked release: **v1.32.0** (planning)
+Next tracked release: **v1.33.0** (planning)
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
