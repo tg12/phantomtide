@@ -11,11 +11,11 @@ Dates are UTC. Versions follow semantic versioning.
 - Next work is focused on production validation, replay-oriented hardening,
   and selective datasource triage rather than broad feed expansion.
 - To reduce load on the server, starter access now keeps selected high-churn
-  layers in preview mode with explicit UI messaging. If you want an API key
-  for a higher tier for now, contact James Sawyer.
+  layers in preview mode with explicit UI messaging. Public-facing docs now
+  include a dedicated GitHub access-request path for higher-tier API keys.
 - Public docs now describe the lighter public-facing `starter` edition in
-  product terms, keeping the explanation focused on server-load reduction and
-  preview-mode limits instead of internal access-control mechanics.
+  product terms, keeping the explanation focused on a faster, more approachable
+  starter experience instead of internal access-control mechanics.
 
 ## v1.31.0 — 2026-04-01
 

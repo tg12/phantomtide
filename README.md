@@ -258,15 +258,21 @@ The live instance is available at
 ### Starter Edition
 
 Some public-facing Phantom Tide deployments use a lighter `starter` edition to
-reduce load on the server while keeping the core workflow usable.
+keep the live experience fast, focused, and easy to explore.
 
-- Selected high-churn or dense layers may stay in preview mode.
-- The public surface stays focused on the core investigative workflow rather
-  than the heaviest map volumes.
+- Selected high-activity layers may appear in preview mode.
+- The public surface stays centered on the core investigative workflow rather
+  than the deepest live volume.
 - Higher-access deployments may expose more depth where appropriate.
 
-The aim is straightforward: keep the public-facing experience responsive and
-honest about limits instead of overloading the live stack.
+If you need more access than the public-facing starter edition currently
+offers, [request access or an API key](https://github.com/tg12/phantomtide/issues/new?template=access_request.md).
+
+If you already have an access key, use the `Access` button in the dashboard
+header and paste the key into the access dialog for that browser session.
+
+The aim is straightforward: keep the public-facing experience responsive while
+presenting a cleaner, more approachable entry point into the platform.
 
 ---
 
@@ -279,6 +285,7 @@ itself is not published here.
 |---|---|
 | [Report a bug](https://github.com/tg12/phantomtide/issues/new?template=bug_report.md) | Something is broken or behaving unexpectedly |
 | [Request a feature](https://github.com/tg12/phantomtide/issues/new?template=feature_request.md) | A concrete capability the platform should add |
+| [Request access / API key](https://github.com/tg12/phantomtide/issues/new?template=access_request.md) | Ask for expanded access beyond the public starter edition |
 | [General feedback](https://github.com/tg12/phantomtide/issues/new?template=feedback.md) | Workflow notes, questions, or review comments |
 | [All open issues](https://github.com/tg12/phantomtide/issues) | Existing public feedback |
 
@@ -291,4 +298,3 @@ See [CHANGELOG.md](CHANGELOG.md).
 ---
 
 *Phantom Tide - JS Labs*
-*&copy; 2026 James Sawyer*
