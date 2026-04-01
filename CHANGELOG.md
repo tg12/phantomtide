@@ -6,11 +6,18 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.33.0 planning
+## [Unreleased] — v1.34.0 planning
 
 - Next work is focused on production validation, replay-oriented hardening,
   VIIRS storage retention cleanup, and selective datasource triage rather than
   broad feed expansion.
+
+## v1.33.0 — 2026-04-01
+
+- The bulk GeoJSON path no longer pays the full maritime-enrichment cost on every poll, which removes the hot path that caused the public CPU outage and keeps the default map feed responsive under load.
+- Maritime reference caching is now tied to file versions instead of short TTL expiry, so static maritime layers are not repeatedly decompressed and re-indexed during live requests.
+- Public-safe outage notes were published for this incident: [GeoJSON CPU outage](./docs/geojson-cpu-outage.md) and [GeoJSON CPU triage snapshot](./docs/geojson-cpu-triage.md).
+- Local operator builds now ship with `py-spy` support in the app container for faster live profiling during future performance regressions.
 
 ## v1.32.0 — 2026-04-01
 

@@ -17,9 +17,9 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.32.0**
+Current release: **v1.33.0**
 
-Next tracked release: **v1.33.0** (planning)
+Next tracked release: **v1.34.0** (planning)
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -273,6 +273,12 @@ header and paste the key into the access dialog for that browser session.
 
 The aim is straightforward: keep the public-facing experience responsive while
 presenting a cleaner, more approachable entry point into the platform.
+
+## Incident Notes
+
+- Public-safe outage write-ups live in [docs/oom-postmortem.md](docs/oom-postmortem.md) and [docs/geojson-cpu-outage.md](docs/geojson-cpu-outage.md).
+- The 2026-04-01 deep dive is [How py-spy Became a Godsend When Phantom Tide's GeoJSON Path Ate the CPU](docs/geojson-cpu-outage.md).
+- The matching technical appendix is in [docs/geojson-cpu-triage.md](docs/geojson-cpu-triage.md).
 
 ---
 
