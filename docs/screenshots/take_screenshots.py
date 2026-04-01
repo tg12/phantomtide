@@ -27,6 +27,77 @@ except ImportError:
 OUT_DIR = Path(__file__).parent
 DEFAULT_URL = "http://localhost:8000"
 VIEWPORT = {"width": 1600, "height": 900}
+DATA_WAIT_TIMEOUT_SECONDS = 120
+DATA_WAIT_POLL_SECONDS = 5
+
+
+def _dashboard_status(page: Page) -> dict[str, int | str]:
+    """Return a small snapshot of dashboard hydration state."""
+    return page.evaluate(
+        """() => {
+            const eventText = document.getElementById('hdrEventCount')?.textContent?.trim() || '--';
+            const layerCounts = Array.from(document.querySelectorAll('[id^="layer-count-"]'))
+              .map((el) => Number.parseInt((el.textContent || '0').replace(/,/g, ''), 10) || 0);
+            const nonZeroLayerCounts = layerCounts.filter((value) => value > 0).length;
+            const markerCount = document.querySelectorAll('.leaflet-marker-icon:not(.leaflet-marker-shadow)').length;
+            return {
+              eventText,
+              nonZeroLayerCounts,
+              markerCount,
+            };
+        }"""
+    )
+
+
+def wait_for_dashboard_data(page: Page, timeout_seconds: int = DATA_WAIT_TIMEOUT_SECONDS) -> None:
+    """Wait for dashboard counts to hydrate, with terminal countdown output."""
+    deadline = time.time() + timeout_seconds
+    while True:
+        status = _dashboard_status(page)
+        event_text = str(status["eventText"])
+        event_count = int(event_text.replace(",", "")) if event_text not in {"--", ""} and event_text.replace(",", "").isdigit() else 0
+        non_zero_layer_counts = int(status["nonZeroLayerCounts"])
+        marker_count = int(status["markerCount"])
+        if event_count > 0 and (non_zero_layer_counts > 0 or marker_count > 0):
+            print(
+                f"  dashboard ready: {event_count} events, {non_zero_layer_counts} non-zero layer counts, {marker_count} markers"
+            )
+            return
+
+        remaining = max(0, int(deadline - time.time()))
+        print(
+            f"  waiting for live data... {remaining:>3}s remaining "
+            f"(events={event_text}, non-zero layers={non_zero_layer_counts}, markers={marker_count})"
+        )
+        if remaining == 0:
+            print("  data wait timed out; continuing with best available dashboard state")
+            return
+        time.sleep(min(DATA_WAIT_POLL_SECONDS, remaining))
+
+
+def enable_all_layers(page: Page) -> None:
+    """Enable all available layer checkboxes for screenshot capture."""
+    toggled = page.evaluate(
+        """() => {
+            let toggled = 0;
+            for (const cb of document.querySelectorAll('.layer-toggles input[data-layer]')) {
+                if (!cb.disabled && !cb.checked) {
+                    cb.click();
+                    toggled += 1;
+                }
+            }
+            return toggled;
+        }"""
+    )
+    print(f"  enabled {toggled} additional layers")
+
+
+def prime_dashboard(page: Page) -> None:
+    """Turn on layers, request a refresh, and wait for hydrated data."""
+    enable_all_layers(page)
+    click_if_present(page, "#btn-refresh", delay=1.0)
+    wait_for_dashboard_data(page)
+    time.sleep(2.0)
 
 
 def wait_for_map(page: Page, extra_sleep: float = 3.0) -> None:
@@ -49,6 +120,7 @@ def go(page: Page, url: str, extra_sleep: float = 3.0) -> None:
     """Navigate to URL and wait for the map. Onboarding is suppressed by init script."""
     page.goto(url, wait_until="domcontentloaded", timeout=60_000)
     wait_for_map(page, extra_sleep=extra_sleep)
+    prime_dashboard(page)
 
 
 def take(page: Page, name: str) -> None:
