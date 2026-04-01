@@ -6,31 +6,26 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## v1.29.0 — 2026-03-30
+## [Unreleased] — v1.30.0 in progress
 
-**Evidence fidelity, analyst feedback, and faster startup**
+- Rebuilding the evidence-fidelity release from the shipped `v1.28.0`
+  baseline after the `v1.29.0` rollback.
+- Public documentation now explicitly credits
+  [The OpenSky Network](https://opensky-network.org) for aircraft-state
+  coverage used by the platform.
+- USGS raw feed archiving now exists as the first replay-oriented archive
+  slice, and provenance survives cache reloads instead of being lost.
+- Compact-screen detail no longer gets covered by the sea-state legend when
+  the mobile detail drawer is open.
+- Public release markers are resynced so the README and changelog reflect the
+  real shipped state.
 
-- **Raw-payload archiving** — the platform can now persist raw collector
-  payloads to a MinIO object store when configured (`ARCHIVE_ENABLED=1`).
-  OpenSky is the first source wired up. Payloads are stored under a
-  `source/YYYY/MM/DD/run_timestamp/hash.ext` key layout so any fetch can be
-  replayed exactly.
-- **Append-only EventRecord history** — processed events from all collectors
-  are now written to date-partitioned JSONL files under
-  `data/event_records/`. The writer is designed to be safe for large batches
-  (such as the 29,000-event VIIRS run) without blocking live HTTP traffic.
-- **Analyst feedback API** — a new `POST /api/labels` endpoint lets analysts
-  mark any event as `confirm`, `dismiss`, `review`, or `escalate` with an
-  optional free-text note. Labels persist to ClickHouse and fall back to a
-  local JSONL file when the database is unavailable.
-- **Replay smoke harness** — `scripts/replay_smoke.py` replays a day of
-  archived EventRecords through the full rule-evaluation pipeline. Suitable
-  for CI regression testing against yesterday's live data.
-- **Faster post-restart fresh data** — lightweight reference collectors
-  (MARAD, ICC, GUIDE, GPS advisory, TankerTrackers seized, NERACOOS, USGS,
-  ECCC) now fire 5 seconds after startup instead of being scattered across the
-  3-minute OOM-prevention stagger window. Heavy collectors (VIIRS, NDBC, NGA
-  MIS) remain staggered to protect constrained VPS hosts.
+## v1.29.0 — rolled back
+
+This release candidate was rolled back before promotion.
+
+- Treat `v1.28.0` as the current public release.
+- Evidence-fidelity work continues under the `v1.30.0` release line.
 
 ## v1.28.0 — 2026-03-30
 
