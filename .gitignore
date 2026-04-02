@@ -199,6 +199,9 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
+# Local outreach notes
+COMMUNITY_OUTREACH_LOG.txt
+
 # Local/private documentation scratch files
 OSINT_DIRECTORY_SUBMISSION_DRAFTS.md
 OSINT_DIRECTORY_SUBMISSION_LOG.txt

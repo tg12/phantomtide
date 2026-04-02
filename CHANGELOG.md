@@ -6,12 +6,27 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.36.0 planning
+## [Unreleased] — v1.37.0 planning
 
 - Next work is focused on replay-oriented validation, remaining stale-state and
   source-health hardening, VIIRS storage retention cleanup, Redis recovery
   discipline, and the first selective aviation probe rather than broad feed
   expansion.
+
+## v1.36.0 — 2026-04-02
+
+- Starter access now stays public by default while valid exchanged API keys
+  reliably upgrade the browser session to higher tiers in optional-auth
+  deployments.
+- Local Docker auth no longer drifts from host-side key creation, so newly
+  created keys validate immediately instead of failing against a separate
+  runtime auth store.
+- Access controls are clearer in the UI: the entry point now explicitly reads
+  `Enter API key`, the redundant sidebar CTA is removed, and the Sea State
+  overlay can be dismissed with a smaller cleaner control on compact screens.
+- The shipped line also rolls forward the current collector, rule, API, test,
+  and data-tooling hardening already accumulated in the working tree instead of
+  leaving those fixes outside a versioned release.
 
 ## v1.35.0 — 2026-04-02
 
