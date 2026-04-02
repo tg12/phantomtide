@@ -23,13 +23,13 @@ right term here. `Geospatial intelligence` is also fair when describing the
 map-driven analytic method. `SIGINT` would overstate what the platform does and
 should not be used.
 
-Current release: **v1.37.0**
+Current release: **v1.38.0**
 
-Next tracked release: **v1.38.0** (planning)
+Next tracked release: **v1.39.0** (planning)
 
-The current release makes the thermal picture more explainable, removes major
-first-render stalls, and improves degraded-state truth so the dashboard is both
-faster and easier to trust during live analysis.
+The current release makes repeated map polling cheaper, tightens the starter
+onboarding path, and adds an optional locate-me control so the live dashboard
+is both more responsive and more explicit about first-use access.
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 

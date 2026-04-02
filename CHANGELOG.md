@@ -6,14 +6,28 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.38.0 planning
+## [Unreleased] — v1.39.0 planning
 
-- Next work starts with one bounded official AviationWeather.gov advisory slice
-  rather than broad aviation-feed expansion.
-- FAA aircraft-registry enrichment stays next in the reference lane, not as a
-  new live polling surface.
-- Replay and browser-visible render guardrails still stay in front of broader
-  datasource growth.
+- Replay and post-deploy truth checks now gate the next source expansion.
+- Measured follow-through on the GeoJSON and vessel-route performance work
+  stays ahead of fresh feed growth.
+- Any new datasource still needs bounded contradiction value rather than broad
+  catalog expansion.
+
+## v1.38.0 — 2026-04-02
+
+- Repeated map polling is cheaper and steadier: unchanged GeoJSON layers now
+  reuse cached serialized responses until the underlying source changes, and
+  sanctioned-vessel serve paths do less avoidable work on each request.
+- Starter onboarding is stricter and more explicit: protected browser sessions
+  now wait for a server-issued onboarding cookie, placeholder or reused sign-up
+  emails are rejected, and auth/intake responses are marked `no-store` so stale
+  session state is less likely to linger in the browser cache.
+- The map now includes an optional `go to your location` control that centers
+  on the user's current position and supports runtime-only location intake when
+  the user explicitly triggers that action.
+- Release and planning surfaces were tightened in the same pass, so the current
+  shipped line and the next hardening priorities are easier to read and track.
 
 ## v1.37.0 — 2026-04-02
 
