@@ -6,12 +6,27 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.37.0 planning
+## [Unreleased] — v1.38.0 planning
 
-- Next work is focused on replay-oriented validation, remaining stale-state and
-  source-health hardening, VIIRS storage retention cleanup, Redis recovery
-  discipline, and the first selective aviation probe rather than broad feed
-  expansion.
+- Next work starts with one bounded official AviationWeather.gov advisory slice
+  rather than broad aviation-feed expansion.
+- FAA aircraft-registry enrichment stays next in the reference lane, not as a
+  new live polling surface.
+- Replay and browser-visible render guardrails still stay in front of broader
+  datasource growth.
+
+## v1.37.0 — 2026-04-02
+
+- VIIRS thermal intelligence is more explainable in the live dashboard: fire
+  and DNB detections are separated, unusual hotspot clusters are surfaced more
+  clearly, and significant heat activity carries better nearby context.
+- Startup and first-render behavior are much faster and more stable: heavy
+  static layers and thermal analytics no longer trigger the earlier first-load
+  stalls.
+- Reliability and operator truth improved across the line: degraded source
+  state is harder to miss, geometry-bearing evidence survives persistence more
+  faithfully, and the shipped local debugging workflow now matches the Python
+  3.14 runtime.
 
 ## v1.36.0 — 2026-04-02
 
