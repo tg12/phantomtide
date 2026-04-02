@@ -6,11 +6,27 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.35.0 planning
+## [Unreleased] — v1.36.0 planning
 
 - Next work is focused on replay-oriented validation, remaining stale-state and
   source-health hardening, VIIRS storage retention cleanup, Redis recovery
-  discipline, and selective datasource triage rather than broad feed expansion.
+  discipline, and the first selective aviation probe rather than broad feed
+  expansion.
+
+## v1.35.0 — 2026-04-02
+
+- Starter access now begins with a deterministic first-use email gate instead
+  of a dismissible onboarding overlay, which keeps the front door explicit
+  without forcing API-key auth for basic access.
+- Email capture now lands in a server-side runtime-only intake log, separate
+  from normal application telemetry and separate from the later API-key
+  upgrade path.
+- Optional-access deployments describe anonymous starter access and feature
+  enablement more clearly, while the backend now enforces starter-layer limits
+  consistently across both raw and GeoJSON event APIs.
+- The release also records the next aviation-source triage line more clearly:
+  AviationWeather.gov first, FAA registry second for enrichment, AVWX only if
+  the official-source path leaves a real gap.
 
 ## v1.34.0 — 2026-04-02
 

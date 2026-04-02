@@ -7,9 +7,10 @@
 
 ---
 
-Phantom Tide is a maritime and airspace intelligence platform built around that
-idea. It does not treat AIS, notices, weather, aircraft, or satellite
-detections as separate products. It evaluates them together.
+Phantom Tide is a maritime and airspace OSINT platform built around that idea.
+It does not treat AIS, notices, weather, aircraft, or satellite detections as
+separate products. It evaluates them together through geospatial-intelligence
+workflows focused on timing, geometry, proximity, and contradiction.
 
 The result is a working picture that answers three questions quickly:
 
@@ -17,9 +18,19 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.34.0**
+If you need a short category label for discovery or search, `OSINT` is the
+right term here. `Geospatial intelligence` is also fair when describing the
+map-driven analytic method. `SIGINT` would overstate what the platform does and
+should not be used.
 
-Next tracked release: **v1.35.0** (planning)
+Current release: **v1.35.0**
+
+Next tracked release: **v1.36.0** (planning)
+
+The current release adds a deterministic first-use email gate ahead of the
+starter dashboard, keeps starter access anonymous after that gate clears, and
+stores captured addresses server-side in a runtime-only intake log rather than
+in public-facing app telemetry.
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -93,6 +104,17 @@ What it does not do:
 - It does not aggregate social media.
 - It does not scrape news and relabel it as intelligence.
 - It does not hide uncertainty behind a single composite score.
+
+## Disclaimer
+
+All data provided by this platform is offered "as is" and "as available",
+without any warranties of any kind, whether express or implied.
+
+No guarantees are made regarding the accuracy, reliability, completeness, or
+timeliness of the data.
+
+Users are solely responsible for independently verifying any information before
+relying on it for operational, navigational, legal, or commercial purposes.
 
 ## Data Acknowledgements
 
