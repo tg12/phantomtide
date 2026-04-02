@@ -6,11 +6,18 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.34.0 planning
+## [Unreleased] — v1.35.0 planning
 
-- Next work is focused on production validation, replay-oriented hardening,
-  VIIRS storage retention cleanup, and selective datasource triage rather than
-  broad feed expansion.
+- Next work is focused on replay-oriented validation, remaining stale-state and
+  source-health hardening, VIIRS storage retention cleanup, Redis recovery
+  discipline, and selective datasource triage rather than broad feed expansion.
+
+## v1.34.0 — 2026-04-02
+
+- Browser and backend access state now stay in sync during logout, expiry, and tier downgrade, so stale privileged data does not linger on the map after the server has already narrowed access.
+- Protected deployments now present access state more clearly with a visible session panel, while optional-access deployments fall back to starter mode cleanly instead of behaving like full lockout after session end.
+- Map-path and collector hardening continued in the shipped line: cached GeoJSON responses are cheaper to serve, AIS retry noise is bounded, TankerTrackers sanctions no longer soft-fails on the current payload shape, and the DART anomaly layer is visible in the operator controls.
+- Geometry and regional-state truth improved in several analyst-facing surfaces, including backend-driven NOTAM circles, VIIRS proximity-radius overlays, and clearer MODU mixed-state summaries.
 
 ## v1.33.0 — 2026-04-01
 
