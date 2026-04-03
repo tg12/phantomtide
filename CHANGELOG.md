@@ -6,13 +6,26 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.39.0 planning
+## [Unreleased] — v1.40.0 planning
 
 - Replay and post-deploy truth checks now gate the next source expansion.
-- Measured follow-through on the GeoJSON and vessel-route performance work
+- Measured follow-through on the GeoJSON, browser-path, and persistence work
   stays ahead of fresh feed growth.
-- Any new datasource still needs bounded contradiction value rather than broad
-  catalog expansion.
+- MODIS Terra/Aqua thermal ingest is now an explicit datasource decision, not
+  an implied capability.
+
+## v1.39.0 — 2026-04-03
+
+- Offshore and maritime thermal detections are easier to read: VIIRS now
+  distinguishes offshore and gas-flare-style detections more clearly, adds a
+  maritime-only filter, and surfaces risk-zone context directly in the thermal
+  detail flow.
+- Steady-state dashboard work is lighter: hidden layers and closed intel
+  panels stop doing avoidable background fetch work, which reduces refresh
+  churn during normal use.
+- Runtime truth is easier to inspect: storage-health and degraded persistence
+  conditions are more visible, while the operator tooling and regression
+  coverage behind the live stack were tightened in the same release line.
 
 ## v1.38.0 — 2026-04-02
 

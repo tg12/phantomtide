@@ -18,18 +18,13 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-If you need a short category label for discovery or search, `OSINT` is the
-right term here. `Geospatial intelligence` is also fair when describing the
-map-driven analytic method. `SIGINT` would overstate what the platform does and
-should not be used.
+Current release: **v1.39.0**
 
-Current release: **v1.38.0**
+Next tracked release: **v1.40.0** (planning)
 
-Next tracked release: **v1.39.0** (planning)
-
-The current release makes repeated map polling cheaper, tightens the starter
-onboarding path, and adds an optional locate-me control so the live dashboard
-is both more responsive and more explicit about first-use access.
+The current release makes offshore thermal detections easier to interpret,
+reduces avoidable background refresh churn, and exposes runtime health more
+honestly when persistence is degraded.
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
