@@ -18,15 +18,14 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.41.0**
+Current release: **v1.41.1**
 
 Next tracked release: **v1.42.0** (planning)
 
-The current release makes Phantom Tide more honest about what the thermal and
-offshore data actually knows: VIIRS quality degradation is visible when fire
-subtype fidelity collapses, MODU state semantics arrive normalized from ingest,
-and offline replay of archived VIIRS hotspot windows is now possible without
-scraping live collector state.
+The current release adds a premium bundled ports layer and makes the thermal
+surfaces more explicit about what they are and are not saying: port-adjacent
+VIIRS hits now surface as thermal AOI triage with age and proxy-only caution
+instead of reading like direct explosion confirmation.
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 

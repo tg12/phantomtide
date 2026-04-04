@@ -17,6 +17,18 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.41.1 — 2026-04-04
+
+- Added a premium bundled global ports layer so analysts can render static port
+  context directly on the map.
+- Port context is now wired into VIIRS AOI proximity scans, which makes
+  thermal hits near ports visible without pretending they are direct explosion
+  detections.
+- VIIRS alert surfaces now show explicit thermal-triage framing, observation
+  age, and proxy-only caution for these AOI-adjacent detections.
+
+---
+
 ## v1.41.0 — 2026-04-04
 
 - MODU activity state is now normalized at ingest, which makes offshore field
