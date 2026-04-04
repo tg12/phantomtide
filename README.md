@@ -18,13 +18,13 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.39.0**
+Current release: **v1.40.0**
 
-Next tracked release: **v1.40.0** (planning)
+Next tracked release: **v1.41.0** (planning)
 
-The current release makes offshore thermal detections easier to interpret,
-reduces avoidable background refresh churn, and exposes runtime health more
-honestly when persistence is degraded.
+The current release makes Phantom Tide work properly on mobile, with reliable
+marker detail access, a reachable onboarding flow on iOS, cleaner safe-area
+handling, and a denser but still usable desktop sidebar.
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 

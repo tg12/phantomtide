@@ -13,6 +13,14 @@ Dates are UTC. Versions follow semantic versioning.
   stays ahead of fresh feed growth.
 - MODIS Terra/Aqua thermal ingest remains an explicit datasource decision
   pending triage against VIIRS for maritime contradiction value.
+- A compact 24-hour event-receipt timeline is now in flight so operators can
+  answer what arrived when without scraping backend logs.
+- VIIRS analyst scans now use a 48-hour default lookback, which reduces false
+  impressions that the thermal lane is broken during a quiet single day.
+- VIIRS raw-download retention is now explicitly bounded and pruned on a
+  schedule instead of growing forever on the working volume.
+- Release-marker checks now validate runtime metadata, docs, and planning
+  surfaces together so stale version drift is harder to ship.
 
 ---
 
