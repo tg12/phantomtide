@@ -6,13 +6,52 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.40.0 planning
+## [Unreleased] — v1.41.0 planning
 
-- Replay and post-deploy truth checks now gate the next source expansion.
+- Replay and post-deploy truth checks still gate the next source expansion.
 - Measured follow-through on the GeoJSON, browser-path, and persistence work
   stays ahead of fresh feed growth.
-- MODIS Terra/Aqua thermal ingest is now an explicit datasource decision, not
-  an implied capability.
+- MODIS Terra/Aqua thermal ingest remains an explicit datasource decision
+  pending triage against VIIRS for maritime contradiction value.
+
+---
+
+## v1.40.0 — 2026-04-04
+
+This release focuses entirely on making Phantom Tide work properly on mobile.
+
+**Tapping a marker no longer produces a white screen.** The detail drawer
+previously triggered a near-opaque white overlay that covered the map as the
+panel slid in. It is now a dark semi-transparent scrim, consistent with how
+every other drawer-based interface behaves. The map stays visible behind it.
+
+**New mobile users can now reach the dashboard.** The onboarding email form
+was unreachable when the iOS software keyboard appeared: the dialog was
+positioned relative to the layout viewport, which does not shrink when the
+keyboard opens, so the submit button was pushed behind the keyboard with
+nowhere to scroll. The dialog is now anchored to the visual viewport, sits at
+the top of the screen above the keyboard, and scrolls correctly on all screen
+sizes including notched and Dynamic Island devices. The `API unavailable`
+header message that appeared as a result of the stalled gate is also gone.
+
+**The access-key input in the sidebar is correctly sized and fills its
+container.** A specificity conflict between the compact form override and the
+global iOS-zoom-prevention rule was causing the input to render at 16 px
+instead of 12 px, breaking the inline form layout. Both issues are resolved.
+
+**The left panel is significantly more compact on desktop.** Layer toggles,
+toggle switches, time-window buttons, and section padding were all sized for
+44 px touch targets — correct for mobile, but wasteful on desktop where pointer
+precision is available. Desktop now uses proportionally tighter sizing
+throughout the left panel while mobile retains the full 44 px targets
+unchanged.
+
+**Safe-area insets are respected on all notched devices.** The HTML viewport
+meta tag now includes `viewport-fit=cover` so the layout correctly accounts
+for the notch, Dynamic Island, and home-indicator regions across the full
+screen surface.
+
+---
 
 ## v1.39.0 — 2026-04-03
 
