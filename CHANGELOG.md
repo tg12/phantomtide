@@ -6,21 +6,28 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.41.0 planning
+## [Unreleased] — v1.42.0 planning
 
 - Replay and post-deploy truth checks still gate the next source expansion.
 - Measured follow-through on the GeoJSON, browser-path, and persistence work
   stays ahead of fresh feed growth.
 - MODIS Terra/Aqua thermal ingest remains an explicit datasource decision
   pending triage against VIIRS for maritime contradiction value.
-- A compact 24-hour event-receipt timeline is now in flight so operators can
-  answer what arrived when without scraping backend logs.
-- VIIRS analyst scans now use a 48-hour default lookback, which reduces false
-  impressions that the thermal lane is broken during a quiet single day.
-- VIIRS raw-download retention is now explicitly bounded and pruned on a
-  schedule instead of growing forever on the working volume.
-- Release-marker checks now validate runtime metadata, docs, and planning
-  surfaces together so stale version drift is harder to ship.
+- The next line remains a proof-and-recovery release, not a source-growth one.
+
+---
+
+## v1.41.0 — 2026-04-04
+
+- MODU activity state is now normalized at ingest, which makes offshore field
+  clusters and detail surfaces more consistent.
+- VIIRS now tells the truth about its current fire data quality: when subtype
+  fidelity drops and detections collapse into generic thermal output, that
+  degradation is surfaced instead of looking like a dead feed.
+- VIIRS layer counts now distinguish loaded detections from items held back by
+  the maritime thermal filter or by map-disclosure limits.
+- Archived `events_snapshot.json` windows can now be replayed offline through a
+  dedicated VIIRS hotspot replay tool.
 
 ---
 
