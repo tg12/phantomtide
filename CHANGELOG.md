@@ -20,12 +20,24 @@ Dates are UTC. Versions follow semantic versioning.
   distinguishes offshore and gas-flare-style detections more clearly, adds a
   maritime-only filter, and surfaces risk-zone context directly in the thermal
   detail flow.
+- The thermal feature now explains its own judgement: each relevant VIIRS
+  thermal can show whether the platform treats it as `background`, `context`,
+  `watch`, or `page`, with the reason shown in the detail flow instead of
+  leaving the operator to infer that logic from raw map dots alone.
+- Known offshore flare regions now act as routine-heat controls in the
+  operator-facing thermal view, which makes it easier to separate ordinary
+  industrial heat from thermal activity that deserves more scrutiny.
+- MODIS Terra/Aqua is now described honestly as a planned corroboration lane
+  for thermal analysis, not as a hidden live alert source already running
+  behind the scenes.
 - Steady-state dashboard work is lighter: hidden layers and closed intel
   panels stop doing avoidable background fetch work, which reduces refresh
   churn during normal use.
 - Runtime truth is easier to inspect: storage-health and degraded persistence
   conditions are more visible, while the operator tooling and regression
   coverage behind the live stack were tightened in the same release line.
+- Marker shapes are also cleaner across the map, reducing overlap between
+  different source families so it is easier to tell feeds apart at a glance.
 
 ## v1.38.0 — 2026-04-02
 
