@@ -1,6 +1,6 @@
 # Phantom Tide
 
-**Cross-domain maritime intelligence from open signals, not headlines**
+**Cross-domain maritime and airspace intelligence from open signals**
 
 > The useful signal is usually not the dot on the map. It is the gap between
 > what is being broadcast and what the rest of the environment says is true.
@@ -8,9 +8,10 @@
 ---
 
 Phantom Tide is a maritime and airspace OSINT platform built around that idea.
-It does not treat AIS, notices, weather, aircraft, or satellite detections as
-separate products. It evaluates them together through geospatial-intelligence
-workflows focused on timing, geometry, proximity, and contradiction.
+It does not treat vessel movement, aircraft activity, notices, weather, and
+environmental data as separate products. It evaluates them together through
+geospatial-intelligence workflows focused on timing, geometry, proximity, and
+contradiction.
 
 The result is a working picture that answers three questions quickly:
 
@@ -18,19 +19,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.42.0**
-
-The Ports & Terminals layer is now enterprise-tier. The global ports reference
-introduced in v1.41.1 is promoted from premium due to dataset scope and
-proximity-scan backend load. The layer is renamed from **Ports** to
-**Ports & Terminals** across all analyst-facing surfaces; the API path is
-unchanged.
-
-Rule engine hypotheses now expire after 48 hours on every collector cycle,
-keeping the analyst panel uncluttered in long-running deployments.
-
-Intel table routes for nav warnings, broadcast warnings, and NOTAMs are
-hardened against silent `None` field access on event records.
+Current release: **v1.44.0**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -42,91 +31,46 @@ which things should not be happening together.*
 
 ---
 
-## What It Does Today
+## What It Does
 
-Phantom Tide currently combines live, periodic, and reference layers across
-surface movement, air activity, official advisories, environmental context,
-GPS disruption reporting, and strategic infrastructure.
+Phantom Tide combines live, periodic, and reference layers across surface
+movement, air activity, official advisories, environmental context, and
+strategic infrastructure into a single working surface.
 
-Shipped platform capabilities:
+**Core capabilities:**
 
-- Cross-source global map with live and reference layers in one surface
+- Cross-source global map with live and reference layers in one view
 - Convergence zones computed from multi-source overlap rather than single-source alerts
 - Geometry-aware rendering for points, circles, routes, and polygons
 - Intel tables for high-value notice, disruption, and advisory queues
-- NOTAM intel rows and recent cards can jump the map to airport coordinates
-  using bundled airport reference data even when the source only exposes an
-  airport designator
-- Advisory and incident tables for maritime, navigation, airspace, and safety
-  context
-- Two-slot intel briefing queue with persistent ordering, promote controls, and
-  compact-screen handling
-- Rule-based hypotheses with evidence event IDs and confidence tiers
-- Space-environment context for geomagnetic and HF risk
-- GPS interference attribution using environmental, notice, and constellation
-  health context together
-- Ocean-state mesh and wind overlay from sparse maritime sensor networks
-- Detail panel with observation, ingest, expiry, and geometry context
+- Advisory rows that jump the map to relevant coordinates without a manual search
+- Rule-based hypotheses with evidence references and confidence tiers
+- Space-environment context for geomagnetic and communications-disruption risk
+- GPS interference attribution using environmental, notice, and constellation context together
+- Ocean-state and wind context rendered as a continuous field, not isolated station markers
+- Detail panel with observation time, ingest time, expiry, and geometry context
 - Source health reporting with explicit live, cache-backed, and failed states
-  for slower reference collectors
-- Layer toggles now mirror stale, cache-backed, and down source state
-  directly, and map-feed caps disclose "showing X of Y" when the API limit is hit
-- Optional deployment access control with short-lived browser sessions for
-  protected installs
-- Reference infrastructure overlays for energy, datacenter, and strategic
-  nodes such as cable landings, converter stations, and industrial chokepoints
-- Static maritime reference overlays for submarine cables, vessel-routing
-  measures, EEZ boundaries, maintained shipping lanes, and exploration areas
-- Derived maritime context in detail views: EEZ membership, maintained-route
-  membership, nearest cable distance, routing-control context, and exploration
-  area membership where reference data exists
-- Runtime snapshots and key caches now persist through the application data
-  path instead of resetting with image-local state
-- Thermal anomaly alerts that pivot directly into nearby infrastructure context
-- Radius-based proximity query with explicit distance ranking and nearby
-  datacenter context for local investigative triage
-- Vessel-in-zone correlation: FleetLeaks sanctioned vessels cross-referenced
-  against TankerTrackers polygons at API serve time, with LNG/tanker alerts for
-  Hormuz, Bab-el-Mandeb, and Suez zones
-- Convergence popup contributor breakdown showing signal family weights, event
-  counts, and contributing event IDs for each scored grid cell
-- Progressive zoom disclosure: dense real-time layers (AIS, aircraft, VIIRS)
-  suppressed at world zoom, rendered on drill-down without a refetch
-- GPS disruption events annotated with orbital visibility context to separate
-  jamming-like patterns from plausible environmental interference
-- Deep-ocean pressure anomaly context for tsunami and underwater event triage
-- Aircraft fuel-burn context when a tracked airframe can be matched reliably
-- Onboarding, keyboard shortcuts, and clearer feedback states for refresh,
-  collection, and briefing actions
+- Layer toggles that reflect stale, degraded, and down source conditions directly
+- Reference infrastructure overlays for energy, connectivity, and strategic nodes
+- Static maritime reference overlays for jurisdictional boundaries, routing measures, and infrastructure
+- Derived context in detail views: jurisdictional membership, routing context, and proximity to infrastructure
+- Thermal anomaly alerts that pivot into nearby infrastructure context
+- Proximity query with explicit distance ranking across all active source types
+- Vessel-in-zone correlation against watchlist and sanctioned-fleet reference data
+- Convergence popup showing signal family weights, event counts, and contributing evidence
+- Progressive zoom: dense real-time layers suppressed at world zoom, rendered on drill-down
+- GPS disruption events annotated with orbital visibility context to separate jamming patterns from environmental causes
+- Deep-ocean pressure anomaly context for underwater event triage
+- Watchlist-matched entity tracking with highlight rings on active positions
+- Plain-language advisory popups replacing raw aviation and maritime codes
+- Single-source-of-truth tier access control with per-feature gating across starter, premium, and enterprise tiers
+- Performance: response pre-serialisation and conditional HTTP caching on high-frequency routes
 
-What it does not do:
+**What it does not do:**
 
 - It does not aggregate social media.
 - It does not scrape news and relabel it as intelligence.
 - It does not hide uncertainty behind a single composite score.
-
-## Disclaimer
-
-All data provided by this platform is offered "as is" and "as available",
-without any warranties of any kind, whether express or implied.
-
-No guarantees are made regarding the accuracy, reliability, completeness, or
-timeliness of the data.
-
-Users are solely responsible for independently verifying any information before
-relying on it for operational, navigational, legal, or commercial purposes.
-
-## Data Acknowledgements
-
-- Aircraft state and flight-position context are powered in part by
-  [The OpenSky Network](https://opensky-network.org).
-- Airport reference coordinates used for NOTAM airport fallback and airport-centred
-  map jumps are sourced from [`mwgg/Airports`](https://github.com/mwgg/Airports).
-  The full Phantom Tide application bundle includes the airport reference JSON
-  used for that lookup path at runtime; this public-docs repo does not duplicate
-  the data file.
-- Thanks to `mwgg/Airports` and alexander-san for their contribution and
-  collaboration around the project and this release.
 
 ---
 
@@ -144,177 +88,127 @@ Phantom Tide is built for the boundary between them.
 Examples:
 
 - A vessel broadcasts position A while satellite detection suggests position B.
-- A GPS interference advisory is live, but space-weather conditions suggest a
-  natural ionospheric explanation may be plausible.
+- A disruption advisory is live, but environmental conditions suggest a natural explanation may be plausible.
 - Traffic disappears from a corridor while warnings and weather remain active.
-- Aircraft hold near a maritime disruption area while the sea picture below
-  changes.
+- Aircraft hold near a maritime disruption area while the sea picture below changes.
 
 The platform is strongest when multiple weak signals become one strong question.
 
 ---
 
-## What Is Live Right Now
-
-The public docs describe the live stack in capability terms rather than as a
-provider-by-provider source inventory.
-
-Current integrated coverage includes:
-
-- Surface vessel tracking from `AIS (limited)`, plus slower vessel watchlist,
-  sanctioned-fleet, and zone-crossing context
-- Public aircraft movement context with tracked-airframe enrichment and alerting
-- Multiple official maritime, navigation, airspace, and safety notice channels
-- Thermal, low-light, ocean-state, deep-ocean, geophysical, and
-  space-environment indicators
-- GPS disruption context combining field reports, constellation health, and
-  environmental conditions
-- Strategic and jurisdictional reference overlays for routes, facilities,
-  infrastructure, and selected industrial chokepoints
-- Analyst-facing correlation tooling such as proximity ranking,
-  vessel-in-zone detection, and cross-source risk surfaces
-
----
-
-## What It Reveals Well
-
-![North Atlantic — weather mesh and vessel density](docs/screenshots/atlantic.png)
-*North Atlantic mid-zoom. Environmental context changes how every movement
-pattern should be interpreted.*
-
-Phantom Tide is particularly useful for:
-
-- dark-vessel and AIS-contradiction workflows
-- GPS interference triage
-- airspace and maritime overlap analysis
-- advisory-heavy regional monitoring
-- identifying when multiple public signals start telling the same story
-
-It is less useful if the task is only "show me this ship" or "show me the
-latest headlines."
-
----
-
 ## Platform Views
+
+### Global Overview
+
+![Phantom Tide — full dashboard overview](docs/screenshots/overview.png)
+*All active layers at world zoom. Dense sources are culled until you drill in.*
+
+### Layer Controls
+
+![Layer control sidebar](docs/screenshots/sidebar.png)
+*Per-layer toggle controls with live counts, stale badges, and tier indicators.*
 
 ### Risk Zones
 
 ![Risk zones — Persian Gulf and Red Sea](docs/screenshots/risk_zones.png)
-*Risk zones are computed from cross-source convergence. A serious zone should
+*Convergence zones computed from cross-source overlap. A serious zone should
 exist because independent signals overlap, not because a designer drew it.*
 
-### Ocean State Layer
+### Ocean State
 
 ![Weather mesh — North Atlantic sensor network](docs/screenshots/weather_mesh.png)
-*Wave and wind context from sparse sensor networks, rendered as a continuous
-field for operational reading rather than a pile of isolated station markers.*
+*Wave and wind context rendered as a continuous field for operational reading
+rather than a pile of isolated station markers.*
+
+### North Atlantic
+
+![North Atlantic — weather mesh and vessel density](docs/screenshots/atlantic.png)
+*Mid-zoom regional view. Environmental context changes how every movement
+pattern should be interpreted.*
 
 ### Event Detail
 
-![Event detail — HYDROLANT ice hazard broadcast warning](docs/screenshots/detail_panel.png)
-*Detail view keeps the source, geometry, and time semantics visible. A map pin
-without provenance is decoration.*
+![Event detail panel](docs/screenshots/detail_panel.png)
+*Detail view keeps source, geometry, and time semantics visible.
+A map pin without provenance is decoration.*
 
-### Proximity Query
+### Advisory Detail
 
-![Proximity query — English Channel 100nm radius](docs/screenshots/proximity_results.png)
-*Right-click any position to rank nearby activity with explicit distance and
-datacenter context across source types. Useful for drilling into a corridor,
-port approach, or disruption cell.*
+![Advisory detail panel](docs/screenshots/detail_panel_warning.png)
+*Maritime advisory with full text, geometry, and time context in one panel.*
+
+### NOTAM Detail
+
+![NOTAM detail panel](docs/screenshots/detail_panel_notam.png)
+*Airspace notices with coordinate context. Clicking any intel row jumps the map
+and opens the detail panel without losing the table.*
 
 ### Intel Tables
 
 ![Intel tables panel](docs/screenshots/intel_tables.png)
-*Structured analyst tables keep high-value sources readable and jump the map to
-the relevant area without forcing a layer hunt.*
+*Structured analyst tables keep high-value sources readable and actionable.*
+
+### Source Health
+
+![Source health panel](docs/screenshots/source_health.png)
+*Live, cache-backed, and failed source states reported explicitly per collector.*
+
+### Proximity Query
+
+![Proximity query — context menu](docs/screenshots/proximity_menu.png)
+*Right-click any map position to open a radius query.*
+
+![Proximity results](docs/screenshots/proximity_results.png)
+*Distance-ranked results across all active source types with infrastructure context.*
 
 ---
 
-## Current Feature Set
+## Access Tiers
 
-Analyst-facing features available now:
+Some deployments use a tiered access model:
 
-- layer toggles with per-layer counts
-- layer toggles with stale/cache/down badges
-- reduced-motion aware map interaction
-- clickable intel rows with detail-panel preservation
-- geometry-aware jump targets
-- "showing X of Y" transparency for intel-table and capped map/API layer limits
-- proximity-query tables with explicit distance-ranked event and datacenter rows
-- plain-English space-weather status instead of provider jargon
-- on-demand hypothesis evaluation endpoint
+- **Starter** — core investigative workflow, primary live layers, advisory tables
+- **Premium** — extended reference overlays, watchlist correlation, environmental context layers, entity tracking
+- **Enterprise** — port and terminal data, highest-volume reference datasets
 
-Known limitations:
+The public-facing instance at [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
+runs at starter tier by default.
 
-- Dense point rendering depends on culling and restraint at world zoom
-- Convergence scoring is live but several weight families are still in
-  development, including AIS spoof/gap, dark-vessel, and aircraft-loiter signals
+To request expanded access, use the Access button in the dashboard header or
+[open an access request](https://github.com/tg12/phantomtide/issues/new?template=access_request.md).
 
 ---
 
-## Coming Next
+## Disclaimer
 
-Upcoming work already identified in the roadmap:
+All data provided by this platform is offered "as is" and "as available",
+without any warranties of any kind, whether express or implied.
 
-- `v1.42.0` ships the Ports & Terminals enterprise-tier promotion, hypothesis
-  expiry, and intel route hardening. The ongoing hardening checklist is in
-  [docs/v1-42-hardening-checklist.md](docs/v1-42-hardening-checklist.md).
-- `v1.43.0` continues proving container CPU truth, async-path truth,
-  serialization cost, write-path behavior, frontend long-task pressure, and
-  release-environment drift before widening source scope again.
-- Richer orbital context, denser ocean-state coverage, deeper scored-cell
-  drilldown, and stronger watchlist workflows remain on the roadmap, but they
-  do not outrank runtime proof.
+No guarantees are made regarding the accuracy, reliability, completeness, or
+timeliness of the data.
 
-These are planned items, not implied capabilities.
+Users are solely responsible for independently verifying any information before
+relying on it for operational, navigational, legal, or commercial purposes.
 
 ---
-
-## Access
-
-Public documentation, release notes, and issue tracking are open at
-[github.com/tg12/phantomtide](https://github.com/tg12/phantomtide).
-
-The live instance is available at
-[phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk).
-
-### Starter Edition
-
-Some public-facing Phantom Tide deployments use a lighter `starter` edition to
-keep the live experience fast, focused, and easy to explore.
-
-- Selected high-activity layers may appear in preview mode.
-- The public surface stays centered on the core investigative workflow rather
-  than the deepest live volume.
-- Higher-access deployments may expose more depth where appropriate.
-
-If you need more access than the public-facing starter edition currently
-offers, [request access or an API key](https://github.com/tg12/phantomtide/issues/new?template=access_request.md).
-
-If you already have an access key, use the `Access` button in the dashboard
-header and paste the key into the access dialog for that browser session.
-
-The aim is straightforward: keep the public-facing experience responsive while
-presenting a cleaner, more approachable entry point into the platform.
 
 ## Incident Notes
 
-- Public-safe outage write-ups live in [docs/oom-postmortem.md](docs/oom-postmortem.md) and [docs/geojson-cpu-outage.md](docs/geojson-cpu-outage.md).
-- The 2026-04-01 deep dive is [How py-spy Became a Godsend When Phantom Tide's GeoJSON Path Ate the CPU](docs/geojson-cpu-outage.md).
-- The matching technical appendix is in [docs/geojson-cpu-triage.md](docs/geojson-cpu-triage.md).
+- [How py-spy Became a Godsend When Phantom Tide's GeoJSON Path Ate the CPU](docs/geojson-cpu-outage.md)
+- [GeoJSON CPU triage technical appendix](docs/geojson-cpu-triage.md)
+- [OOM postmortem](docs/oom-postmortem.md)
 
 ---
 
 ## Feedback
 
-This repository is the public interface for feedback. The application code
-itself is not published here.
+This repository is the public interface for feedback. Application code is not published here.
 
 | | |
 |---|---|
 | [Report a bug](https://github.com/tg12/phantomtide/issues/new?template=bug_report.md) | Something is broken or behaving unexpectedly |
 | [Request a feature](https://github.com/tg12/phantomtide/issues/new?template=feature_request.md) | A concrete capability the platform should add |
-| [Request access / API key](https://github.com/tg12/phantomtide/issues/new?template=access_request.md) | Ask for expanded access beyond the public starter edition |
+| [Request access](https://github.com/tg12/phantomtide/issues/new?template=access_request.md) | Ask for expanded access beyond the starter tier |
 | [General feedback](https://github.com/tg12/phantomtide/issues/new?template=feedback.md) | Workflow notes, questions, or review comments |
 | [All open issues](https://github.com/tg12/phantomtide/issues) | Existing public feedback |
 
@@ -326,4 +220,4 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
-*Phantom Tide - JS Labs*
+*Phantom Tide — JS Labs*
