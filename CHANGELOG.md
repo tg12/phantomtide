@@ -1,1052 +1,2183 @@
 # Changelog
 
-All notable changes to Phantom Tide are recorded here.
+All notable internal changes to Phantom Tide are recorded here.
 
 Dates are UTC. Versions follow semantic versioning.
+
+Public-safe release notes live in `../phantomtide/CHANGELOG.md`.
+
+Release hygiene:
+- `phantom-tide` is the internal code repo.
+- `../phantomtide` is the public docs repo.
+- When cutting a new release, sync both repos' README and CHANGELOG files in the same pass.
+
+## [Unreleased] — v1.45.0
+
+### Track A — Debt
+- Redis recovery procedure: write and validate `project-planning/REDIS_RECOVERY.md`
+  distinguishing cache loss from archive loss; test against live stack.
+
+### Track B — Performance
+- Split `frontend/js/app.js` (~12,500+ lines) at the data-loading / rendering
+  seam into `data.js`, `render.js`, and a slimmed `app.js` bootstrap.
+  Each file under 5,000 lines.  Biome lint passes on all three.
+
+### Track C — Features
+- Watchlist alert panel: sidebar panel listing every on-map entity matching
+  the vessel or aircraft watchlists, sorted by last seen, clickable to jump.
+  Entity feed corroboration badge shown when present.  Frontend-only; updates
+  each refresh cycle.
+
+Full triage and acceptance criteria: `project-planning/V1_45_TRIAGE.md`.
+Delivery model: `project-planning/FORWARD_ROADMAP.md`.
+
+---
+
+## v1.44.0 — 2026-04-05
+
+### Performance — static layer pre-serialization (Track B)
+
+All 8 maritime reference layer loaders in `api/routes/static_layers.py` now
+pre-serialize to `bytes` via `core.json_utils.dumps_bytes()` (orjson) inside
+their `@lru_cache(maxsize=1)` call, cached once per process lifetime:
+
+- `_load_submarine_cables`, `_load_vessel_routing`, `_load_maritime_regions`,
+  `_load_exploration_areas`, `_load_marine_transport`, `_load_danger_zones`,
+  `_load_lightening_zones`, `_load_anchorages`
+
+Routes now return `Response(content=bytes, media_type="application/json")`
+instead of `JSONResponse(dict)`, eliminating `json.dumps()` on every request.
+Sub-loaders `_load_marine_transport_lanes()` / `_load_marine_transport_channels()`
+remain `dict`-returning as they feed the merge function.
+
+### Performance — ETag/304 on `/api/events/geojson` (Track B)
+
+- `api/routes/events.py`: cached byte payloads now carry an ETag header
+  computed as `sha256(bytes)[:16]`.  When the frontend sends `If-None-Match`
+  matching the current ETag, the route returns 304 and skips deserialization
+  and re-render on the client.
+- `import hashlib` added; response path unchanged when cache misses or revision
+  changes.
+
+### Performance — entity feed concurrency and Docker logging (Track B)
+
+- `frontend/js/app.js`: `loadEntityFeedVessels()` and `loadEntityFeedAircraft()`
+  removed from the constant `auxiliaryTasks` array.  Previously they consumed
+  2 of 4 `REFRESH_AUX_CONCURRENCY` slots on every 30-second cycle despite the
+  backend only refreshing the feed every 10 minutes.  Both calls now fire-and-
+  forget after the main `await Promise.all(...)`, guarded by
+  `shouldRefreshTask("entityFeed", 10 * 60_000, force)`.  Watchlist hits fetch
+  and highlight re-render are chained in the same 10-min block.
+- `docker-compose.yml`: app service now uses `logging: driver: "local"` with
+  `max-size: 50m / max-file: 5`.  Eliminates synchronous json-file write
+  overhead incurred on every `logger.*()` call under the default driver.
+
+### SIGMET popup — plain-English rendering and centroid fix
+
+- `renderLayer()`: Added `const isSigmet = source === "sigmet"` flag.  SIGMET
+  centroid markers now dispatch to `sigmetPopupHtml()` instead of falling
+  through to `popupHtml()`.  The generic fallback was dumping every attribute
+  key including the raw GeoJSON `geometry` blob (converted to a JSON string).
+- `renderSigmetPolygons()`: polygon hover tooltip upgraded from the raw hazard
+  code (`TS`) to `OEJD FIR · Thunderstorm` using the existing lookup tables.
+- `sigmetPopupHtml()`:
+  - `_SIGMET_SEVERITY_LABELS` lookup added: `LGT/MOD/SEV/EXTREME` →
+    `Light/Moderate/Severe/Extreme`; displayed as an "Intensity" row in the
+    meta section when `attrs.severity` is present.
+  - Collapsible "Raw bulletin" `<details>` block added, sourced from
+    `raw_value.raw_text` (the original AVMET text), hidden by default.
+
+### Supplemental Entity Feed layer (new premium feature)
+
+A new premium-gated toggle "Supplemental Entity Feed" in the sidebar sidebar
+activates two complementary views:
+
+**Map highlight overlay** (`renderEntityFeedHighlights()`):
+
+- Scans `_eventIndex` once per entity feed refresh (every 10 min) to build
+  an MMSI/ICAO24 → `{lat, lon}` lookup; O(n) over live events.
+- For each entity in `state.entityFeedVessels` / `state.entityFeedAircraft`
+  that has a matching live AIS/OpenSky marker, adds a `L.circleMarker` ring
+  to `state.entityFeedHighlightLayer`.
+- Red ring (radius 14, weight 2.5) = watchlist hit; cyan ring (radius 10,
+  weight 1.5) = general corroboration.  `interactive: false` — clicks pass
+  through to the underlying marker.
+- Ring positions update every 30-second cycle as AIS/OpenSky markers move,
+  even when the entity feed data itself has not changed.
+- Inline note below the toggle shows hit count and watchlist hit summary.
+
+**Intel table** (`renderEntityFeedTable()`):
+
+- New "Entity Feed — Watchlist Hits" section in the Intel Tables panel.
+- Columns: Type | Name/Callsign | ID (MMSI/ICAO24) | Observation count |
+  Last Seen | Live (`ON MAP` / `off map` from a real-time coord index check).
+- Sourced from `/api/entity_feed/watchlist_hits` — only entities that are
+  both in the feed and matched by `get_vessel_match()` / `get_aircraft_match()`.
+- Loaded as part of `loadIntelTables()` and also in the 10-min fire-and-forget
+  entity feed refresh block.
+
+**Wiring**:
+
+- `API.entityFeedWatchlistHits` URL constant added.
+- `state.entityFeedWatchlistHits: { vessels: [], aircraft: [] }` added.
+- `loadEntityFeedWatchlistHits()` fetches the hits endpoint; premium-gated.
+- `_buildEntityIdentifierCoordIndex()` helper: single O(n) scan of
+  `_eventIndex` returning `Map<mmsi/icao24, {lat, lon}>`.
+- `_entityFeedRingMarkers: Map<id, CircleMarker>` module-level cache.
+- Toggle change handler re-renders highlights and table immediately.
+- `entity_feed` feature registered in `FEATURE_TIER_REGISTRY` as `"premium"`.
+
+### Tier gating — FEATURE_TIER_REGISTRY and bug fixes
+
+**CSS bug fix** — `api/routes/static_layers.py` tier badges visible for
+premium users:
+
+- Root cause: `.layer-unavailable-tag { display: inline-block }` in
+  `frontend/css/style.css` overrode the UA stylesheet's `display:none` for
+  elements with the HTML `[hidden]` attribute.  `premiumTag.hidden = true`
+  from JS was silently ignored.
+- Fix: `.layer-unavailable-tag[hidden] { display: none; }` added to
+  `style.css`.  Class + attribute specificity beats the class-only rule.
+
+**Registry drift bug fix** — starter tier access to danger/lightering/anchorage
+layers:
+
+- `danger_zones`, `lightening_zones`, `anchorages` were in
+  `PREMIUM_ONLY_TOGGLE_CONTROLS` but absent from
+  `STARTER_PREMIUM_ONLY_FEATURES_DEFAULT`.  Consequence: starter users could
+  call their API endpoints and render their map layers, and the `locked`
+  computation in `updatePremiumOnlyToggleControls()` was incorrect for all
+  tiers.
+
+**FEATURE_TIER_REGISTRY — single source of truth**:
+
+- Replaced the manually-maintained `STARTER_PREMIUM_ONLY_FEATURES_DEFAULT`
+  array and `ENTERPRISE_ONLY_FEATURES_DEFAULT` array with a single
+  `const FEATURE_TIER_REGISTRY` mapping all 19 gated `featureId` strings to
+  their minimum tier (`"premium"` or `"enterprise"`).
+- Both arrays are now derived:
+  ```
+  STARTER_PREMIUM_ONLY_FEATURES_DEFAULT =
+    Object.entries(FEATURE_TIER_REGISTRY)
+      .filter(([, tier]) => tier === "premium" || tier === "enterprise")
+      .map(([id]) => id);
+  ```
+- Adding a new gated feature requires one line in the registry; all check
+  points (`isStarterPremiumOnlyFeatureLocked`, `isEnterpriseFeatureLocked`,
+  `updatePremiumOnlyToggleControls`, API guards) pick it up automatically.
+- `Object.entries(FEATURE_TIER_REGISTRY)` in the browser console gives the
+  complete tier manifest for audit.
+
+### Vulture dead-code audit — whitelist updated
+
+13 false positives added to `whitelist_vulture.py`:
+
+- `sync_api_runtime_state` — FastAPI `@app.middleware("http")` handler
+- `entity_feed_vessels`, `entity_feed_aircraft`, `entity_feed_watchlist_hits`
+  — `@router.get` handlers in `api/routes/entity_feed.py`
+- `event_timeline` — `api/routes/events.py`
+- `vessel_history`, `aircraft_history` — `api/routes/history.py`
+- `ports`, `danger_zones`, `lightening_zones`, `anchorages` — `api/routes/static_layers.py`
+- `get_version` — `api/routes/version.py`
+- `ais_vessel_zone_alerts` — `api/routes/vessels.py`
+
+All are FastAPI route handlers or middleware functions called by framework
+dispatch, not by direct Python reference.
+
+### Tests
+
+- `test_exploration_areas_route_returns_features`: monkeypatched loader now
+  returns `json.dumps(payload).encode()` (bytes) to match the updated loader
+  return type.  Test was returning a `dict`, causing a 500 from `Response`.
+- `test_danger_zones_route_returns_features` — new
+- `test_lightening_zones_route_returns_features` — new
+- `test_anchorages_route_returns_features` — new
+- Suite: **440 passed** (was 436 before this session).  4 pre-existing
+  failures in `tests/test_sanitize_live_ais_ports.py` reference a missing
+  `tools/sanitize_live_ais_ports.py` — unrelated to this release.
+
+---
+
+## v1.43.0 — 2026-04-05
+
+### AviationWeather SIGMET collector
+
+- New `collectors/aviationweather/sigmet_collector.py` fetches US convective
+  SIGMETs (`/api/data/sigmet`) and international SIGMETs (`/api/data/isigmet`)
+  from AviationWeather.gov.  No authentication required.  GeoJSON feed.
+- 20-minute rolling replace via REF_SOURCES (atomic snapshot semantics).
+- Both feeds attempted independently; feed failure falls back to
+  `data/sigmet_cache.json` without blocking the other.
+- `_centroid()` computes approximate lat/lon from Polygon/MultiPolygon/Point
+  geometry; full geometry dict stored in `attributes.geometry` for frontend
+  polygon rendering.
+- Expired events (past `valid_until`) are dropped before cache write.
+- `_MARITIME_RELEVANT_HAZARDS = {CONVECTIVE, TS, VA, TURB, DS, TROPICAL_CYCLONE, MTW}`
+  — each feature carries a `maritime_relevant` boolean for frontend filtering.
+- `core/constants.py`: `SRC_SIGMET`, `ET_SIGMET`, `SIGMET_US_URL`,
+  `SIGMET_INTL_URL` added; `ET_SIGMET` included in `ALL_EVENT_TYPES`.
+- `core/store.py`: `"sigmet"` added to `REF_SOURCES`.
+- `api/scheduler.py`: `SigmetCollector` registered with 20-minute interval,
+  startup run enabled.
+- `api/app.py`: sigmet added to `_REF_PRELOADS`.
+- Frontend: `data-layer="sigmet"` toggle added to layer panel; `SOURCE_COLORS`
+  (red-600), `SOURCE_SHAPES` (shield), `STALE_THRESHOLDS` (25 min),
+  `EVENT_REFRESH_INTERVALS` (20 min), `SOURCE_DISPLAY_NAMES` wired.
+  `sigmetPopupHtml()` renders hazard chip by type (TS/VA/TURB/DS each
+  colour-coded), maritime-relevance tag, movement, altitude ceiling, valid
+  window, and raw SIGMET text.  `renderSigmetPolygons()` reads
+  `attributes.geometry` and renders filled, semi-transparent hazard polygons
+  into the sigmet layer group alongside the centroid pin marker; viewport-culled.
+
+### Entity history API (vessel and aircraft track history)
+
+- New `core/ch_store.py:load_entity_history(identifier, source, hours, limit)`:
+  queries ClickHouse by `source + mmsi` for the last N hours of positional
+  data; converts OpenSky velocity (m/s) to knots; returns oldest-first list of
+  `{lat, lon, timestamp, speed_kts}`.
+- New `api/routes/history.py` router at `/api/history`:
+  - `GET /api/history/vessel/{mmsi}?hours=24&limit=500`
+  - `GET /api/history/aircraft/{icao24}?hours=24&limit=500`
+  Starter tier returns empty `points` list with `"tier":"starter"` field — no
+  HTTP error, no broken state in the frontend.  Premium+ calls
+  `load_entity_history()`.  Bounds: `hours` capped at 168, `limit` at 2000.
+- `api/app.py`: `history_router` registered at `/api/history`.
+- Frontend: `API.vesselHistory(mmsi, hours)` and `API.aircraftHistory(icao24,
+  hours)` constants added.  `loadAndShowTrackHistory(id, source)` fetches the
+  endpoint and renders a fading polyline into `state.activeTrackLayer`: opacity
+  scales linearly from 0.15 (oldest segment) to 0.80 (most recent), colour
+  matches source (blue=AIS, violet=OpenSky).  Per-segment tooltip shows UTC
+  timestamp and speed.  Start marker rendered at oldest point.
+  `clearTrackHistory()` removes the polyline.  "Show track" / "Hide track"
+  button injected into AIS and OpenSky detail panels; toggle is idempotent.
+
+### New NOAA static maritime layers
+
+Three additional ArcGIS FeatureServer sources added to
+`scripts/fetch_maritime_layers.py` and `api/routes/static_layers.py`:
+
+| Source key         | Output file                   | Features | Layer type       | Intel value |
+|--------------------|-------------------------------|----------|------------------|-------------|
+| `danger_zones`     | `noaa_danger_zones.json`      | 422      | `restricted_area`| Military exclusion zones; AIS gap inside = explained anomaly |
+| `lightening_zones` | `noaa_lightening_zones.json`  | 122      | `lightening_zone`| STS transfer areas; sanctioned tanker loitering = illicit transfer signal |
+| `anchorages`       | `noaa_anchorages.json`        | 679      | `anchorage`      | Dwell outside designated anchorage = deviation from expected behaviour |
+
+- All three served by new `GET /api/static/danger-zones`,
+  `/lightening-zones`, `/anchorages` routes (premium tier).
+- Cached loaders follow the existing `@lru_cache(maxsize=1) + _load_optional_json`
+  pattern; empty `FeatureCollection` returned if the file has not been fetched.
+- Frontend: toggle rows added to the premium static layers panel for all three.
+  Shared `_renderNoaaPolygonLayer()` helper renders viewport-culled polygons
+  with source-appropriate stroke colours (red=restricted, amber=lightering,
+  teal=anchorage); lazy-loaded on first toggle enable; re-rendered on zoom/move.
+  Bootstrap static restore includes all three when toggled on.
+- Module docstring updated to list all three new routes.
+
+### Entity feed integration
+
+- New `collectors/entity_feed/entity_feed_fetcher.py` module fetches two
+  supplemental identity feeds (vessel MMSI and aircraft ICAO24) from an
+  external host on a 10-minute scheduler interval.  15-second per-feed timeout.
+  Both feeds are attempted independently; failure on one does not block the other.
+- Module-level in-memory cache (dicts keyed by MMSI / ICAO24) is refreshed by
+  the scheduler job and preloaded from `data/entity_feed_cache.json` at startup.
+- `api/routes/entity_feed.py` — three new endpoints (premium tier):
+  - `GET /api/entity_feed/vessels` — full vessel entity list
+  - `GET /api/entity_feed/aircraft` — full aircraft entity list
+  - `GET /api/entity_feed/watchlist_hits` — intersection with
+    `get_vessel_match()` / `get_aircraft_match()`; each hit carries the entity
+    feed record merged with the matched watchlist record
+- `api/scheduler.py` — `_run_entity_feed_slow()` job registered at 10-minute
+  interval with an immediate startup run.  After refreshing the cache the job
+  calls `emit_watchlist_hit_hypotheses()` to push flagged-entity-active signals
+  to the store hypothesis deque (threshold: `seconds_from_now < 7200`).
+- `api/app.py` — `_preload_entity_feed()` warms the in-memory cache from the
+  file cache before the scheduler runs.  `entity_feed_router` registered at
+  `/api/entity_feed`.
+- Frontend: `state.entityFeedVessels` and `state.entityFeedAircraft` populated
+  each refresh cycle via `loadEntityFeedVessels()` / `loadEntityFeedAircraft()`.
+  Both are non-fatal — missing data or access-tier denial retains the existing
+  cache and does not interrupt the refresh cycle.
+- `entityFeedBadgeHtml()` helper renders a compact "Entity feed: N obs, last
+  seen X" row injected into AIS vessel popups (via `popupHtml`) and OpenSky
+  aircraft popups (via `aircraftPopupHtml`) when the entity's identifier is
+  present in the feed cache.
+- `runProximityQuery()` gains an "Entity Feed Corroboration" third table listing
+  vessels and aircraft inside the proximity radius that are independently
+  confirmed in the entity feed, sorted by `observation_count` descending, capped
+  at 20 rows.  Hit count is included in the proximity header summary line.
+
+### Bug fixes
+
+- Ports and Terminals sidebar badge: corrected from `premium tier` to
+  `enterprise tier` (`frontend/index.html`).  Regression from v1.42.0 tier
+  move; JS locking logic was correct, only the static HTML label was missed.
+
+### Release model change
+
+- Introduced three-track delivery model documented in
+  `project-planning/FORWARD_ROADMAP.md`.  Track A = one debt item per release
+  from a fixed ordered queue; Track B = one performance win; Track C = one-two
+  user-visible features.  Tracks are independent — an unfinished item rolls
+  alone without blocking other tracks.
+- `project-planning/V1_44_TRIAGE.md` rewritten with developer-ready acceptance
+  criteria for all three tracks.
+
+### Header version display carry-forward resolved
+
+- Carry-forward from v1.42.0 is closed.  `#hdrVersion` element is present in
+  `index.html`, `loadVersion()` calls `/api/version` (not `/api/health`), and
+  `api/routes/version.py` is registered and auth-exempt.  The display was
+  functional after `15c627b`; the carry-forward note was written before that
+  commit landed.  No further work required.
+
+### Deferred to v1.44.0
+
+- About and Legal pages alignment + `LEGAL.md` for public repo.
+- Maintenance / backend-unavailable static page.
+- Watchlist alert panel.
 
 ---
 
 ## v1.42.0 — 2026-04-05
 
-### Ports & Terminals, hypothesis expiry, and intel hardening
+### Ports and Terminals moved to enterprise tier; hypothesis expiry; intel route hardening
 
-**Ports & Terminals is now an enterprise-tier layer.**
+#### Tier change: Ports and Terminals (enterprise-only)
 
-The global ports and terminals reference layer — introduced in v1.41.1 as a
-premium feature — is promoted to enterprise tier in this release.
+- `/api/static/ports` now requires enterprise tier. Previously premium.
+- Rationale: dataset indexing load, proximity scan cost across the full
+  bundle, and VIIRS AOI enrichment volume are disproportionate for
+  non-enterprise deployments.
+- The layer is renamed from `Ports` to `Ports and Terminals` throughout the
+  frontend — display names, toggle controls, zoom notes, and popup subtitles.
+  The API endpoint path and internal `featureId` are unchanged to avoid
+  breaking existing deployments.
+- Backend: `require_session_tier(request, "enterprise")` replaces the
+  previous `"premium"` guard in `api/routes/static_layers.py`.
+- Frontend: `isEnterpriseFeatureLocked("ports")` replaces the
+  `isStarterPremiumOnlyFeatureLocked` call in `loadPorts()`.
+  `ENTERPRISE_ONLY_FEATURES_DEFAULT` list added; `"ports"` removed from
+  `STARTER_PREMIUM_ONLY_FEATURES_DEFAULT`.
+- `PREMIUM_ONLY_TOGGLE_CONTROLS` entry for ports gains `requiredTier:
+  "enterprise"`. `updatePremiumOnlyToggleControls()` now reads
+  `requiredTier` from each control entry and generates the correct locked
+  state and tooltip for both premium and enterprise thresholds.
+- Toast messaging updated: locked sessions see "Ports and Terminals requires
+  enterprise access" rather than the generic premium-locked copy.
 
-The change is load-driven. The dataset is large, the proximity-scan enrichment
-it triggers in VIIRS AOI processing is CPU-bound, and the indexing cost at
-startup is disproportionate for deployments that are not doing high-frequency
-maritime infrastructure analysis. Enterprise deployments that rely on the layer
-are unaffected; premium sessions will see the layer locked with an explicit
-upgrade prompt rather than a silent failure.
+#### Dashboard item expiry — hypothesis TTL
 
-The layer is also renamed from **Ports** to **Ports & Terminals** across all
-analyst-facing surfaces. The underlying API path is unchanged.
+- `HYPOTHESIS_MAX_AGE_HOURS = 48` added to `core/store.py`.
+- `EventStore.prune_old_hypotheses(max_age_hours)` added. Uses
+  `timestamp` (falling back to `first_seen_utc`) as the age reference.
+  Hypotheses with missing or unparseable timestamps are retained rather than
+  dropped. Returns the count removed.
+- `api/scheduler.py` calls `store.prune_old_hypotheses()` inside
+  `_persist_shared_runtime_state()` on every collector cycle.
+  This prevents the hypothesis deque accumulating stale entries across
+  long-running deployments and keeps the analyst panel uncluttered.
+- `GET /api/hypotheses` gains `max_age_hours` query parameter (1–8760).
+  Passes through to `get_hypotheses()` as an on-request age filter
+  independent of the scheduled prune.
 
----
+#### Intel route hardening (carry-forward from uncommitted)
 
-**Hypothesis panel expiry.**
+- `api/routes/intel.py`: `nav_warnings_table`, `broadcast_warnings_table`,
+  and `recent_notams` now call `store.get_event_records()` instead of
+  `store.get_events()` and access typed `EventRecord` fields directly.
+  Removes the intermediate `.get()` dict-path pattern that silently
+  returned `None` for missing keys rather than raising.
+- `ET_SMAPS_AREA` import moved to module level in `intel.py`; previously
+  deferred inside the route handler.
+- `recent_notams` now uses `store.count_events()` for the total count
+  instead of over-fetching 5000 records and slicing in Python.
+  The redundant in-route `sorted()` calls are removed; ordering is now
+  delegated to the store.
+- `broadcast_warnings_table` secondary-sort comment updated to match
+  current logic.
 
-The rule engine hypothesis panel can accumulate entries across long-running
-deployments and become difficult to read. Hypotheses are now pruned
-automatically after 48 hours on every collector cycle. The
-`GET /api/hypotheses` endpoint gains a `max_age_hours` query parameter for
-on-demand age filtering independent of the scheduled prune.
+#### MIS persistent store — warning count cache
 
----
+- `core/mis_persistent_store.py`: `warning_count()` now caches the line
+  count keyed on `(path, mtime_ns, size)`. Repeated calls within a single
+  scheduler cycle no longer re-open and scan the file. Thread-safe via a
+  module-level `threading.Lock`.
 
-**Intel route hardening.**
+#### Bench tool
 
-Three intel table endpoints — nav warnings, broadcast warnings, and recent
-NOTAMs — were re-reading event data through a dict accessor path that silently
-returned `None` for missing fields. They now read typed `EventRecord` fields
-directly. The NOTAM endpoint was also over-fetching up to 5,000 records and
-sorting in Python before slicing; it now delegates limit and ordering to the
-store.
+- `tools/bench_health.py`: `X-Phantom-Frontend: dashboard-web` header
+  added to benchmark requests so they are distinguishable from anonymous
+  load in access logs.
 
----
+#### Test coverage
 
-**Build tooling.**
+- `tests/api/test_api.py`: space-weather test now inserts an older
+  conditions record before the current one to verify the store correctly
+  returns the newest Kp value rather than an arbitrary dict ordering.
+- `tests/mis/test_mis_persistent_store.py` added (untracked).
 
-`iproute2` and `strace` are now included in the production image to support
-the hidden-cliff profiling pass in the current release cycle.
+#### Build tooling
 
----
+- `Dockerfile`: `iproute2` and `strace` added to the runtime image to
+  support the v1.42.0 hidden-cliff profiling pass described in
+  `project-planning/V1_42_PROJECT_SPECIFIC_TRIAGE.md`.
 
 ---
 
 ## v1.41.1 — 2026-04-04
 
-- Added a premium bundled global ports layer so analysts can render static port
-  context directly on the map.
-- Port context is now wired into VIIRS AOI proximity scans, which makes
-  thermal hits near ports visible without pretending they are direct explosion
-  detections.
-- VIIRS alert surfaces now show explicit thermal-triage framing, observation
-  age, and proxy-only caution for these AOI-adjacent detections.
+### Ports layer and thermal AOI triage
+
+- Added a premium bundled global ports reference layer backed by
+  `live_ais_ports.json`, including runtime fallback seeding from `bundled_data/`
+  so the layer survives volume-backed startup seeding.
+- VIIRS proximity alerts can now include ports as explicit AOIs instead of
+  only energy, datacenter, and strategic-overlay context.
+- VIIRS alert payloads now expose explicit thermal-triage fields for
+  analyst-facing caution: `alert_class`, `alert_label`, `thermal_proxy_only`,
+  and observation age metadata.
+- The frontend now frames these hits as thermal AOI triage rather than direct
+  explosion confirmation, shows age more clearly, and can reveal the matching
+  premium port layer from the alert surface.
 
 ---
 
 ## v1.41.0 — 2026-04-04
 
-- MODU activity state is now normalized at ingest, which makes offshore field
-  clusters and detail surfaces more consistent.
-- VIIRS now tells the truth about its current fire data quality: when subtype
-  fidelity drops and detections collapse into generic thermal output, that
-  degradation is surfaced instead of looking like a dead feed.
-- VIIRS layer counts now distinguish loaded detections from items held back by
-  the maritime thermal filter or by map-disclosure limits.
-- Archived `events_snapshot.json` windows can now be replayed offline through a
-  dedicated VIIRS hotspot replay tool.
+### Truth surfaces and first replay scaffold
+
+- MODU state now arrives normalized at ingest: the collector emits `status_bucket`,
+  `status_detail`, and `active` so cluster logic and popups use server-side truth
+  instead of repeatedly inferring state from raw NGA strings in the browser.
+- VIIRS fire subtype fidelity is now explicit. When current fire granules arrive
+  without usable subtype fields and collapse into generic `thermal_anomaly`
+  output, collector health degrades visibly instead of silently implying the feed
+  is dead.
+- VIIRS layer counts now separate loaded, rendered, maritime-filter-held, and
+  zoom-held state, which removes the recurring operator confusion where
+  `Maritime thermals only` made a live feed look empty.
+- Added `tools/replay_viirs_hotspots.py` and `core/replay.py` for deterministic
+  offline hotspot-cluster replay against archived `events_snapshot.json` windows.
+- Release planning for this line is now explicit in
+  `project-planning/V1_41_RELEASE_CHECKLIST.md`, and release sync remains guarded
+  by `tools/release_check.py`.
 
 ---
 
 ## v1.40.0 — 2026-04-04
 
-This release focuses entirely on making Phantom Tide work properly on mobile.
+### Mobile — first-class release
 
-**Tapping a marker no longer produces a white screen.** The detail drawer
-previously triggered a near-opaque white overlay that covered the map as the
-panel slid in. It is now a dark semi-transparent scrim, consistent with how
-every other drawer-based interface behaves. The map stays visible behind it.
+This release makes the dashboard genuinely usable on mobile for the first time. The
+previous state had a white-screen regression on marker tap, an onboarding modal that
+could become unreachable when the iOS keyboard appeared, and left-panel items sized
+for touch but with no reduction in vertical density on desktop.
 
-**New mobile users can now reach the dashboard.** The onboarding email form
-was unreachable when the iOS software keyboard appeared: the dialog was
-positioned relative to the layout viewport, which does not shrink when the
-keyboard opens, so the submit button was pushed behind the keyboard with
-nowhere to scroll. The dialog is now anchored to the visual viewport, sits at
-the top of the screen above the keyboard, and scrolls correctly on all screen
-sizes including notched and Dynamic Island devices. The `API unavailable`
-header message that appeared as a result of the stalled gate is also gone.
+#### White screen on marker tap — fixed
 
-**The access-key input in the sidebar is correctly sized and fills its
-container.** A specificity conflict between the compact form override and the
-global iOS-zoom-prevention rule was causing the input to render at 16 px
-instead of 12 px, breaking the inline form layout. Both issues are resolved.
+Opening the detail drawer on mobile triggered the panel backdrop at
+`rgba(255,255,255,0.96)` — effectively a white screen covering the map while the
+right panel slid in. The backdrop is now a dark semi-transparent overlay
+(`rgba(0,10,20,0.48)`) consistent with standard mobile drawer patterns. The map
+is dimmed, not hidden.
 
-**The left panel is significantly more compact on desktop.** Layer toggles,
-toggle switches, time-window buttons, and section padding were all sized for
-44 px touch targets — correct for mobile, but wasteful on desktop where pointer
-precision is available. Desktop now uses proportionally tighter sizing
-throughout the left panel while mobile retains the full 44 px targets
-unchanged.
+The `backdrop-filter: blur(1px)` that accompanied it has also been removed: 1 px blur
+is imperceptible at any normal display density and triggered a full GPU compositing
+pass for no visible benefit.
 
-**Safe-area insets are respected on all notched devices.** The HTML viewport
-meta tag now includes `viewport-fit=cover` so the layout correctly accounts
-for the notch, Dynamic Island, and home-indicator regions across the full
-screen surface.
+#### API unavailable on mobile — fixed
 
----
+New mobile users hit the onboarding email gate, which opens a dialog. The dialog used
+`position: absolute` anchored to the layout viewport. On iOS Safari, the layout viewport
+does not shrink when the software keyboard appears — the visual viewport does. This meant
+the submit button was pushed behind the keyboard with no way to reach it. The gate
+promise never resolved, every subsequent API call returned a transport failure, and the
+header showed `API unavailable`.
+
+Fixes applied:
+- `position: absolute → fixed` on `.dialog-backdrop` so it tracks the visual viewport.
+- `align-items: flex-start` on the backdrop so the dialog anchors at the top of the
+  screen, above the keyboard, rather than centering across the full layout height.
+- Mobile override `max-height: min(calc(100dvh - max(32px, calc(var(--safe-top) + var(--safe-bottom) + 32px))), 760px)` on `.dialog` so the form remains fully scrollable and safe-area insets on notched devices are respected.
+- `overflow-y: auto` on the backdrop so the dialog is reachable even if it is taller
+  than the available viewport.
+
+The same `position: fixed` change also applies to the desktop case, where `overflow-y: auto`
+combined with `align-items: center` was a latent bug: a dialog taller than the viewport
+would have been clipped at the top with no scroll path to the beginning.
+
+#### Access key input alignment — fixed
+
+The sidebar inline access-key input was rendered at `font-size: 16px` despite the
+compact form's intent of `12px`. The global `input:not([type="checkbox"])` rule
+(placed later in the cascade and with matching specificity `0,2,1`) was silently
+winning. The fix adds an `input` type qualifier to the override selector placed
+after the global rule so cascade order and specificity together guarantee the
+compact size. The input also now carries `width: 100%` explicitly to ensure it
+fills its flex container in all browsers.
+
+#### Left-panel desktop density
+
+All interactive items in the left sidebar previously used 44 px minimum heights —
+correct for touch targets on mobile, but causing substantial wasted vertical space on
+desktop where pointer precision is available. The two `@media (min-width: 981px)`
+blocks that governed access-panel and sidebar overrides have been merged, and desktop
+now reduces:
+
+- `layer-toggle-item` and `layer-subfilter-item`: 44 px → 30 px min-height
+- `toggle-row`: 44 px → 28 px min-height, 8 px → 4 px top margin
+- Toggle switch: 44×44 px → 38×28 px, with proportionally scaled track and thumb
+- `tw-btn` (1H / 3H / 6H / 12H / 24H / ALL): 44 px → 26 px min-height
+- `sb-section` padding: 12 px 14 px → 8 px 12 px
+- `sb-title` margin-bottom: 10 px → 6 px
+
+Mobile retains all 44 px touch targets unchanged.
+
+#### CSS hygiene
+
+- All five instances of `-webkit-overflow-scrolling: touch` removed. The property
+  has been a no-op since iOS 13 (2019); momentum scrolling is on by default.
+- `backdrop-filter: blur(1px)` removed from `.panel-backdrop` (see above).
+- `viewport-fit=cover` added to the HTML `<meta name="viewport">` tag so the
+  layout correctly accounts for safe-area insets on notched and Dynamic Island devices.
+- Cancel button wired into the access-panel inline form HTML to match existing CSS
+  selectors that already addressed it.
+
+### [Unreleased] — v1.40.0 planning
+
+### Next release direction
+
+- **Replay and truth checks still gate the next expansion**: land at least one deterministic replay or backtest slice and one explicit post-deploy truth check for auth, intake, and critical startup sources before opening another data-growth lane.
+- **Performance follow-through must be measured, not assumed**: rerun the heavy GeoJSON profiling path plus the protected browser-path probe on the shipped `v1.39.0` branch and keep both backend serialization cost and frontend refresh churn in scope until the profile proves the remaining budget is acceptable.
+- **Operational recovery still outranks source sprawl**: Redis restart recovery, VIIRS retention discipline, and scheduler-storage-class regression coverage stay ahead of the next feed add.
+- **The next datasource decision is now explicit**: triage MODIS Terra/Aqua active-fire coverage against existing VIIRS ingest for maritime contradiction value, duplicate semantics, latency, and offshore policy before any collector work starts.
+
+### Frontend mobile QA and release discipline
+
+- **iPhone-width regressions are now covered in automated WebKit checks**: Playwright mobile coverage now runs the dashboard and public pages at 375 px, 393 px, and 430 px widths with assertions for `viewport-fit=cover`, no horizontal overflow, 44 px touch targets, drawer behavior, and bottom-sheet containment.
+- **The iOS Safari release checklist is now versioned in-repo**: `docs/iOS-Safari-QA.md` records the manual pass for notch-safe layout, tap targets, form zoom prevention, safe-area handling, and the exact mobile widths the release line must hold.
+- **Static page scope is now explicit instead of assumed**: the repository audit found three customer-facing HTML entry points under `frontend/` and no additional static pages outside that tree, so the hardened safe-area treatment and regression suite now cover the whole current public surface.
 
 ## v1.39.0 — 2026-04-03
 
-- Offshore and maritime thermal detections are easier to read: VIIRS now
-  distinguishes offshore and gas-flare-style detections more clearly, adds a
-  maritime-only filter, and surfaces risk-zone context directly in the thermal
-  detail flow.
-- The thermal feature now explains its own judgement: each relevant VIIRS
-  thermal can show whether the platform treats it as `background`, `context`,
-  `watch`, or `page`, with the reason shown in the detail flow instead of
-  leaving the operator to infer that logic from raw map dots alone.
-- Known offshore flare regions now act as routine-heat controls in the
-  operator-facing thermal view, which makes it easier to separate ordinary
-  industrial heat from thermal activity that deserves more scrutiny.
-- MODIS Terra/Aqua is now described honestly as a planned corroboration lane
-  for thermal analysis, not as a hidden live alert source already running
-  behind the scenes.
-- Steady-state dashboard work is lighter: hidden layers and closed intel
-  panels stop doing avoidable background fetch work, which reduces refresh
-  churn during normal use.
-- Runtime truth is easier to inspect: storage-health and degraded persistence
-  conditions are more visible, while the operator tooling and regression
-  coverage behind the live stack were tightened in the same release line.
-- Marker shapes are also cleaner across the map, reducing overlap between
-  different source families so it is easier to tell feeds apart at a glance.
+### Thermal triage and operator context
+
+- **VIIRS maritime thermals are easier to isolate and interpret**: the dashboard now exposes a `Maritime thermals only` subfilter, uses scientific detection classes for marker treatment, and keeps `FP_type`, pixel footprint, and convergence context visible in the popup flow.
+- **Offshore heat now carries live risk framing instead of raw dots only**: VIIRS detail surfaces now distinguish offshore and gas-flare-style detections more clearly, show when a hit overlaps a high-risk box, and keep the most relevant contributing signals visible at the point of inspection.
+- **Thermal judgement is now explicit instead of implicit**: VIIRS fire detail and proximity surfaces now show a policy outcome of `BACKGROUND`, `CONTEXT`, `WATCH`, or `PAGE`, so operators can see whether the system is treating a hit as routine heat, context worth reading, something to watch, or a page-worthy anomaly.
+- **Known offshore flare basins now act as negative controls**: routine hydrocarbon regions in the Gulf, Bahrain offshore, and Red Sea energy basins are now encoded as suppressors so ordinary flare signatures do not get promoted just because they sit inside a noisy strategic area.
+- **MODIS is documented as a corroboration lane, not a hidden live source**: the shipped UI now explains MODIS' intended role in the thermal policy flow, but `v1.39.0` still treats it as a datasource decision and replay target rather than a peer alert feed.
+- **Duplicate semantics are visible to the operator**: the thermal popup now explains the intended merge rule for cross-sensor and repeated thermal detections so persistence can be separated from duplicate noise during live triage.
+- **Thermal policy now has its own assessment badge**: this is intentionally a judgement icon in the popup and banner flow, not a separate map-marker family, so source identity and policy outcome do not get conflated.
+
+### Persistence truth and refresh discipline
+
+- **ClickHouse storage health is visible end-to-end**: `/api/health` now exposes persistence state and pending buffered events, the frontend alert stack can surface degraded storage truth, and startup can fail closed when persistence is required.
+- **Partial ClickHouse flush failures now requeue buffered events instead of silently dropping evidence**.
+- **Steady-state browser work is lighter**: hidden layers stop refreshing by default, large event snapshots no longer rewrite `sessionStorage` every poll, and closed intel tables stop fetching in the background unless explicitly opened or forced.
+- **Marker vocabulary is cleaner under load**: the map icon set now uses a wider SVG shape vocabulary so high-frequency layers no longer collapse into the same small handful of `pin`, `diamond`, and `star` markers.
+
+### Operator tooling and regression hardening
+
+- **Access-key management is no longer trapped behind flags only**: `tools/manage_api_keys.py` now supports an interactive default menu plus explicit permanent key removal alongside the scripted subcommands.
+- **The local triage workflow is more concrete**: `make probe-local` and `tools/probe_local_stack.py` exercise the protected browser path directly.
+- **Regression coverage followed the release cargo**: added persistence checks cover ClickHouse field-confidence round-trip plus batch requeue behavior, `ndbc_sar2` changed-file fetches now run concurrently under test, and dead-code / unreachable-path cleanup continued alongside the release cut.
+
+## v1.38.1 — 2026-04-03
+
+### Frontend UX tightening
+
+- **The old manual refresh controls were redundant and are now removed**: the header `Refresh` and `Force Refresh` buttons are gone, the Intel tables `Reload` button is gone, and the UI now exposes the existing automatic refresh loop through a passive `Next refresh` countdown instead of duplicate operator controls.
+- **The dormant sidebar search UI is removed for now**: the unused search bar, count badge, empty-state chrome, and the matching keyboard-shortcut copy were all still visible even though that surface is not part of the current workflow.
+- **The colored access-tier banner can now be dismissed per session**: the banner no longer sticks on screen with no exit path once starter or premium state is resolved.
+- **The premium depth rows now unlock correctly on premium-plus sessions**: `Expanded aircraft depth` and `Expanded sanctioned-fleet depth` were still behaving like starter-only legacy placeholders and did not become usable when the session tier upgraded.
+- **Premium sessions can now intentionally drop back to preview depth**: once the expanded-depth rows are available, the operator can keep full depth on or explicitly fall back to the preview cap instead of being locked into the old one-state behavior.
+- **Starter access actions now line up correctly**: the sidebar `Starter active` and `Enter API key` surfaces no longer sit out of alignment in the access panel.
+- **Request-access copy is clickable everywhere it appears**: the raw access-request URL is replaced with actual links in the sidebar and auth dialog so the user can click straight through to the same request page.
 
 ## v1.38.0 — 2026-04-02
 
-- Repeated map polling is cheaper and steadier: unchanged GeoJSON layers now
-  reuse cached serialized responses until the underlying source changes, and
-  sanctioned-vessel serve paths do less avoidable work on each request.
-- Starter onboarding is stricter and more explicit: protected browser sessions
-  now wait for a server-issued onboarding cookie, placeholder or reused sign-up
-  emails are rejected, and auth/intake responses are marked `no-store` so stale
-  session state is less likely to linger in the browser cache.
-- The map now includes an optional `go to your location` control that centers
-  on the user's current position and supports runtime-only location intake when
-  the user explicitly triggers that action.
-- Release and planning surfaces were tightened in the same pass, so the current
-  shipped line and the next hardening priorities are easier to read and track.
+### Performance and serve-path hardening
+
+- **Steady map polling now reuses work until data actually changes**: GeoJSON responses are cached against source revisions instead of a 25-second wall-clock TTL, so unchanged layers stop missing the cache on routine 30-second refreshes.
+- **Sanctioned-vessel and zone paths shed avoidable allocation churn**: vessel routes now filter directly on source-specific `EventRecord` snapshots and TankerTrackers zone polygons rebuild their shapely index only when the zone source mutates.
+- **Editable installs now keep the fast JSON path**: `orjson` is declared in `pyproject.toml`, which stops pyproject-driven environments from silently falling back to stdlib JSON on the largest response payloads.
+
+### Access, onboarding, and operator truth
+
+- **Starter onboarding now gates browser-session API access explicitly**: protected browser sessions require a server-issued onboarding cookie before the rest of the API unlocks, while `/api/auth/session` status remains readable so the frontend can recover cleanly.
+- **Onboarding intake is stricter and more useful**: the backend rejects obvious placeholder addresses, enforces uniqueness for sign-up emails, and keeps auth, onboarding, and intake POST responses marked `no-store` so stale session state is not cached by the browser.
+- **The map now has an optional locate-me flow with runtime-only logging**: a small Leaflet control centers the map on the browser's current location when the user asks for it, draws a lightweight accuracy overlay, and writes a runtime-only server-side location event for later operator review.
+
+### Release and planning hygiene
+
+- **April triage notes were folded back into the live planning surfaces**: the master plan now owns the carry-forward from the outage, performance, remote-runtime, and silent-failure passes, while the release diary records the consolidation and the redundant scratch notes are retired.
+- **Release markers are aligned on `v1.38.0`**: runtime metadata, package version, internal README, and the public-doc sync pass now agree on the shipped line instead of leaving the onboarding and perf work stranded between planning and release state.
 
 ## v1.37.0 — 2026-04-02
 
-- VIIRS thermal intelligence is more explainable in the live dashboard: fire
-  and DNB detections are separated, unusual hotspot clusters are surfaced more
-  clearly, and significant heat activity carries better nearby context.
-- Startup and first-render behavior are much faster and more stable: heavy
-  static layers and thermal analytics no longer trigger the earlier first-load
-  stalls.
-- Reliability and operator truth improved across the line: degraded source
-  state is harder to miss, geometry-bearing evidence survives persistence more
-  faithfully, and the shipped local debugging workflow now matches the Python
-  3.14 runtime.
+### Thermal intelligence and operator context
+
+- **VIIRS now behaves like an analyst surface instead of a raw feed dump**: the dashboard separates thermal fires from DNB night-light detections, exposes hotspot clusters with unusualness scoring, renders pixel-footprint geometry when available, and shows context-aware banners for both proximity alerts and unusual hotspot zones.
+- **Thermal detections now carry more explainable nearby context**: hotspot and proximity routes surface nearby port, offshore, nuclear, datacenter, and military context so unusual heat near strategic infrastructure is easier to interpret without leaving the dashboard.
+- **Dense thermal layers are more truthful about what is loaded versus what is visible**: zoom-aware VIIRS counts, disclosure hints, subfilter counts, and zoom-scaled markers now explain why the map is or is not rendering a given thermal slice.
+
+### Performance and startup hardening
+
+- **The main VIIRS proximity bottleneck was removed at the root cause**: the hot route now works from raw `EventRecord` access paths instead of recursively materializing full dict payloads, which removes the earlier serialization cliff under repeat load.
+- **Heavy static reference layers no longer drag first render into a startup burst**: large maritime and reference payloads are cached server-side, and saved premium toggles now restore after first paint through an idle staggered queue instead of fan-out loading during auth bootstrap.
+- **Python 3.14 triage is now the default local debugging path**: runtime debugging hooks, container helpers, and test coverage now support faulthandler dumps, live `pdb -p` attach, and reproducible `cProfile` slices without relying on `py-spy` as the default workflow.
+
+### Persistence and operator truth
+
+- **Geometry-bearing evidence no longer falls out of persistence silently**: ClickHouse inserts now serialize event geometry correctly and restore it on read, closing the earlier silent geometry-loss path for VIIRS and other geometric evidence.
+- **Source health is harder to miss during degraded runs**: the dashboard now auto-expands health state when sources are degraded, stale, or cache-backed unless the operator explicitly collapses it.
+- **Release markers are aligned on the shipped line again**: internal metadata, launcher output, runtime release info, and both repos' release surfaces now agree on `v1.37.0` as the current release.
 
 ## v1.36.0 — 2026-04-02
 
-- Starter access now stays public by default while valid exchanged API keys
-  reliably upgrade the browser session to higher tiers in optional-auth
-  deployments.
-- Local Docker auth no longer drifts from host-side key creation, so newly
-  created keys validate immediately instead of failing against a separate
-  runtime auth store.
-- Access controls are clearer in the UI: the entry point now explicitly reads
-  `Enter API key`, the redundant sidebar CTA is removed, and the Sea State
-  overlay can be dismissed with a smaller cleaner control on compact screens.
-- The shipped line also rolls forward the current collector, rule, API, test,
-  and data-tooling hardening already accumulated in the working tree instead of
-  leaving those fixes outside a versioned release.
+### Starter access and session upgrades
+
+- **Starter now cleanly upgrades through exchanged browser sessions**: local and public optional-auth deployments start anonymous users on `starter`, then upgrade features when a valid key is entered through the header or sidebar auth UI.
+- **Freshly created keys now validate against the live Docker app**: the host-side access-key store is mounted into `/app/data/auth`, so `tools/manage_api_keys.py` and the running container no longer drift onto different auth stores.
+- **The access UI is less confusing on mobile and desktop**: the header now surfaces an explicit `Enter API key` entry point, the sidebar no longer duplicates the unauthenticated upgrade CTA, and the Sea State legend now has a smaller clean dismiss control.
+
+### Source, rule, and API hardening
+
+- **Collector and route normalization work shipped across the current dirty line**: AIS, DailyMem, GUIDE, MIS, NDBC, NOTAM, VIIRS, SWPC, USGS, raw events, vessel routes, and intel paths all carried forward the current parsing, threshold, and response-shape fixes already accumulated in the tree.
+- **Core scoring and policy paths were tightened together**: convergence, access policy, collector base behavior, ClickHouse write-through, callsign/reference lookups, and maritime/rule logic now reflect the current branch state instead of leaving those fixes stranded outside a release.
+- **Regression coverage moved with the runtime changes**: focused tests for API access, AIS, ICC, MARAD, and geometry behavior ship with the current line rather than sitting unversioned beside it.
+
+### Tooling and release hygiene
+
+- **Local key-management guidance now matches the working runtime**: API auth notes, README guidance, and key-management tool copy now distinguish starter/premium/enterprise user upgrades from the private `operator` tier.
+- **Release markers are back in sync**: package metadata, runtime release metadata, launcher banner text, internal instructions, and both repos' release surfaces now agree on `v1.36.0` as the shipped line.
 
 ## v1.35.0 — 2026-04-02
 
-- Starter access now begins with a deterministic first-use email gate instead
-  of a dismissible onboarding overlay, which keeps the front door explicit
-  without forcing API-key auth for basic access.
-- Email capture now lands in a server-side runtime-only intake log, separate
-  from normal application telemetry and separate from the later API-key
-  upgrade path.
-- Optional-access deployments describe anonymous starter access and feature
-  enablement more clearly, while the backend now enforces starter-layer limits
-  consistently across both raw and GeoJSON event APIs.
-- The release also records the next aviation-source triage line more clearly:
-  AviationWeather.gov first, FAA registry second for enrichment, AVWX only if
-  the official-source path leaves a real gap.
+### Access gate and runtime-only intake
+
+- **Starter access now has a real first-use gate**: the browser blocks on a low-friction email modal before the starter dashboard starts, rather than treating onboarding as a cosmetic overlay after the app is already running.
+- **Email submissions now stay on-box in runtime-only storage**: the backend validates and appends normalized email entries into a JSONL intake log under `data/intake/`, with a server-generated UUID directory, restrictive file permissions, and no public route exposure.
+- **Protected-access UX now aligns better with anonymous starter**: optional-mode deployments now describe starter access as anonymous by default while keeping the API-key upgrade path explicit for expanded features.
+
+### Release hardening and planning discipline
+
+- **Starter-tier limits now hold across both map and raw event APIs**: the raw `/api/events` route now applies the same starter cap discipline as `/api/events/geojson`, closing an easy path around the lighter public view.
+- **Runtime auth and intake stores are kept out of git again**: `data/auth/` and `data/intake/` are now ignored so server-side state does not leak into release staging by accident.
+- **The next datasource line is more explicit and less novelty-driven**: the release planning corpus now ranks AviationWeather.gov first, FAA registry second as reference enrichment, and AVWX as hold-only until an official-source gap actually exists.
 
 ## v1.34.0 — 2026-04-02
 
-- Browser and backend access state now stay in sync during logout, expiry, and tier downgrade, so stale privileged data does not linger on the map after the server has already narrowed access.
-- Protected deployments now present access state more clearly with a visible session panel, while optional-access deployments fall back to starter mode cleanly instead of behaving like full lockout after session end.
-- Map-path and collector hardening continued in the shipped line: cached GeoJSON responses are cheaper to serve, AIS retry noise is bounded, TankerTrackers sanctions no longer soft-fails on the current payload shape, and the DART anomaly layer is visible in the operator controls.
-- Geometry and regional-state truth improved in several analyst-facing surfaces, including backend-driven NOTAM circles, VIIRS proximity-radius overlays, and clearer MODU mixed-state summaries.
+### Production sync and access truth
+
+- **Frontend access state now follows server truth on downgrade**: session expiry, logout, or tier downgrade now clears stale live state instead of leaving privileged or higher-tier data rendered after the backend has already narrowed access.
+- **Optional auth no longer behaves like enforced auth after logout**: deployments using `PHANTOM_AUTH_MODE=optional` now fall back cleanly to starter access and keep the refresh loop alive instead of freezing the dashboard as if all API access were revoked.
+- **Protected-session UX is more explicit**: the browser now shows a visible access panel with current tier, session status, and expiry, and the unlock flow is tested against both raw `pt_live_...` tokens and full CLI output lines.
+
+### Performance and collector hardening
+
+- **GeoJSON hot-path work is now directly reduced on the response side**: cache hits reuse pre-serialized JSON bytes, and capped map responses keep newest-first semantics without sorting the entire filtered result set before slicing.
+- **Slow UI and slow API complaints can now be correlated instead of guessed**: backend request IDs and `Server-Timing` headers now align with the browser perf ledger behind `?debug_perf=1` for repeatable triage.
+- **Two production-facing soft-failure paths were tightened**: repeated AIS upstream reader failures are log-throttled instead of flooding normal runtime, and TankerTrackers sanctions now accepts the current dict-wrapped upstream payload shape instead of silently flattening to zero events.
+
+### Analyst-visible truthfulness
+
+- **NDBC DART is now a first-class visible layer**: the DART anomaly feed is exposed in operator controls instead of being wired only in frontend internals.
+- **NOTAM and VIIRS geometry is more explicit on the map**: NOTAM circle overlays render from canonical backend event geometry, and VIIRS proximity alerts now return and render their search radius directly.
+- **MODU field-state summaries preserve more real state**: cluster and popup summaries now keep mixed non-active regional context instead of collapsing every non-active rig into a generic removed bucket.
 
 ## v1.33.0 — 2026-04-01
 
-- The bulk GeoJSON path no longer pays the full maritime-enrichment cost on every poll, which removes the hot path that caused the public CPU outage and keeps the default map feed responsive under load.
-- Maritime reference caching is now tied to file versions instead of short TTL expiry, so static maritime layers are not repeatedly decompressed and re-indexed during live requests.
-- Public-safe outage notes were published for this incident: [GeoJSON CPU outage](./docs/geojson-cpu-outage.md) and [GeoJSON CPU triage snapshot](./docs/geojson-cpu-triage.md).
-- Local operator builds now ship with `py-spy` support in the app container for faster live profiling during future performance regressions.
+### Outage containment and runtime hardening
+
+- **The GeoJSON CPU outage is fixed at the real hot path**: bulk `/api/events/geojson` responses no longer force maritime enrichment by default, the handler no longer blocks the event loop thread, and maritime index rebuilds are keyed to file signatures instead of a five-minute TTL.
+- **Maritime reference caching is now stable under repeat load**: gzipped layer payloads are cached per file version, first-build index work is serialized inside a process, and very large feature sets skip analyst-facing enrichment instead of turning the default map feed into a CPU trap.
+- **Frontend failure handling is less silent**: the browser now surfaces API-unavailable states explicitly, avoids follow-on refresh work when the backend is down, and keeps the header state honest instead of looking healthy while requests fail.
+
+### Release discipline and operational evidence
+
+- **Release markers are boxed off on `v1.33.0`**: runtime metadata, package versions, launcher output, internal docs, and public docs now agree on the shipped bug-fix line instead of leaving the outage work stranded in `v1.33.0` planning.
+- **The outage record is now publishable instead of tribal knowledge**: the full internal RCA and triage remain in `project-planning/`, and public-safe incident notes are mirrored into the sibling `../phantomtide` docs repo like the earlier OOM postmortem.
+- **Local containers now include `py-spy` for live profiling**: the app image installs `py-spy`, and local Docker compose grants the ptrace permissions needed to sample hot Python workers during future silent failures or slow-path triage.
 
 ## v1.32.0 — 2026-04-01
 
-- Public-facing starter access is clearer: the lighter `starter` edition now
-  has cleaner messaging, a dedicated GitHub access-request path for higher-tier
-  API keys, and a simpler `Access` entry flow for deployments that require a
-  key.
-- Investigative anomaly triage is more trustworthy: close-range VIIRS
-  proximity alerts near strategic context surface more reliably, misleading
-  global cable-distance readouts are suppressed, and key detail/banner copy is
-  easier to read.
-- Public release notes and support paths now match the live product more
-  closely, with access-request handling routed through GitHub issues instead of
-  ad hoc contact copy.
+### Intelligence and analyst UX
+
+- **VIIRS proximity alerting is trustworthy again**: close-range offshore and gas-flare detections near strategic context are promoted back into the analyst-facing alert path, while routine datacenter-adjacent heat stays suppressed.
+- **Maritime context no longer shows analyst-useless global cable distances**: `nearest_cable_km` is omitted when the nearest submarine cable is more than 1000 km away, preventing misleading four-digit distance readouts from crowding non-maritime detail panels.
+- **Starter-tier preview UX is less literal and more usable**: starter messaging is now generic instead of source-name heavy, the alert banner no longer exposes per-layer cap summaries, limited preview layers render in a visibly greyed state, and the locked-depth controls now frame the upgrade path around expanded access rather than provider-specific wording.
+- **Protected-access surfaces are clearer in the browser**: the header `Access` entry point, dialog labels, and session copy now use `access key` wording and align with the public access-request path.
+
+### Release hygiene and documentation
+
+- **Access-control docs now draw a hard line between anonymous and operator access**: open local dev stays `operator` by default for full-feature testing, while public anonymous access is documented as `starter` tier when `PHANTOM_AUTH_MODE=optional` is used.
+- **Env and dead-code drift were cleaned up for the release line**: `.env.example` now mirrors the runtime keys the code actually reads, the local `.env` non-secret keys were aligned to that shape, and the Vulture audit is clean after whitelisting FastAPI/app entrypoints plus removing the orphaned `NDBC_DART_DIR_URL` constant.
+- **Access request handling is routed through the public repo instead of named personal contact copy**: starter-limit support text, the public README, and the access-policy payload now point users to a dedicated GitHub access-request flow for higher-tier API keys.
+- **Release metadata now matches the shipped line again**: internal package versions, runtime release metadata, public docs markers, and roadmap notes all align on `v1.32.0` as the current release and `v1.33.0` as the next planning line.
 
 ## v1.31.0 — 2026-04-01
 
-- Optional dashboard access control shipped for protected deployments via
-  short-lived browser sessions instead of exposing long-lived secrets in the
-  frontend.
-- Starter-tier defaults are intentionally lighter: dense premium-candidate
-  layers stay capped, and military-installation data is no longer exposed in
-  the public user-facing surface.
-- Slower-source truthfulness improved across NERACOOS freshness reporting,
-  NOAA DART pressure-anomaly polling, and direct NOTAM JMS ingestion.
-- Runtime split support and release metadata cleanup make the shipped stack
-  easier to operate and easier to describe consistently across docs.
+### Access control and product discipline
+
+- **Optional dashboard auth landed as a deployment-wide session gate**: protected deployments now reject `/api/*`, `/docs`, `/redoc`, and `/openapi.json` until the browser exchanges an opaque operator key for a short-lived `HttpOnly` session cookie, while open local development can still stay off by env flag.
+- **Operator key lifecycle is now explicit and scriptable**: `core/auth.py` provides hashed API-key storage plus signed session helpers, and `tools/manage_api_keys.py` handles secret generation, key creation, listing, and disable flows against `data/auth/api_keys.json`.
+- **Starter-tier exposure is now intentionally sparse**: the default map profile is reduced to AIS plus navigation warnings, dense premium-candidate layers stay off by default, and OpenSky plus sanctioned-fleet map depth is capped to 10 markers each until a fuller tier model is shipped.
+- **Military-installation data is now internal-only**: the user-facing route and frontend load path were removed, VIIRS proximity results no longer disclose military nodes, and the remaining sidebar toggle behaves as an enterprise placeholder instead of a dead control.
+
+### Source truthfulness and collector hardening
+
+- **Collector health states now preserve backend run modes end-to-end**: `down` runs no longer collapse into a generic `failed` label, so the UI can distinguish `empty`, `error`, `cache`, `stale`, and `partial` honestly.
+- **NERACOOS now reports mixed freshness truthfully**: station-level fetch failures surface in health detail, `UCONN_WLIS_MET` joins the monitored set, and mixed fresh/stale observation sets now resolve to `partial` instead of flattening the whole source into stale-or-live.
+- **DART live polling was restored against NOAA's current products**: the collector now reads `realtime2/*.dart` and `5day2/*_5day.dart` instead of the dead legacy layout, uses a curated active-station roster, and surfaces per-station read failures directly in source health.
+- **NOTAM now ingests directly from FAA SWIM JMS**: the collector drops the REST sidecar path, drains the direct JMS buffer when credentials exist, and falls back only to the local cache when no live JMS source is available.
+
+### Runtime and release hygiene
+
+- **Runtime roles now support split API and worker deployments**: `core/runtime_roles.py` makes scheduler ownership and proxy discovery follow `PHANTOM_RUNTIME_ROLE`, with env overrides for explicit control.
+- **Access-control docs and env examples now match the shipped behavior**: `.env.example`, the internal README, and `project-planning/API_AUTH.md` now document the auth configuration and operator workflow coherently.
+- **Release metadata drift was corrected**: internal package versions, frontend package metadata, `release.json`, roadmap docs, and changelog markers now agree on the shipped `v1.31.0` line and the active `v1.32.0` planning line.
+
+### Collector health and UI truthfulness
+
+- **Collector health states now preserve backend run modes end-to-end**: `down` runs no longer get flattened to a generic `failed` mode in `SourceHealth`, so the UI can distinguish `empty`, `error`, `cache`, `stale`, and `partial` instead of collapsing them into ambiguous badges.
+- **NERACOOS no longer degrades opaquely**: stale upstream observations still surface as stale, but station-level HTTP/fetch failures now show up in health detail and total live-fetch failure is recorded as an explicit down/error state.
+- **DART no longer fails silently behind `0 stations polled`**: directory discovery, station-coordinate refresh, and per-station read failures now feed health detail directly, and the current NDBC station-table LOCATION format is parsed correctly instead of assuming obsolete numeric lat/lon columns.
 
 ## v1.30.0 — 2026-04-01
 
-- Evidence-fidelity release cut from the real shipped `v1.28.0` baseline after
-  the `v1.29.0` rollback.
-- Public README continues to describe the live stack in capability terms rather
-  than as a provider-by-provider inventory. `AIS (limited)` remains disclosed.
-- Runtime release metadata is now machine-readable, so the dashboard version
-  badge no longer depends on hardcoded frontend text.
-- Mobile detail handling is cleaner on compact screens; the sea-state legend no
-  longer sits on top of critical detail.
-- Maritime context is more trustworthy around the anti-meridian, reducing false
-  impressions of cable proximity near the date line.
-- Evidence-oriented backend work landed behind the scenes, including replay-
-  oriented raw archival expansion and lower-overhead refresh behavior.
+### Release direction
 
-## v1.29.0 — rolled back
+- **Rebuild from the shipped baseline completed**: `v1.29.0` remained rolled back, and `v1.30.0` was cut from the real shipped `v1.28.0` baseline instead of the abandoned candidate line.
+- **Evidence fidelity outranks surface expansion**: archive-vs-cache separation, replay/backtest scaffolding, and trustworthy release sync are the real next release, not another feed grab.
+- **First archive boundary landed**: the USGS collector now archives its raw GeoJSON feed under runtime data before normalization, and cached EventRecords now preserve provenance metadata instead of dropping it on reload.
+- **Release metadata now has a canonical runtime source**: the dashboard header version reads from `release.json` through `/api/health`, so the shipped release line no longer depends on hardcoded frontend text.
 
-This release candidate was rolled back before promotion.
+### Mobile
 
-- Treat `v1.28.0` as the current public release.
-- Evidence-fidelity work continues under the `v1.30.0` release line.
+- **Compact-screen detail panel no longer gets covered by sea-state legend**: when the mobile detail drawer is open, the bottom-right weather legend now yields instead of sitting underneath vessel attributes.
+
+### Labels / data quality
+
+- **Stale `_WATCHLIST_CATEGORY_DISPLAY` remap in `api/routes/intel.py`**: all 24 remap keys (e.g. "Toy Soldiers") are absent from the current `plane_alert_db.json`; the DB already ships clean English category names. The dict and `_display_category()` can be removed entirely once confirmed no live Redis/CH rows carry the old informal keys.
+- **`reports/labels_review.csv`** (2263 rows, untracked): full label audit covering 50 aircraft categories, 2155 aircraft tags, 24 stale remap entries, 2 vessel watchlist sources, 32 event types. Needs analyst review; import tooling to follow (hide/rename/delete actions per row).
+- **Label cleanup required**: aircraft tags contain meme language, jokes, attitude, filler, typos, and vibe descriptors. Professional dashboard needs denotative labels, not performative. Worst offenders identified for removal/replacement: childish/jokey tags (e.g., "Aaaaaaaand It's Gone", "AbsoluteRuler4Life", "Get To The Choppa"), vague/flippant tags (e.g., "Advanced", "Actor", "Soft Drinks"), and sloppy semantics (duplicates, typos, internal shorthand). Rule set: no jokes, memes, slang, attitude, rhetorical questions, opinionated descriptors, internal shorthand, duplicate semantics, or insider-context labels.
+
+### Source triage
+
+- **Datasource scratchpad moved out of the changelog**: the long-form ArcGIS and endpoint research notes now belong in `project-planning/EXTERNAL_ARCGIS_SOURCES.md` and the master plan backlog, not in release notes.
+- **Hong Kong Marine Department arrivals / departures promoted to backlog triage**: validate machine-readable access, identifier quality, timezone handling, and whether port-call events materially improve AIS contradiction detection around Hong Kong approaches.
+- **NWS API and NWS_Mapping promoted to backlog triage**: probe marine/coastal alert geometry, update cadence, and overlap risk against ECCC, NDBC, and existing weather layers before any collector work starts.
+- **NOAA coastal ArcGIS estate sweep formalized as discovery work**: enumerate `Hosted`, `MarineCadastre`, `OceanReports`, and `NWS_Mapping`, then only promote layers that add control, infrastructure, or restriction context rather than decorative overlays.
+- **Public docs inventory is now capability-level, not feed-by-feed**: public release material keeps `AIS (limited)` visible but otherwise describes the live platform in functional terms instead of publishing the full operational source map.
+
+### Triage queue
+
+- **v1.30 priority order is now explicit**: fix trust-breaking bugs first, then real performance bottlenecks, then evidence-fidelity features, then only selective source promotion.
+- **Trust-breaking bug queue leads the release**: nearest-cable accuracy, OpenSky restart validation, snapshot repopulation proof, and stale watchlist-display logic cleanup all outrank new collectors.
+- **Real performance work is now called out separately from feature growth**: convergence recomputation on every request and the 30-second frontend poll fan-out are now treated as first-class release debt.
+
+### Performance / fidelity
+
+- **Convergence snapshots now use a short-lived response cache**: `/api/convergence` now reuses a 20-second cached payload when the request shape and in-memory store fingerprint have not changed, which removes redundant recomputation from the default dashboard poll loop.
+- **Frontend refresh fan-out is now split by cadence**: slow-moving sources and slower overlays no longer refetch on every 30-second cycle, and the intel tables panel now deduplicates in-flight fetches while still forcing a refresh when the analyst explicitly opens or reloads it.
+- **Raw archival expanded beyond USGS**: the ICC collector now archives its live maps, categories, and markers payloads before normalization and attaches those archive paths to event provenance for replay/debug work.
+- **Dead-code noise reduced in the v1.30 branch**: FastAPI-decorated static-layer routes are now whitelisted for Vulture, an orphaned MIS Playwright fallback was removed, and `core/json_utils.py` no longer carries unused locals.
+
+
+### Maritime context
+
+- **Nearest cable distance hardened around the anti-meridian**: `core/maritime_context.py` now wraps longitude deltas and nearest-candidate lookups across the date line before computing `nearest_cable_km`, with focused regression coverage for anti-meridian cases.
+
+---
+
+## v1.29.0 — rolled back candidate
+
+This release candidate was not promoted.
+
+- Treat `v1.28.0` as the last shipped internal/public release baseline.
+- Rebuild the evidence-fidelity track as `v1.30.0` with honest release markers and replay-first validation.
 
 ## v1.28.0 — 2026-03-30
 
-**Maritime context completion and runtime-state hardening**
+Maritime context completion, runtime data persistence hardening, and release sync.
 
-- **New maritime context overlays** — optional map layers now add maintained
-  shipping lanes/channels and deep-sea exploration areas to the existing cable,
-  routing, and EEZ context.
-- **Better vessel and alert context** — detail views now show derived maritime
-  context such as EEZ membership, maintained-route membership, nearest cable
-  distance, routing-control context, and exploration-area membership when the
-  reference data exists.
-- **Heavy overlays stay drill-down friendly** — the larger maritime reference
-  layers are lazy-loaded and culled to the current viewport so the map remains
-  usable at wider zoom levels.
-- **Runtime state is more upgrade-safe** — event snapshots and key caches now
-  follow the persistent application data path so deploys do not silently reset
-  important recent state.
+### Maritime context completion
 
-### Postmortem: weekend OOM incident
+- `scripts/fetch_maritime_layers.py` now fetches NOAA MarineTransportation
+  lanes/channels and ISA exploration areas, and the normalized outputs are now
+  bundled under `data/_additional/`.
+- `api/routes/static_layers.py` now serves `GET /api/static/marine-transport`
+  and `GET /api/static/exploration-areas` alongside the earlier cable,
+  routing, and EEZ overlays.
+- `core/maritime_context.py` now enriches event GeoJSON with derived maritime
+  context including `inside_eez`, `eez_name`, `nearest_cable_km`, `in_lane`,
+  `marine_transport_name`, `routing_control`, `inside_exploration_area`, and
+  `exploration_area_name`.
+- The frontend now lazy-loads and renders marine transport and exploration
+  layers, and detail surfaces expose the new maritime-context fields.
+- Heavy static maritime overlays now use viewport culling on the frontend so
+  wide-area map views stay responsive when multiple reference layers are
+  enabled together.
 
-- A concise postmortem and operational summary was published: [OOM postmortem](./docs/oom-postmortem.md)
+### Runtime data persistence hardening
+
+- `core/runtime_data.py` now defines the persistent runtime-data path used to
+  seed bundled assets into the authoritative `/app/data` volume without
+  overwriting live state.
+- `core/local_cache.py`, `collectors/opensky/opensky_cache.py`, and
+  `api/scheduler.py` now write the event snapshot, OpenSky cache, and MODU
+  history through the runtime-data path instead of repo-local `data/`
+  assumptions.
+- Added focused regression tests for runtime-data sync, event snapshot
+  persistence, OpenSky cache persistence, MODU history persistence, maritime
+  layer fetch fixtures, and maritime context enrichment.
+
+### Planning and release hygiene
+
+- Retired planning docs are now consolidated into
+  `project-planning/PHANTOM_TIDE_MASTER_PLAN.txt` with
+  `project-planning/ROADMAP_HISTORY.txt` and
+  `project-planning/RELEASE_DIARY.txt` preserving historical context.
+- `TAGS_REVIEW.csv` moved to the repo root to match the existing aircraft-tag
+  tooling expectations.
+- Internal and public release markers are now synced to `v1.28.0`.
 
 ## v1.27.0 — 2026-03-30
 
-**Structured squawk context, maritime reference layers, and reliability fixes**
+Structured squawk taxonomy, maritime reference layers, and reliability fixes.
 
-- **Squawk meanings are now typed, not guessed from free text** — the aircraft
-  squawk reference data is classified into categories such as emergency,
-  special-use, allocation, routing, monitoring, conspicuity, and ambiguous so
-  the app can distinguish operational meaning from ordinary ATC administration.
-- **UK-only squawk context is now geographically gated** — UK squawk meanings
-  no longer apply worldwide by default. They are only shown for aircraft in a
-  conservative UK-area envelope, while globally recognised emergency codes
-  remain visible everywhere.
-- **Administrative squawk codes no longer masquerade as mission context** —
-  labels such as `Assigned by CCAMS`, ORCAM transit allocations, and frequency
-  monitoring codes still appear as raw squawk context where relevant, but they
-  no longer create misleading `Mission Operator` or `SQUAWK CONTEXT` badges.
-- **New maritime reference layers** — optional static overlays now add NOAA
-  submarine cables, NOAA vessel-routing measures, and MarineRegions EEZ
-  boundaries for infrastructure and jurisdiction context on the map.
-- **Upgrade-safe backend fixes** — the app now applies the missing ClickHouse
-  schema migration for older data volumes on startup, and AIS reconnect logic
-  now backs off exponentially instead of hammering a failing upstream feed.
+### Structured squawk taxonomy
+
+- `core/callsign_db.py` now classifies squawk rows as `emergency`,
+  `special_use`, `allocation`, `routing`, `monitoring`, `conspicuity`,
+  `operational`, `administrative`, or `ambiguous` instead of treating the
+  bundled UK squawk table as plain description text.
+- OpenSky ingest now stores typed squawk context (`squawk_kind`,
+  `squawk_actionable`, `squawk_inference_applicable`, `squawk_jurisdiction`,
+  `squawk_source`, `squawk_ambiguous`) so downstream UI logic no longer has to
+  infer mission meaning from free-text labels.
+- UK-only squawk meanings are now geographically gated to a conservative UK
+  airspace envelope before they appear in aircraft detail or drive SAR /
+  mission inference. ICAO emergency codes remain globally applicable.
+- Administrative allocations such as `Assigned by CCAMS`, ORCAM transit blocks,
+  conspicuity codes, and frequency-monitoring codes no longer produce
+  `Mission Operator` or `SQUAWK CONTEXT` badges by themselves.
+
+### Maritime reference layers
+
+- Added `scripts/fetch_maritime_layers.py`, a reusable ArcGIS FeatureServer
+  paginator and GeoServer WFS fetcher that writes normalized GeoJSON to
+  `data/_additional/` using the internal contract
+  `{ source, layer_type, geometry, properties }`.
+- Added static API routes for `GET /api/static/submarine-cables`,
+  `GET /api/static/vessel-routing`, and `GET /api/static/maritime-regions`.
+  Each route returns an empty `FeatureCollection` until its backing data file
+  has been fetched.
+- The frontend now exposes lazy-loaded reference toggles for NOAA submarine
+  cables, NOAA vessel routing measures, and MarineRegions EEZ boundaries.
+  These layers provide jurisdiction and infrastructure context without adding
+  a live collector.
+
+### Reliability fixes
+
+- `core/ch_store.run_migrations()` now applies `ADD COLUMN IF NOT EXISTS`
+  startup migrations for the six columns introduced in v1.17.1 and is called
+  from the FastAPI lifespan before `_hydrate_store()`. This fixes failed
+  periodic ClickHouse flushes on older volumes that never replayed
+  `01_schema.sql`.
+- `infra/init/clickhouse/02_migrate_v1171.sql` adds the same migration as a
+  manual recovery path for existing deployments.
+- `collectors/ais/ais_collector.py` now uses exponential reconnect backoff
+  (`3 * 2^(n-1)` seconds, capped at 120 seconds) after consecutive feed
+  failures, reducing repeated warning floods against unavailable AIS sources.
 
 ## v1.26.0 — 2026-03-29
 
-**NOTAM airport jumps, cleaner aircraft labels, and refreshed public docs**
+v1.26 release sync: NOTAM airport-centred jump parity, aircraft-label cleanup,
+and public documentation refresh.
 
-- **NOTAM table click-through now reaches the airport** — recent and critical
-  NOTAM rows/cards now recover airport coordinates from the notice `location`
-  code when the upstream event has no explicit map point. Common ICAO and IATA
-  designators such as `KSLC` and `SLC` now jump the map to the airport instead
-  of failing with an empty focus target.
-- **Aircraft label cleanup is now runtime-safe** — stale runtime data can no
-  longer leak junk watchlist labels such into aircraft detail views.
-- **Public docs refreshed** — README release metadata and screenshots were
-  updated together so the public repo reflects the current shipped UI rather
-  than an older build state.
-- **Airport data note clarified** — the application uses bundled airport
-  reference data derived from `mwgg/Airports` for NOTAM airport fallback and
-  airport-centred map jumps.
-- **Many small bug fixes and Quality of Life Improvements**
+### NOTAM airport-centred map jumps
+
+- Added `core/airport_lookup.py` to resolve airport coordinates from bundled
+  `airports.json` aliases (`icao`, `iata`, `ident`, `gps_code`, `local_code`).
+- `collectors/notam/notam_collector.py` now resolves three-letter and ICAO-style
+  location designators through the shared lookup before falling back to FIR
+  approximations.
+- `api/routes/intel.py` now backfills `latitude` / `longitude` for recent and
+  critical NOTAM intel rows from the NOTAM `location` field when the stored
+  event has no renderable coordinates, so row click-through can zoom the map to
+  the airport instead of failing silently.
+
+### Aircraft watchlist label cleanup
+
+- Added `core/aircraft_watchlist_labels.py` and applied it in both
+  `core/watchlist.py` and `api/routes/static_layers.py` so stale runtime data
+  no longer leaks junk aircraft tags such as `Aaaaaaaand Its Gone`,
+  `Bunch Of Bankers`, and `Scrooge Mcduck` into the UI.
+- `TAGS_REVIEW.csv` updated so future `planes_master.json` rebuilds no longer
+  preserve `Scrooge Mcduck` as a deliberate self-mapping.
+
+### Release and documentation sync
+
+- Synced internal/public README and CHANGELOG files, roadmap state, FastAPI
+  app version, and frontend fallback version label to `v1.26.0`.
+- Refreshed the public README screenshot set in `../phantomtide/docs/screenshots/`
+  to reflect the current UI and release metadata.
+- Documentation now states that the full app checkout/runtime already bundles
+  the airport reference JSON used for NOTAM jumps, and acknowledges
+  `mwgg/Airports` plus alexander-san in the public-facing project material.
 
 ---
 
 ## v1.25.0 — 2026-03-29
 
-**Internal reliability hardening and AIS test coverage**
+v1.25 debt clearance sprint: cache I/O consolidation, AIS test coverage,
+confidence model documentation, VIIRS facility cache silent-failure fix,
+proxybroker package clarification, and timestamp audit.
 
-- **Cache I/O unified** — eleven collectors previously each duplicated their own
-  JSON load/save logic. This is now a single implementation in `core/cache_io.py`
-  with atomic writes (temp file + rename) so a crash during a cache flush no longer
-  produces a partially-written file that breaks the next startup.
-- **AIS decoder test suite** — 64 new unit tests cover NMEA checksum validation,
-  payload bit extraction, unsigned/signed integer decoding, geo sentinel filtering,
-  timestamp reconstruction from NMEA `ais_ts_sec`, and full message parsing for
-  type 1, 18, 21, and 24 frames. AIS decoding was previously untested.
-- **VIIRS facility load failures now visible** — infrastructure dataset errors
-  (power plants, datacenters, military bases, strategic overlay) were previously
-  swallowed silently. They now log at ERROR level so operators can detect a missing
-  or corrupt data file without inspecting map output.
-- **Confidence model documented** — the four scoring concepts (`source_confidence`,
-  `quality_score`, `hypothesis.confidence`, `convergence.score`) are now defined
-  with their scales, purposes, and relationships in a single authoritative comment
-  block. They answer different questions and must not be collapsed.
+### core/cache_io.py — TAX 7 resolved
 
+- Extracted `load_event_cache(path, *, source_tag, filter_expired)` and
+  `save_event_cache(path, events, *, source_tag)` into a new shared module.
+  Eleven collectors previously each implemented identical `_load_cache()` /
+  `_save_cache()` functions with minor per-collector variations. All eleven
+  now delegate to the canonical implementation:
+  eccc, ndbc_dart, neracoos, guide, icc, marad, fleetleaks, rss/gps_advisory,
+  tankertrackers_lostandfound, tankertrackers_zones, usgs.
+- `save_event_cache` writes atomically via a temp-file rename so a crash
+  mid-write never produces a half-written cache file.
+- `filter_expired=True` (MARAD) discards entries whose `valid_until` is past
+  at load time; previously only MARAD implemented this correctly.
+
+### AIS test coverage
+
+- Added `tests/ais/test_ais_collector.py` with 64 offline unit tests covering:
+  NMEA checksum validation, payload character decoding, bit conversion,
+  AIS text decoding, geo-value range validation, scalar field decoders
+  (SOG, COG, heading, draught, altitude, ROT), auxiliary MMSI detection,
+  EventRecord construction from raw position data, coordinate rejection
+  (out-of-range, AIS sentinel 91/181), timestamp reconstruction from
+  `ais_ts_sec`, and NMEA sentence parse path (sentence → queue).
+
+### Confidence model documentation
+
+- Added canonical four-metric hierarchy to `core/constants.py`:
+  `source_confidence` (source trust weight), `quality_score` (per-event
+  data quality annotation), `hypothesis.confidence` (analyst-facing
+  probability estimate), `convergence.score` (unbounded evidence weight).
+  Documents that these cannot be collapsed into each other and defines
+  the intended role for each in analyst-facing output.
+
+### VIIRS facility cache silent-failure fix
+
+- `api/routes/intel.py` `_load_viirs_facilities()`: replaced four bare
+  `except Exception: pass` blocks with `logger.error(...)` calls so
+  infrastructure dataset load failures are visible in logs. VIIRS proximity
+  alert system was previously silently returning empty results when any of
+  nuclear plants, datacenters, military bases, or strategic overlay files
+  failed to load.
+
+### proxybroker package clarification
+
+- `requirements.txt`, `core/proxy_broker.py`, `tools/find_opensky_proxies.py`:
+  clarified that `proxybroker2` is the Python 3.12+ compatible fork of the
+  official `constverum/ProxyBroker` (`proxybroker==0.3.2`). The original
+  targets Python 3.5–3.7 and fails on Python 3.10+. `core/proxy_broker.py`
+  `_import_proxybroker_module()` already tries `proxybroker` (official) first
+  and falls back to `proxybroker2`; `tools/find_opensky_proxies.py` updated
+  to use the same dual-try pattern instead of hardcoding `proxybroker2`.
+
+### Timestamp audit
+
+- Full sweep of all collectors confirms timestamp semantics are correct:
+  all collectors use upstream observation time as `EventRecord.timestamp` and
+  fall back to collection time only when the upstream source provides no
+  timestamp field (acceptable per CLAUDE.md convention). No violations found.
+
+### Roadmap
+
+- Added full debt audit findings (2026-03-29) to the CODE SMELL section
+  with new items: DEAD BATTERY 1 (AIS test void), DEAD BATTERY 2 (VIIRS
+  silent failure), SMELL 1 (confidence model hierarchy), SMELL 2 (timestamp
+  semantics), SMELL 3 (proxybroker2 alpha), and ROADMAP DRIFT note.
+- v1.25 task list updated to reflect all items resolved or carried forward.
+- NOTAM parser backlog triage: evaluate `avwx-engine` as a lighter-weight
+  parser base or fork for the NOTAM path, validate coverage against current
+  Phantom Tide fields, and decide whether that can retire the current spaCy
+  dependency from this slice without losing required cleanup hooks.
 
 ---
 
 ## v1.24.0 — 2026-03-29
 
-**Aircraft tracking reliability, smarter hypothesis navigation, and broader NOTAM coverage**
+v1.24 triage queue: OpenSky resilience fix, hypothesis anchor parity, MODU status
+semantics, NOTAM FIR coverage expansion, and proxy tooling.
 
-- **Hypothesis jump targets persist** — the `⊕` jump button in the hypothesis panel now
-  stays visible even after the underlying evidence events have aged out of the active
-  window. A representative position computed at hypothesis creation time serves as the
-  fallback, so an analyst reviewing an older hypothesis can still navigate the map to
-  the relevant area.
-- **MODU field clusters more accurately reflect operational status** — offshore drilling
-  platform markers now correctly classify STACKED, COLD STACKED, and INACTIVE platforms
-  as non-active alongside REMOVED platforms. Previously, only REMOVED was recognised, so
-  mothballed or suspended rigs were counted as active in field cluster statistics.
-- **Wider NOTAM geographic coverage** — NOTAMs from the Middle East, South and Southeast
-  Asia, Africa, South America, Canada, the Caribbean, and the Pacific now receive
-  approximate map coordinates via a substantially expanded airport fallback table.
-  Previously, NOTAMs from these regions landed in the no-coordinates fallback and were
-  not visible on the map.
-- **Many small bug fixes and Quality of Life Improvements**
+- **Target-aware proxy pre-warming** — `ProxyPool.get_target_winners(target_domain)`
+  added. The OpenSky collector now merges env-configured preferred URLs with
+  dynamically learned winners for `opensky-network.org` from the working cache,
+  so proven proxies carry across restarts without requiring explicit env var
+  re-configuration.
+- **Proxy discovery tool** — added `tools/find_opensky_proxies.py`. Fetches
+  proxy candidates from proxyscrape and geonode, tests each against the
+  OpenSky authenticated endpoint, and writes confirmed working entries to
+  `data/proxy_working_cache.json`. Supports `--limit`, `--keep`, `--timeout`,
+  `--workers`, and `--dry-run` flags. Documents that OpenSky blocks public
+  datacenter proxy IP ranges; the tool is designed for use with paid residential
+  or rotating proxies supplied via `PROXY_POOL_URLS`.
+
+### Hypothesis anchor parity
+
+- **`HypothesisRecord` representative geometry** — added `representative_lat` and
+  `representative_lon` fields. The rule engine now computes a centroid (`_centroid()`)
+  from evidence events at hypothesis creation time and stores it on the record so the
+  jump affordance survives evidence event ageing out of the in-memory deque.
+- **Jump chip always available** — the hypothesis table now shows the `⊕` jump chip
+  when either live evidence events exist in the current index OR representative coords
+  exist on the hypothesis. Previously the chip disappeared as soon as evidence events
+  aged out.
+- **`_findHypothesisJumpTarget()` fallback** — function now falls back to
+  `representative_lat`/`representative_lon` when no live evidence events are found
+  in the current event index.
+- All seven `HypothesisRecord.create()` call sites in `core/rules.py` updated to pass
+  representative geometry.
+
+### MODU cluster status semantics
+
+- **Expanded inactive-status detection** — the `_removedRe = /removed/i` pattern in
+  the map renderer now covers `STACKED`, `COLD STACKED`, and `INACTIVE` alongside
+  `REMOVED`. These NGA MODU status values all indicate a platform is not actively
+  drilling and should be classified as non-active for field cluster counts and
+  marker styling. The cluster popup active/removed ratio now reflects NGA's actual
+  status vocabulary rather than only the REMOVED case.
+
+### NOTAM airport fallback parity
+
+- **`_FIR_AIRPORT_MAP` expanded** — 47 → 140 entries. Added coverage for the Middle
+  East and Southwest Asia (Baghdad, Damascus, Beirut, Kuwait, Jeddah, Emirates,
+  Tehran, Karachi), South Asia (Delhi, Mumbai, Colombo, Male), Southeast Asia
+  (Bangkok, Ho Chi Minh, Kuala Lumpur, Singapore, Manila, Jakarta, Phnom Penh,
+  Vientiane), Northeast Asia (Incheon, Beijing, Kunming, Urumqi), North Africa
+  (Tunis, Algiers, Casablanca, Tripoli), Sub-Saharan Africa (Nairobi, Johannesburg,
+  Kinshasa, Niamey, Lagos, Abidjan, Dakar, Brazzaville, Antananarivo), South America
+  (Brasilia, Buenos Aires, Santiago, Lima, Guayaquil, Paramaribo, Caracas, Trinidad),
+  Canada (Gander Oceanic, Toronto, Edmonton, Vancouver, Montreal), Caribbean/Central
+  America (Curacao, Tegucigalpa, Mexico City, San Juan), and Pacific (Tahiti, Nadi,
+  Port Moresby, Honiara). NOTAMs from these regions now receive approximate map
+  coordinates instead of landing in the no-coords fallback.
+
+---
 
 ## v1.23.0 — 2026-03-28
 
-**Aircraft mission enrichment, clearer aircraft detail, and release hygiene**
+Callsign and squawk enrichment for aircraft, mission-aware convergence, and release hygiene cleanup.
 
-- **Aircraft mission context from callsign and squawk data** — aircraft detail now adds
-  mission-family enrichment derived from callsign and squawk reference data. When available,
-  the panel shows mission badges, SAR cues, callsign conflict warnings, and concise
-  "why interesting" context instead of only registry metadata.
-- **Better aircraft scoring context** — convergence scoring now distinguishes SAR-active,
-  naval-patrol, and surveillance-style aircraft activity from generic loiter. Known
-  false-positive callsign families such as survey and weather-recon patterns are handled
-  more conservatively.
-- **New aircraft reference endpoints** — static API routes now expose callsign lookup,
-  squawk lookup, and aircraft mission-entity reference data for frontend cache warm-up
-  and analyst inspection.
-- **Airport data attribution** — the platform UI and documentation now credit
+### Aircraft enrichment
+
+- **Callsign and squawk enrichment database** — added `core/callsign_db.py`, loading
+  `phantom_tide_callsign_lookup_compact.json` and
+  `phantom_tide_additional_entities.json` at import time. Provides exact/stem
+  callsign matching, UK squawk description lookup, SAR squawk detection, and
+  additional mission/entity profiles for frontend and collector use.
+- **OpenSky ingest enrichment** — `collectors/opensky/opensky_collector.py` now writes
+  callsign roles, units, countries, platforms, confidence tier, conflict flag,
+  loiter-suppression hint, squawk description, and SAR status directly into
+  aircraft event attributes at ingest time.
+- **Static aircraft enrichment endpoints** — `api/routes/static_layers.py` now serves
+  `GET /api/static/callsign-lookup`, `GET /api/static/squawk-lookup`, and
+  `GET /api/static/aircraft-entities` for frontend cache warm-up and analyst inspection.
+- **Aircraft popup/detail enrichment** — the frontend now preloads callsign, squawk,
+  entity, and fuel-burn reference data on startup. OpenSky detail now shows mission
+  badges, "why interesting" context, callsign conflict warnings, SAR chips, squawk
+  meaning, and a privacy footnote for aircraft with no static match.
+
+### Convergence and rule quality
+
+- **Mission-aware aircraft contributors** — convergence scoring now distinguishes
+  SAR-active aircraft, naval loiter, and surveillance loiter from generic aircraft
+  loiter. Contested callsign matches do not upgrade score weight.
+- **False-positive suppression** — known survey / weather-recon / flight-inspection
+  callsign families can now suppress generic aircraft loiter contributors to reduce
+  obvious analyst-noise cases.
+
+### Release hygiene and documentation
+
+- **Bug triage narrowed and documented** — the three open UX/reliability issues were
+  re-scoped in roadmap/notes form:
+  OpenSky proxy persistence remains a real backend reliability problem;
+  hypothesis click-through already works for intel-table rows but not every surface;
+  recent NOTAM click-through already works when coordinates exist, with remaining work
+  focused on airport/FIR fallback coverage.
+- **Airport data attribution** — added UI and documentation credit for
   [`mwgg/Airports`](https://github.com/mwgg/Airports), whose `airports.json`
   dataset is used for NOTAM airport fallback coordinates.
-- **Release metadata sync** — the dashboard header and both repo READMEs were updated so
-  the visible version now matches the shipped release.
+- **Release metadata sync** — internal/public README versions and the dashboard header
+  version label were updated to match the shipped release.
 
 ## v1.22.0 — 2026-03-28
 
-**DART deep-ocean anomaly detection, GPS satellite enrichment, and aircraft fuel context**
+Three new intelligence layers, CelesTrak GPS enrichment, and code cleanup.
 
-Three new intelligence capabilities:
+### New sources
 
-- **NDBC DART anomaly layer** — Phantom Tide now monitors NOAA's network of deep-ocean
-  DART pressure buoys for water-column height anomalies. A deviation of more than three
-  standard deviations from the 24-hour rolling baseline fires an event on the map.
-  Without a corresponding seismic signal nearby, this flags a possible underwater event
-  or anomalous pressure source for analyst review. The layer uses teal diamond markers
-  scaled by the size of the deviation. Polling is every 15 minutes across up to 50
-  globally deployed stations.
+- **NDBC DART anomaly detection** — `collectors/ndbc/ndbc_dart_collector.py`. Polls up to 50
+  deep-ocean DART buoys every 15 minutes. Computes a 24-hour rolling baseline per station and
+  fires an `ET_NDBC_DART_ANOMALY` event when the current water-column height deviates > 3σ.
+  Station coordinates resolved from NDBC `station_table.txt` with fallback to a hardcoded list
+  of ~35 globally deployed IDs. Convergence weight 1.5 (3–5σ) or 2.5 (≥5σ), 6-hour lookback.
+  Map layer: teal diamond markers scaled by sigma (12/16/22 px). REF_SOURCE; 15-min atomic replace.
+- **CelesTrak GPS TLE enrichment** — `collectors/celestrak/celestrak_gps.py`. Not a map layer.
+  Module-level TLE cache refreshed every 6 hours using the CelesTrak JSON feed. SGP4 orbital
+  propagation + IAU 1982 GMST converts TEME→ECEF→local ENU to compute elevation angles.
+  GUIDE GPS disruption events annotated with `visible_gps_count` and `expected_visible_count` at
+  ingest time. Distinguishes jamming (all visible birds affected) from ionospheric interference
+  (low-elevation subset only). Dep: sgp4.
+- **Aircraft fuel burn context** — static endpoint `GET /api/static/fuel-burn` serves
+  `data/_additional/aircraft_fuel_burn.json` (79 ICAO type codes → name/galph/category).
+  OpenSky detail panel displays `FUEL  X gal/hr` when the watchlist `ac_type` field has a match.
 
-- **GPS disruption satellite context** — GUIDE GPS disruption reports and GPS advisory
-  events are now annotated at ingest time with the number of GPS satellites that should
-  have been visible from that location at the time of the report. When the expected count
-  is known, the detail panel can distinguish between full-constellation jamming (all
-  visible satellites affected) and ionospheric interference (low-elevation satellites only).
-  The orbital data comes from CelesTrak's GPS operations TLE file, refreshed every 6 hours.
+### Code cleanup
 
-- **Aircraft fuel burn estimate** — The OpenSky detail panel now shows an estimated fuel
-  consumption rate when the aircraft's ICAO type code is matched in the watchlist database.
-  The estimate is in US gallons per hour from a reference table of 79 aircraft types.
+- Removed `is_quarantined` property from `ProxyEntry` — logic was inverted
+  (`time.monotonic() >= quarantined_until` returns True when the quarantine has expired,
+  not when active). `ProxyPool.available_count()` uses the correct raw condition directly.
+- Removed unused `compact_text()` from `scripts/generate_master_json.py`.
+- `whitelist_vulture.py` updated: added `vessel_watchlist_alerts`, `aircraft_fuel_burn_rates`,
+  `vessel_zone_alerts`, and `ProxyPool.available_count` to suppress false-positive vulture
+  warnings on FastAPI route handlers and public pool interface methods.
 
-**Vessel-in-zone intelligence** (v1.21.0):
+---
 
-- The sanctioned vessel list now includes the name of any TankerTrackers risk zone each
-  vessel is currently inside. A dedicated alert view surfaces LNG carriers and tankers
-  located inside the Strait of Hormuz, Bab-el-Mandeb, or Suez Canal zones specifically.
+## v1.21.0 — 2026-03-28
 
-**Convergence popup detail** (v1.21.0):
+Progressive zoom disclosure, convergence contributor breakdown, and vessel-in-zone correlation.
 
-- The convergence cell popup now shows the full evidence breakdown: each contributing
-  signal family with its weight, event count, and up to three contributing event IDs.
-  This makes it possible to trace exactly which sources contributed to a high-scoring
-  cell without leaving the map view.
+### UX
 
-**Progressive zoom disclosure** (v1.21.0):
+- **Progressive zoom disclosure** — AIS, OpenSky, and VIIRS markers are suppressed when map
+  zoom < 4 (world view). Event index and sessionStorage cache are still populated so
+  convergence scoring and search remain accurate. A `zoomend` handler replays
+  `sessionStorage.getItem("pt:ev:{source}")` on threshold crossing, so markers appear
+  instantly without an extra network round-trip.
+- **Convergence contributor breakdown** — "Contributing Evidence" section of the convergence
+  cell popup now renders each signal family's event count (`×N`) and up to 3 contributing
+  event IDs. Backend `contributors[].event_ids` was already populated; only the frontend
+  rendering was updated.
 
-- AIS vessel positions, aircraft positions, and VIIRS detections are now suppressed at
-  world zoom levels (below zoom 4). The map is significantly less cluttered at global
-  scale. Zooming in restores all markers immediately without a network request.
+### Backend
+
+- **Vessel-in-zone correlation** — `api/routes/vessels.py` now runs Shapely
+  `point.within(polygon)` at serve time. The `GET /api/vessels/sanctioned` response includes
+  `zone_id` and `zone_name` for every FleetLeaks vessel inside a TankerTrackers risk polygon.
+  New endpoint `GET /api/vessels/zone-alerts` returns LNG/tanker vessels inside the
+  Hormuz, Bab-el-Mandeb, and Suez zones. Zone index is cached with a 5-minute TTL at
+  module level; rebuilt transparently on cache expiry.
+
+---
+
+## v1.20.1 — 2026-03-28
+
+Neon marker polish and watchlist labels bug fix.
+
+### Bug fixes
+
+- **Watchlist fallback to planes_master** — `get_aircraft_match()` now falls back to
+  `planes_master.json` for ICAOs absent from `plane_alert_db`. Records are returned only when they
+  carry at least a `category` or `tags` value; un-enriched Mictronics-only entries are excluded.
+  Previously, aircraft enriched via the scripts but not present in the raw upstream list showed no
+  category, no labels, and no neon marker in the live feed.
+
+### UI
+
+- **Neon sign marker style** — tracked/interesting aircraft markers now render with a five-layer
+  drop-shadow glow (2 px tight core + 6/14/28/48 px spread) instead of three layers; outer spread
+  at 48 px and higher per-layer alpha values produce the saturated tube-light look of real neon
+  signage. `--tracked` outer ring gains a `box-shadow` halo to reinforce the neon tube outline.
+- **Flicker animation** — `acNeonPulse` updated with irregular dim keyframes at 18 %, 20 %, 59 %
+  that briefly drop opacity to 0.55 / 0.68 / 0.78 before snapping back; matches the momentary
+  flicker characteristic of real neon gas discharge tubes.
+- **Tracked icon size** — scale multiplier increased from 1.5x to 1.65x; rings expand to 1.85x
+  (previously 1.65x) with a slightly faster cycle (2.2 s vs 2.4 s).
 
 ---
 
 ## v1.20.0 — 2026-03-28
 
-**Aircraft intelligence improvements, UI polish, and full aircraft database update**
+Aircraft markers, UI polish, and full tag database update.
 
-- Tracked (watchlist-matched) aircraft now pulsate with their ADS-B emitter category
-  color — rotorcraft in teal, heavy transport in amber, UAVs in green, and so on.
-  Previously all watchlist aircraft used a fixed red icon regardless of type.
-  Normal aircraft render as static markers; only watchlisted aircraft animate.
-- Four UI panels that retained dark backgrounds from an earlier theme have been
-  corrected to match the light cartographic style introduced in v1.19.0: the aircraft
-  alert banner, the VIIRS proximity banner, the weather mesh legend, and the MODU
-  cluster tooltip.
-- The aircraft database has been fully re-tagged. 15,636 records in the watchlist
-  database were updated to use structured, consistent category labels. Tags are now
-  consolidated into named categories — Cargo & Transport, Emergency & Rescue,
-  Military, Surveillance & ISR, Training & Education, and others — replacing a large
-  volume of informal, inconsistent, or ambiguous labels accumulated over time.
+### UI fixes
+
+- **Dark element cleanup** — four leftover dark-background components converted to light-theme surfaces:
+  aircraft alert banner, VIIRS proximity banner, weather mesh legend, and MODU cluster tooltip.
+  All now use `--panel-backdrop` / `--border` CSS variables with appropriate coloured borders.
+- **Aircraft alert banner** — background changed from `rgba(20,0,0,0.92)` to `rgba(254,242,242,0.97)`;
+  text updated to dark-on-light (`#991b1b`) for legibility on the light cartographic theme.
+- **VIIRS proximity banner** — same light-surface treatment with orange tint and dark text.
+- **MODU cluster tooltip** — removed dark charcoal fill; arrow pseudo-elements updated to match.
+
+### Aircraft markers
+
+- **Normal aircraft no longer pulsate** — `acNeonPulse` and `acNeonRing` animations removed from
+  `.ac-neon-core` / `.ac-neon-ring` base classes; aircraft render as static category-colored icons.
+- **Tracked (watchlist) aircraft pulsate with their category neon color** — new `.ac-neon-marker--tracked`
+  CSS modifier re-enables both animations scoped to matched aircraft only.
+  Previously, watchlist aircraft used a hardcoded red icon; they now inherit the full `_AC_CAT_STYLE`
+  color palette (rotorcraft teal, heavy amber, UAV green, etc.) while still pulsating.
+- `createWatchlistAircraftIcon` render path replaced by `aircraftIcon(..., isTracked=true)`.
+
+### Aircraft database
+
+- **15,636 records updated** across `planes_master.json` and `plane_alert_db.json` via TAGS_REVIEW.csv.
+  1,298 replacement rules applied; tags consolidated into structured categories
+  (Cargo & Transport, Emergency & Rescue, Military, Surveillance & ISR, etc.).
+- `scripts/replace_flagged_tags.py` refactored — replacements now read directly from TAGS_REVIEW.csv
+  rather than a hardcoded dict; any future CSV edits are applied by re-running the script.
 
 ---
 
 ## v1.19.0 — 2026-03-28
 
-**Professional UI overhaul and aircraft type differentiation**
+Professional UI overhaul: light map theme, source-differentiated aircraft icons,
+detail panel source accents, inactive layer pruning, and interactive legend.
 
-- The map now uses a light basemap (CartoDB Positron) in place of the previous
-  dark tile layer.  All source colors and marker styles have been recalibrated
-  for legibility on white backgrounds.
-- Aircraft markers are now differentiated by ADS-B emitter category.  Heavy
-  transport aircraft, military aircraft, and special-mission platforms use
-  distinct icon sizes and colors; each icon includes expanding pulse rings
-  scaled to the category so dense clusters remain readable.  Reduced-motion
-  preference is respected.
-- Clicking any map marker or intel-table row now shows the originating source
-  as a colored accent strip and labeled badge in the detail panel.  Each source
-  has a distinct accent derived from its display color.
-- Layer toggles now hide sources with zero events and unchecked state by default.
-  A "show N inactive" link at the bottom of the sidebar reveals them on demand.
-  Sources with data or degraded health are always visible.
-- Hovering a source name in the map legend temporarily dims all other sources'
-  markers, isolating that source's spatial footprint without toggling layers.
-- Datacenter reference markers are larger and more legible at low zoom levels.
+### Map and visual theme
+
+- **Light map base layer** — switched from CartoDB Dark Matter to CartoDB Positron.
+  The dark aesthetic was driving visual comparisons to consumer "vibe-coded" dashboards;
+  Positron is the standard for professional GIS, journalism, and analytical tools.
+- **Source colors recalibrated** — all `SOURCE_COLORS` values shifted 2-3 stops darker
+  on the Tailwind scale so markers remain legible against white tile backgrounds.
+  Previous neon values (#86efac, #c4b5fd, etc.) were optimised for dark maps only.
+- **Popup and panel shadows** — reduced from `rgba(0,0,0,0.6)` (nightclub) to
+  `rgba(0,0,0,0.14)` (document). All surface backgrounds converted to `--surface`
+  (`#ffffff`) with `--border` dividers.
+- **Full CSS custom property audit** — fixed search inputs, layer count badges, health
+  badge text colors, attribution widget, mobile panel gradient, and legend badges
+  that were all hardcoded for dark backgrounds and illegible on the new light theme.
+
+### Aircraft icons
+
+- **ADS-B category differentiation** — `_AC_CAT_STYLE` table maps all 12 ADS-B
+  emitter categories (0-15) to distinct icon size, pulse ring diameter, and color.
+  Heavy airframes (cat 4-5) render at 18-20 px with 30-34 px pulse rings; light GA
+  aircraft (cat 2-3) render at 14 px with 20 px rings; military/special (cat 7, 15)
+  use the largest icons with high-visibility orange/violet.
+- **Neon pulsating rings** — each aircraft marker shows two concentric expanding rings
+  (`acNeonRing` keyframe animation, 2.4s cycle with 0.8s phase offset) so individual
+  aircraft are identifiable in dense clusters at low zoom.
+- **Stale aircraft** — aircraft exceeding the stale threshold now render in `#b91c1c`
+  at reduced icon size with no pulse, distinguishing them from live contacts at a glance.
+- **Reduced-motion support** — `@media (prefers-reduced-motion: reduce)` suppresses
+  all aircraft pulse animations without removing icon color differentiation.
+
+### Detail panel
+
+- **Source accent strip** — detail panel now injects a `--detail-color` CSS custom
+  property on the content wrapper, set to the source's `SOURCE_COLORS` value.
+  A left border, source ID badge, and the `.pt-header` color all derive from one
+  variable — no per-source conditional code.
+- **Confidence badge tint** — `.pt-conf` background uses `color-mix(in srgb,
+  var(--detail-color) 12%, transparent)` so the tint tracks the source color
+  automatically for every source type.
+- **Source ID badge** — a `pt-source-id` element above the event title names the
+  source in uppercase mono, making provenance visible without opening the health panel.
+
+### Sidebar and layer controls
+
+- **Inactive layer collapse** — layer toggles with zero-count and unchecked state
+  are now hidden by default (`data-inactive="true"`). A footer link — "show N
+  inactive" — reveals them without requiring any HTML template changes.
+  Active, degraded, and non-zero layers are always visible.
+- **Interactive legend** — hovering a source row in the legend dims all non-matching
+  map markers to 0.06 opacity, isolating that source's spatial footprint without
+  toggling layers. Mouseleave restores prior opacity state, respecting any active
+  search query dimming.
+
+### Infrastructure icons
+
+- **Datacenter icon size** — increased from 8 px to 11 px square for legibility
+  at zoom levels below 6.
 
 ---
 
 ## v1.18.0 — 2026-03-28
 
-**VIIRS notifications, aircraft state resilience, and data freshness improvements**
+VIIRS proximity detection overhaul: fix the time window bug that prevented
+alerts from ever firing, add server-side webhook dispatch with deduplication
+and a persistent audit log, and correct offshore thermal scoring.
 
-- VIIRS satellite proximity alerts now fire correctly.  The detection window
-  was corrected from 5 minutes to 24 hours to account for the 3-24 h NRT
-  delivery latency from NASA; alerts that were previously suppressed by the
-  narrow window are now evaluated and dispatched.
-- Proximity alerts for significant VIIRS thermal events near critical
-  infrastructure are now dispatched server-side every 5 minutes, with a 24-hour
-  deduplication window so each event is notified exactly once.  Set
-  `VIIRS_WEBHOOK_URL` to receive JSON POST delivery.
-- VIIRS offshore thermal scoring corrected: detections close to high-value
-  targets (nuclear and military facilities) no longer receive the routine
-  offshore noise penalty, so legitimate anomalies near those sites are
-  promoted to significance correctly.
-- OpenSky aircraft data now remains visible during API outages.  The collector
-  falls back to the most recent cached snapshot and reports a degraded status
-  rather than dropping the layer entirely.  Rate-limit back-off prevents
-  redundant requests when the daily credit quota is exhausted.
-- Reduced polling frequency for data sources that update infrequently: VIIRS
-  NRT (now 30 minutes), NDBC buoy observations (30 minutes), NGA broadcast
-  warnings (60 minutes), and NGA maritime safety notices (15 minutes).  This
-  brings each source's request cadence in line with its actual publication
-  schedule.
-- Environment variables `VIIRS_MAX_AGE_MINUTES`, `VIIRS_ALERT_RADIUS_KM`,
-  `OPENSKY_CACHE_PLAYBACK_MINUTES`, and `OPENSKY_CACHE_MAX_AGE_SECONDS` added
-  for operator-configurable tuning without code changes.
+### VIIRS notification system
+
+- **Fix: time window bug** — `max_age_minutes` default changed from 5 to 1440
+  (24 h) in both the API endpoint and the frontend poll URL.  VIIRS NRT data
+  arrives with 3-24 h satellite latency; the previous 5-minute window reliably
+  returned zero detections.
+- **New: env-configurable defaults** — `VIIRS_MAX_AGE_MINUTES` and
+  `VIIRS_ALERT_RADIUS_KM` environment variables control the scan window and
+  proximity radius without requiring code changes.  `le` upper bound on
+  `max_age_minutes` raised from 60 to 43200 (30 days) to allow retroactive
+  scans.
+- **New: server-side alert dispatch** — new `core/alert_dispatch.py` module
+  provides `ViirsAlertDispatcher`, a singleton that tracks dispatched event IDs
+  with a 24-hour rolling TTL.  Each scheduler tick (every 5 minutes) evaluates
+  the current proximity results and dispatches only unseen significant alerts.
+- **New: webhook relay** — set `VIIRS_WEBHOOK_URL` to receive a JSON POST for
+  each new significant alert.  Delivery failures are logged as warnings and
+  never block the dispatch loop.
+- **New: JSONL audit log** — every dispatched significant alert is appended to
+  `data/viirs_alert_log.jsonl` so operators retain a durable record across
+  server restarts.  Path is overridable via `VIIRS_ALERT_LOG_PATH`.
+- **New: scheduled dispatch job** — `_run_viirs_alert_dispatch()` added to
+  `api/scheduler.py` and registered at 5-minute intervals, aligned with the
+  fast collector cycle.
+
+### Offshore thermal scoring fix
+
+- Offshore (`FP_type=3`) and gas-flare detections now only receive the -3
+  noise penalty when they are more than 10 km from the nearest facility.
+  Previously the penalty was always applied, causing a HIGH-confidence offshore
+  thermal 2 km from a subsea cable to score 5 (below the 6 threshold) and be
+  incorrectly suppressed.
+- `_viirs_is_significant` updated to use the elevated threshold (score >= 9)
+  only for distant offshore/gas-flare detections; close-range anomalies use the
+  standard threshold (score >= 6).
+
+### OpenSky resilience
+
+- **New: persistent aircraft state cache** — new `collectors/opensky/opensky_cache.py`
+  writes a JSON snapshot to `data/opensky_aircraft_cache.json` after every
+  successful live fetch, keyed by collection timestamp.
+- **Degraded-mode fallback** — when the OpenSky REST API is unavailable or
+  returns an HTTP error, the collector serves from the last good cache and
+  sets `CollectorRunStatus("degraded", "cache", ...)` so the health panel
+  reflects the real state instead of showing the source as "down".
+- **Time-filtered playback** — cached state vectors older than
+  `OPENSKY_CACHE_PLAYBACK_MINUTES` (default 15) are excluded from cache
+  responses so stale positions never appear on the map.
+- **Cache staleness guard** — if the cache file is older than
+  `OPENSKY_CACHE_MAX_AGE_SECONDS` (default 3600), the collector marks itself
+  "down" rather than serving hour-old aircraft positions as live data.
+- **Rate-limit back-off** — HTTP 429 responses now trigger a
+  `_rate_limited_until` timer (parsed from `X-Rate-Limit-Retry-After-Seconds`
+  header; default 60 s).  Subsequent calls within the back-off window are
+  served directly from cache with no outbound request.
+- **Anonymous-first request strategy** — unauthenticated access is attempted
+  first on every poll cycle, saving the token round-trip when the anonymous
+  credit quota is sufficient.  OAuth2 escalation occurs only on 401/403.
+- **New env variables** — `OPENSKY_CACHE_PLAYBACK_MINUTES`,
+  `OPENSKY_CACHE_MAX_AGE_SECONDS` control cache behaviour without code changes.
+
+### Collector polling intervals
+
+Moved four sources from the 5-minute fast loop to individual slow-schedule
+jobs appropriate for their actual data update frequency.
+
+| Collector | Old interval | New interval | Rationale |
+|---|---|---|---|
+| VIIRS | 5 min | 30 min | NASA NRT delivery latency is 3-24 h |
+| NDBC buoys | 5 min | 30 min | NDBC standard files update hourly |
+| NGA DailyMem | 5 min | 60 min | Daily NGA broadcast batch |
+| NGA MIS | 5 min | 15 min | Maritime safety notices update infrequently |
+
+The fast 5-minute loop now contains only genuinely real-time sources: AIS
+vessel tracking, OpenSky aircraft, FAA NOTAMs, and SWPC space weather.
+
+### Code structure
+
+- Core proximity logic extracted into `compute_viirs_proximity_alerts()` in
+  `api/routes/intel.py` so the endpoint and the dispatch job share identical
+  detection logic without duplication.
+- `_run_slow_streaming()` helper added to `api/scheduler.py` for streaming
+  sources (non-REF) on slow schedules; uses `store.add_events` instead of
+  `store.replace_ref_events`.
+- `_run_nga_mis_slow()` replicates the mixed-source dispatch logic from
+  `_run_all_collectors` so SMAPS and NGA MIS events are routed to the correct
+  store tier independently.
+
+---
 
 ## v1.17.3 — 2026-03-27
 
-**Stable patch for proximity-query triage and health-state verification**
+Stable patch release for proximity-query triage and health-state verification.
+
+### Proximity query triage
 
 - Right-click proximity results now render as structured tables with explicit
-  distance, source, signal, and observed-time columns.
-- Nearby datacenter reference hits now appear in proximity results even when
-  the datacenter layer is not enabled.
-- Added regression coverage for degraded NOTAM and mixed MIS health exposure
-  so cache-backed fallback states remain visible through the API.
+  distance, source, signal, and observed-time columns instead of an unlabelled
+  list.
+- Proximity scans now surface nearby datacenter reference hits even when the
+  datacenter layer is not enabled, capped with explicit "showing X of Y"
+  disclosure in dense metros.
+
+### Health-state verification
+
+- Added API regression coverage proving NOTAM cache-backed runs surface as
+  degraded in `/api/health/sources`.
+- Added API regression coverage proving mixed MIS runs and SMAPS cache
+  fallback surface through `/api/intel/mis-status`.
+
+### Release sync
+
+- Synced internal/public README, CHANGELOG, roadmap, frontend version badge,
+  FastAPI app version, and package version to `v1.17.3`.
+- Release checkpoint tag: `checkpoint-2026-03-27-v1.17.3-release`.
 
 ## v1.17.2 — 2026-03-27
 
-**Stable patch for alert workflow and operator state honesty**
+Stable patch release for operator workflow honesty and banner usability.
 
-- Aircraft and VIIRS alert banners now live below the top bar in page flow
-  instead of covering map controls on compact screens.
-- Closing the current aircraft or VIIRS alert now stays closed across refreshes
-  until a newer alert replaces it.
-- Source-layer toggles now surface stale, cache-backed, and down state
-  directly in the sidebar.
-- Capped map/API layers now disclose "showing X of Y" instead of silently
-  truncating the visible feed.
+### Alert banner workflow
+
+- Moved the aircraft and VIIRS alert banners out of the map overlay and into
+  page flow below the top bar, so compact screens no longer cover zoom and
+  layer controls.
+- Fixed banner dismissal behavior: closing the current aircraft or VIIRS alert
+  now persists across refresh cycles until a new alert supersedes it.
+- Tightened banner click handling so the close button cannot fall through into
+  the banner's map-jump action.
+
+### Operator state disclosure
+
+- `/api/events/geojson` now returns `total_count`, `returned_count`, `limit`,
+  and `truncated` metadata so capped map feeds can disclose partial state.
+- Layer toggles now mirror source health directly with cache, stale, and down
+  badges instead of hiding that information in the health panel alone.
+- Layer-count badges and the sidebar layer note now disclose "showing X of Y"
+  when a source layer is capped by API limits.
+
+### Release sync
+
+- Synced internal/public README, CHANGELOG, roadmap, frontend version badge,
+  FastAPI app version, and package version to `v1.17.2`.
+- Release checkpoint tag: `checkpoint-2026-03-27-v1.17.2-release`.
 
 ## v1.17.1 — 2026-03-27
 
-**Reference data enrichment and watchlist updates**
+Reference data enrichment and overlay schema normalisation.
 
-- Aircraft watchlist expanded to 16,010 entries. New additions include two
-  additional Roman Abramovich aircraft (LX-GVI, LX-LUX), a Bahrain Royal
-  Flight Boeing 747, and a Russian government Sukhoi Superjet.
-- Added fuel burn reference data for 79 aircraft types, enabling consumption
-  context in the aircraft detail panel.
-- Strategic infrastructure overlay schema fully normalised: all points now
-  carry consistent name and type fields across undersea cables, pipelines,
-  LNG terminals, chokepoints, satellite constellations, RF infrastructure,
-  financial nodes, maritime compliance hubs, and industrial sites.
-- Data category terminology updated across yacht, tracked-names, and aircraft
-  datasets for consistent professional language throughout the UI.
+### Aircraft watchlist additions
+
+- Added 4 new entries to `plane_alert_db.json` (total: 16,010):
+  - Roman Abramovich: `4D0225` LX-GVI (Gulfstream G650) and `4D0228` LX-LUX
+    (Bombardier Global 6000) — present in Phaeton source but previously missing.
+  - Bahrain Royal Flight: `894082` A9C-HAK (Boeing 747-400) — sourced from
+    geneva-dictators dataset.
+  - Russia Special Detachment: `155BD0` RA-89040 (Sukhoi Superjet 100-95) —
+    sourced from geneva-dictators dataset.
+
+### New reference data file
+
+- Added `data/_additional/aircraft_fuel_burn.json` — 79 ICAO type codes with
+  fuel consumption (gallons/hour) and size category. Sourced from
+  `Jxck-S/plane-notify`. Enables carbon/cost context in aircraft detail panels.
+
+### Overlay schema normalisation
+
+- Fully rewrote `data/_additional/strategic_overlay_geocoded.json`: all records
+  now have consistent `name` (human label) and `type` (snake_case code) fields.
+  Previous schema mixed type-as-name strings (e.g. `"type": "OTH Radar China"`)
+  with code values. Section keys renamed to professional equivalents:
+  `rf_emitters` → `rf_infrastructure`, `sanctions_entities` →
+  `maritime_compliance_nodes`, `weather_constraints` → `weather_zones`,
+  `behavioral_patterns` → `ais_anomaly_zones`, `cyber_physical_targets` →
+  `cyber_physical_infrastructure`.
+
+### Additional data category cleanup
+
+- `yacht_alert_db.json`: collapsed `"Celebrity / Mogul"` and `"Tech Billionaire"`
+  into `"Notable Private Owner"` for consistent professional language.
+- `tracked_names.json`: renamed `"YouTubers"` → `"Aviation Content Creator"` and
+  `"People"` → `"Notable Individual"` across both `names` list and `details`
+  dict (214 entries updated).
+
+### Housekeeping
+
+- Removed stale backup files: `plane_alert_db.json.bak`, `planes_master.json.bak`,
+  and two timestamped backups in `data/_additional/backups/`.
+
+### Validation
+
+- `python3 -m json.tool` clean on all modified JSON files.
+- Release checkpoint tag: `checkpoint-2026-03-27-v1.17.1-release`.
 
 ---
 
 ## v1.17.0 — 2026-03-27
 
-**Aircraft catalog enrichment, on-click cross-reference, and data cleanup**
+Aircraft catalog enrichment, binary search on click, and data sanitization.
 
-- Clicking any tracked OpenSky aircraft now pulls the full catalog record
-  instantly: the frontend binary-searches a pre-loaded ICAO index and fetches
-  enriched details only when a match exists, with no added latency for
-  unlisted aircraft.
-- The aircraft detail panel and popup now show the classification category as a
-  styled badge and individual label chips rather than plain comma-separated text.
-- Catalog search results include the category badge, aircraft type, and tag chips
-  per entry, making it easier to scan results at a glance.
-- Fixed a layout fault in the aircraft popup balloon where key/value rows
-  rendered without separation (labels and values ran together in a single line).
-- Other bug fixes and improvements
+### Aircraft catalog enrichment
+
+- Added `GET /api/static/aircraft/{icao}` — direct O(1) lookup against the
+  aggregated `planes_master.json` catalog (cached in memory). Returns 404 when
+  the ICAO is not in the catalog.
+- Added `GET /api/static/aircraft-index` — returns the full sorted list of
+  catalog ICAOs for frontend binary-search membership checks.
+- Clicking any OpenSky aircraft now enriches the detail panel on demand: the
+  frontend performs a binary search against the pre-loaded ICAO index and
+  fetches the full catalog record only when a match is found, adding no latency
+  for unlisted aircraft.
+
+### Detail panel and search result improvements
+
+- Aircraft category now renders as a styled badge rather than plain text.
+- Tags now render as individual label chips in both the detail panel and the
+  catalog search result list.
+- Catalog search results show the category badge, aircraft type, and up to four
+  tag chips per result.
+- Fixed the aircraft profile section inside the Leaflet popup balloon: key/value
+  rows were rendering without layout (labels and values running together) because
+  the flex rules were only scoped to `.pt-popup` and `.detail-content`, not to
+  `.ac-popup`. Added the full row/key/val rule set under `.ac-popup`.
+
+### Aircraft database sanitization
+
+- Replaced 26 informal category names sourced from the original plane-alert-db
+  project with professional equivalents across both `plane_alert_db.json` and
+  `planes_master.json`. Examples: "Toy Soldiers" → "Army Aviation", "Ptolemy
+  would be proud" → "Aerial Survey", "Flying Doctors" → "Medical Air Services",
+  "Oxcart" → "Reconnaissance & ISR", "Gas Bags" → "Lighter-Than-Air".
+- Corrected a mis-mapping: "Climate Crisis" was wrongly mapped to "Environmental
+  Monitoring" (weather aircraft). These are corporate and private jets; remapped
+  to "Corporate & Private Aviation".
+- Renamed "GAF" to "German Air Force" for clarity.
+- Removed politically motivated and joke tags: "Man Made Climate Change",
+  "Climate Crisis" (tag), "How The Other Half Live", "Not A Car", and others.
+- Replaced slang tags with professional equivalents: "Police Squad" →
+  "Law Enforcement Aviation", "Copper Chopper" → "Police Helicopter", "Mae West"
+  → "Maritime Safety Equipment", "In The Navy" → "Naval Aviation", "War Bird" →
+  "Historic Military Aircraft".
+
+### Validation
+
+- Ruff check on modified backend files → clean.
+- Release checkpoint tag: `checkpoint-2026-03-27-v1.17.0-release`.
 
 ---
 
 ## v1.16.4 — 2026-03-27
 
-**Slow-layer recovery, persistent runtime-data seeding, and container tuning**
+Slow-layer recovery, runtime-data persistence hardening, and container
+priority tuning.
 
-- Fixed seized-vessel and NERACOOS layers that could appear empty after a
-  fresh container start. Seized vessels now warm immediately on startup, and
-  NERACOOS moorings no longer fail their GeoJSON serialization path.
-- Hardened the Docker data model so bundled reference assets seed the
-  persistent runtime volume only when missing, preserving collected data across
-  rebuilds.
-- Added runtime process-priority support so container deployments can apply the
-  configured `nice`/`renice` policy instead of silently ignoring it.
+### Slow collector and map-layer fixes
+
+- Fixed `tankertrackers_seized` showing `0` after fresh container starts by
+  accepting the upstream JSON envelope shape and scheduling an immediate
+  startup run for the seized-vessel collector.
+- Fixed `neracoos` map-layer failures where GeoJSON serialization received raw
+  Python `datetime` objects, returning HTTP `500` and leaving moorings empty in
+  the UI.
+- Kept `neracoos` visible as a stale-but-valid reference layer by preserving
+  `max_age_days=0` handling in the frontend map fetch path and surfacing its
+  degraded state honestly in source health.
+
+### Container data policy and performance
+
+- Added `core.runtime_data` startup seeding so bundled read-only assets are
+  copied into the persistent `/app/data` volume only when missing, rather than
+  overwriting existing runtime data on rebuild.
+- Added a Docker entrypoint sync step and enabled `SYS_NICE` capability so the
+  configured `renice` hook now applies to the running app process.
+- Documented the runtime-data persistence contract and screenshot-refresh
+  discipline in the roadmap.
+
+### Validation and release hygiene
+
+- Added targeted regression coverage for runtime-data seeding and NERACOOS
+  timestamp normalization.
+- Validation: targeted `pytest` selection -> `18 passed`; touched-file `ruff
+  check` -> clean; live container verification -> `tankertrackers_seized=10`,
+  `neracoos=6`.
+- Release checkpoint tag: `checkpoint-2026-03-27-v1.16.4-release`.
 
 ---
 
 ## v1.16.3 — 2026-03-27
 
-**Docker-safe static data packaging and rollback checkpoint**
+Docker-safe static data packaging, bundled fallback resolution, and release checkpoint.
 
-- Fixed a container-only packaging fault where reference infrastructure data
-  could disappear behind writable runtime volumes, leaving some static layers
-  empty even though local development looked correct.
-- Bundled the read-only infrastructure datasets and airport reference file into
-  the release image and added fallback lookup logic so strategic overlay, data
-  center, energy infrastructure, watchlist, and airport-reference lookups stay
-  available in Docker deployments.
-- Cut a release checkpoint tag so this build can be rolled back cleanly.
+### Container packaging and static-layer fixes
+
+- Fixed containerized deployments where the writable `/app/data` volume masked
+  bundled reference datasets, leaving `strategic-overlay`, `datacenters`,
+  `nuclear-plants`, and dependent infrastructure context APIs empty even
+  though local dev rendered correctly.
+- Added `core.data_paths.resolve_data_path()` and
+  `resolve_additional_data_path()` so read-only release assets can fall back to
+  `/app/bundled_data` when runtime volumes overlay `/app/data`.
+- Routed static-layer APIs, VIIRS proximity facility loading, watchlist
+  database loading, and NOTAM airport lookup through the new resolver.
+- Updated Docker packaging to include `data/_additional` and `airports.json`
+  in the image build, then copy them into `/app/bundled_data` for runtime use.
+
+### Validation and release hygiene
+
+- Added regression coverage for primary vs fallback bundled-data resolution.
+- Validation: targeted `pytest` selection -> `9 passed`; targeted `ruff check`
+  on changed Python modules -> clean.
+- Release checkpoint tag: `checkpoint-2026-03-27-v1.16.3-release`.
 
 ---
 
 ## v1.16.2 — 2026-03-27
 
-**Strategic infrastructure overlay and infrastructure-aware thermal alerts**
+Strategic overlay normalization, infrastructure-aware VIIRS proximity, and
+static-layer rendering diagnostics.
 
-- Added a strategic infrastructure overlay that combines cables, landing
-  stations, pipelines, converter nodes, data-gravity sites, energy buffers,
-  space ground-segment sites, and selected industrial chokepoints into one
-  map layer.
-- Fixed infrastructure marker rendering so data centers, energy facilities,
-  and strategic overlay points now appear reliably on the map instead of
-  silently disappearing on schema mismatches.
-- Thermal anomaly alerts now evaluate nearby infrastructure context more
-  broadly, including eligible strategic nodes in addition to energy
-  facilities, data centers, and military reference points.
-- Improved click-through workflow from thermal alerts into the relevant map
-  context layer.
-- Added internal render diagnostics for static infrastructure layers to speed
-  troubleshooting when a reference layer appears empty.
+### Infrastructure layer fixes
 
----
+- Added `GET /api/static/strategic-overlay`, merging three internal reference
+  datasets: `strategic_overlay_geocoded.json`,
+  `invisible_infrastructure_overlay.json`, and
+  `clair_critical_infrastructure_2026.geojson`.
+- Mixed `_additional` schemas are now normalized to one GeoJSON-style feature
+  contract. Cables and pipelines emit both corridor `LineString` geometry and
+  landing-point or node markers, so the overlay can show paths and points at
+  the same time.
+- `GET /api/static/nuclear-plants` and `GET /api/static/datacenters` now emit
+  explicit point geometry. The frontend no longer depends on raw `lat` / `lng`
+  fields for those static layers.
+- Added a Strategic Overlay toggle to the frontend and switched static-layer
+  rendering to geometry-first coordinate extraction. This fixes the frontend /
+  backend schema mismatch that was leaving land-based features and datacenters
+  invisible.
+- Datacenter rendering was widened slightly for operator use: lower zoom gate
+  (`4.5`), larger icons, and restored persisted toggle state on boot.
 
-## v1.16.1 — 2026-03-27
+### VIIRS proximity and analyst workflow
 
-**Infrastructure layer rendering, icon system overhaul, and data source reliability**
+- `GET /api/intel/viirs-proximity-alerts` now scans military bases and eligible
+  strategic overlay nodes in addition to nuclear facilities and datacenters.
+- Proximity responses now include `layer`, `feature_id`, `role`,
+  `source_name`, and `groups_enabled`, making alert attribution explicit.
+- The VIIRS proximity banner now identifies the nearest infrastructure class
+  and reveals the relevant context layer on click instead of only panning to
+  the thermal event.
+- Default proximity radius increased from `25 km` to `40 km`.
+- Fixed a route bug where VIIRS events from the store were being treated like
+  attribute objects instead of mappings.
 
-This patch release resolves a set of silent rendering failures that were
-preventing critical infrastructure layers from appearing on the map, and
-ships a complete icon differentiation pass across all overlay types.
+### Diagnostics and validation
 
-- **Nuclear and energy infrastructure markers were not rendering.** The global
-  power plant dataset was loading correctly at the collector level but a
-  frontend symbol resolution path was falling back silently to a null icon,
-  resulting in markers that were present in the data but invisible on the map.
-  Fixed. Nuclear plants, conventional power stations, and associated energy
-  facilities now render with their correct symbols at all zoom levels.
-
-- **Data center layer was not populating.** The coastal datacenter reference
-  set used by the VIIRS thermal proximity alert was ingesting cleanly but the
-  map layer toggle was bound to a stale key following the v1.16.0 store
-  routing refactor. Markers were allocated but never dispatched to the render
-  pipeline. Fixed. Data centers now appear correctly when the layer is enabled,
-  and the VIIRS proximity alert now has the full facility set available for
-  proximity evaluation.
-
-- **Icon system redesigned across all overlay types.** With seventeen source
-  layers now active simultaneously, earlier icon choices were producing visual
-  collisions — different source types were using shapes and colours that were
-  too close to distinguish at a glance, particularly between satellite
-  detections, infrastructure reference points, and advisory anchors. Each
-  overlay type now carries a distinct symbol vocabulary:
-  - Satellite detections (SAR and imaging passes) use angular, radar-style
-    diamond markers in cool blue-white
-  - Energy and nuclear infrastructure uses a bold hexagon in amber
-  - Data centers use a square grid marker in steel blue
-  - NOTAM airspace zones retain their magenta ring with directional indicator
-  - Convergence cells remain the scored heat-gradient polygons
-  - Earthquake events retain scaled violet stars
-  - Watchlist aircraft retain pulsating red glow
-  - Military installations retain red star markers
-  - Seized and Iran Navy vessels retain orange anchor and red star respectively
-  The goal is that any two active layers should be immediately distinguishable
-  without reading a label.
-
-- **VIIRS thermal proximity banner now references the correct facility
-  inventory.** Previously the banner could report zero nearby facilities even
-  when data center and nuclear markers were in range, because the proximity
-  check was running against an incomplete snapshot. Now correctly references
-  the full rendered facility set.
-
----
-
-## v1.16.0 — 2026-03-27
-
-**Seismic and weather intelligence layers, EMODnet infrastructure overlay,
-nuclear plant reference layer, and VIIRS thermal proximity alert**
-
-This release adds two new live data sources, a European infrastructure overlay,
-a nuclear facilities reference layer, and a real-time thermal anomaly alert
-system.
-
-- **USGS earthquake feed** now live. Magnitude 2.5 and above worldwide, updated
-  every 15 minutes. Events appear as violet star markers scaled by magnitude (
-  small for below M5, medium for M5–6.5, large for M6.5+). Each popup shows
-  magnitude, depth, place, tsunami flag, PAGER alert level, and a direct link
-  to the USGS event page. Significant earthquakes (M5.5+) contribute to the
-  convergence score for nearby maritime cells — undersea quakes are direct
-  context for cable cuts, tsunami advisories, and acoustic propagation
-  affecting sonar-dependent vessels.
-
-- **Environment Canada marine weather warnings** now live. 30-minute updates
-  covering the Gulf of St Lawrence, Hudson Bay, and the Canadian Arctic —
-  waters not served by NDBC. Storm and hurricane warnings weight the
-  convergence score at 2×; gale and freezing spray warnings at 1.5×. Fills the
-  northern Atlantic intelligence gap that affects Russia's shadow fleet routes
-  and Arctic shipping corridors.
-
-- **EMODnet Human Activities overlay** added as a toggleable map layer for
-  European waters. Covers submarine cables, oil and gas pipelines, and offshore
-  wind farm polygons. No backend required — tiles are served directly from
-  EMODnet's public WMS endpoint. Toggle is in the map controls panel.
-
-- **Nuclear facilities reference layer** added. Approximately 250 nuclear power
-  plants worldwide filtered from a global power plant dataset, rendered as
-  toggleable reference markers. Clearly labelled as static reference data, not
-  live monitoring.
-
-- **VIIRS thermal proximity alert** added. When a satellite thermal detection
-  (VIIRS fire or night-time light anomaly) falls within 25 km of a nuclear
-  plant, coastal datacenter, or military base in the last 5 minutes, an orange
-  alert banner appears at the top of the map. The banner shows the number of
-  detections, the nearest facility name and distance, and links directly to the
-  thermal event on the map. Updates on every refresh cycle.
-
-- Three data pipeline bugs fixed: NERACOOS collector was crashing silently on
-  every run due to an unexpected keyword argument, causing the Gulf of Maine
-  mooring layer to always fall back to cache. USGS and ECCC event counts were
-  showing as zero in the source health panel due to a misconfigured store
-  routing table. All three sources now report correctly.
+- Added optional frontend debug mode: `?debug_static_layers=1` or localStorage
+  key `pt:debug:static-layers=1`. It logs static-layer load / render counts and
+  surfaces inline notes for strategic overlay and datacenter rendering.
+- Added API test coverage for strategic overlay normalization, static geometry
+  output, and VIIRS proximity matching against strategic infrastructure.
+- Validation: `python3 -m pytest -q` -> `153 passed`.
 
 ---
 
 ## v1.15.0 — 2026-03-27
 
-**Watchlist intelligence, sanctioned fleet layer, and infrastructure hardening**
+New intelligence layers (USGS, ECCC, EMODnet, nuclear), VIIRS proximity alert,
+and three data-pipeline bug fixes.
 
-This release ships the aircraft and vessel watchlist layer, the sanctioned fleet
-frontend, the maritime risk zone overlay, and infrastructure updates to the Docker
-stack.
+### Bug fixes
 
-- Live aircraft positions are now cross-referenced against a 16,000-entry ICAO hex
-  registry covering military, government, police, coastguard, medevac, and other
-  tracked categories. Matched aircraft render with a pulsating red glow marker and
-  are distinguishable from ordinary air traffic at a glance.
-- A homepage alert banner appears when any tracked aircraft are currently visible,
-  showing count and registration / category. Updates on every refresh cycle.
-- AIS vessel positions cross-referenced against 92 PLAN/CCG fleet MMSIs and 12
-  notable yacht MMSIs at ingest.
-- Military installation static reference layer available in the map controls: 647
-  geocoded bases rendered as red-star markers on toggle.
-- New analyst endpoint `/api/intel/aircraft-alerts` returns all currently spotted
-  watchlist aircraft with registration, operator, category, and position.
-- Sanctioned vessel fleet map layer live. FleetLeaks vessels with a spoofing score
-  of 2 or higher display a distinct alert icon; score 1 shows a dashed border.
-  Per-vessel popup includes IMO, type, flag, AIS status, sanctioner breakdown, and
-  spoofing score with per-agency sanction dates.
-- TankerTrackers maritime risk zone overlay: 183 named polygon zones rendered as a
-  toggleable layer. Zone name appears on hover.
-- Seized vessel and Iran Navy registry rendered as a distinct map layer: orange
-  anchor icon for seized tankers, red star for Iran Navy and IRGC assets.
-- Docker stack updated: ClickHouse confirmed on latest stable GA release
-  (v26.2.5.45-stable, multi-arch). MinIO pinned to final CVE-patched release
-  following repository archive.
-- Backend scheduler refactored to a table-driven registration pattern. Startup
-  preload registry unified. All slow reference collectors now share one wrapper.
+- **NERACOOS collector crash** (`CollectorRunStatus` bad kwargs): `NeraCOOSCollector`
+  was calling `CollectorRunStatus(source=SRC_NERACOOS, event_count=len(events), …)`
+  which raised `TypeError` on every run because the dataclass only accepts
+  `status`, `run_mode`, `detail`. Both call sites (live + cache-fallback paths)
+  corrected. NERACOOS status is now `ok` / `degraded` / `cache` as intended.
+
+- **USGS and ECCC event counts always 0 in health**: `count_events_by_source()`
+  in `core/store.py` checks `REF_SOURCES` to decide which internal store to query.
+  `"usgs"`, `"eccc"`, and `"neracoos"` were missing from the frozenset so every
+  count query searched the streaming deque (finding nothing). All three sources
+  added to `REF_SOURCES`. Health panel now reports accurate event counts.
+
+### New collectors
+
+- **USGS earthquake feed** (`collectors/usgs/usgs_quake_collector.py`): M2.5+
+  earthquakes worldwide from the USGS GeoJSON summary feed. Schedule: 15 min.
+  Attributes: magnitude, depth_km, place, tsunami flag, PAGER alert level, USGS
+  event URL. Convergence weight: M5.5+ within 36h adds weight 1.5 to cells sharing
+  the same cell. Colour: #a78bfa (violet).
+
+- **ECCC marine weather** (`collectors/eccc/eccc_marine_collector.py`): Environment
+  and Climate Change Canada real-time marine weather warnings covering the Gulf of
+  St Lawrence, Hudson Bay, and Canadian Arctic — waters not covered by NDBC.
+  Schedule: 30 min. Attributes: warning_name, severity, region, area, effective_time.
+  Convergence weights: storm/hurricane warning → 2.0, gale/freezing spray → 1.5
+  within 48h. Colour: #67e8f9 (sky blue).
+
+### New frontend layers
+
+- **USGS map layer**: magnitude-scaled star icons (10 px < M5, 16 px M5+, 22 px M6.5+).
+  Popup: magnitude badge, depth, place, tsunami flag, PAGER alert chip, USGS link.
+  Layer exempt from time-window filter (snapshot data).
+
+- **ECCC map layer**: standard 18 px pin. Popup: warning name header, severity chip
+  colour-coded by severity (red = storm/hurricane, orange = gale, blue = freezing
+  spray), area, region, effective time. Layer exempt from time-window filter.
+
+- **EMODnet Human Activities overlay**: toggleable WMS layer group over European
+  waters showing submarine cables, oil/gas pipelines, and offshore wind farm
+  polygons. Pure frontend — no collector, no backend change. Toggle added to map
+  controls panel; preference persisted to localStorage.
+
+- **Nuclear facilities reference layer** (toggle: "Nuclear plants"): power_plants.json
+  filtered to `fuel_type == "Nuclear"` (~250 records). Rendered as radioactive-glyph
+  markers. Static reference data; labelled clearly in popup.
+
+### New endpoint
+
+- `GET /api/intel/viirs-proximity-alerts?max_age_minutes=5&radius_km=25`
+  Scans VIIRS thermal detections (VIIRS_FIRE + VIIRS_DNB) from the last N minutes
+  and returns any that fall within radius_km of a nuclear plant, coastal datacenter,
+  or military base. Haversine distance computation; module-level facility cache to
+  avoid reloading 5000+ datacenter records per request. Response includes per-alert
+  nearest facility name, type, country, distance_km, and all_nearby list.
+
+### New frontend alert banner
+
+- `#viirs-proximity-banner`: orange-themed alert banner (positioned below aircraft
+  alert banner) shown whenever the `/api/intel/viirs-proximity-alerts` endpoint
+  returns at least one alert in the last 5 minutes. Displays event count and nearest
+  facility name with distance. Click handler enables the VIIRS layer and pans to
+  the nearest detection. Wired into `refreshAll()` on every 30-second cycle.
+
+### Convergence scoring additions
+
+- `usgs_seismic_significant` contributor: M5.5+ USGS quake within 36h → weight 1.5.
+- `eccc_storm_warning` contributor: ECCC storm/hurricane warning within 48h → weight 2.0.
+- `eccc_gale_warning` contributor: ECCC gale/freezing spray within 48h → weight 1.5.
+
+### Screenshots
+
+- `docs/screenshots/take_screenshots.py` updated: `ctx.add_init_script()` now
+  injects `localStorage.setItem('pt:onboarding:v1','1')` before first navigation
+  so the onboarding modal never appears. Fixed `void map.setView(…)` to prevent
+  Playwright serialization error on Map object return. Target changed to
+  `http://localhost:8000`. Twelve screenshots retaken.
 
 ---
 
 ## v1.14.0-dev — 2026-03-26
 
-**Aircraft watchlist intelligence layer**
+Aircraft watchlist intelligence layer (Phase 5.5 core)
 
-- Live aircraft positions from OpenSky are now cross-referenced against a
-  16,000-entry ICAO hex registry of tracked aircraft at the moment they are
-  ingested. Matched aircraft include military, government, police, coastguard,
-  medevac, and other operationally relevant categories.
-- Matched aircraft render on the map with a pulsating red glow marker so
-  they are immediately distinguishable from ordinary air traffic.
-- A homepage alert banner appears when any tracked aircraft are currently
-  spotted, showing how many and which registrations / categories they belong
-  to. The banner updates on every refresh cycle.
-- AIS vessel positions are now cross-referenced against a registry of 92
-  People's Liberation Army Navy and China Coast Guard vessels plus 12
-  notable yachts by MMSI.
-- A static military installation layer is now available in the map controls.
-  647 geocoded bases can be toggled on as red-star markers. The layer loads
-  on first enable and does not affect the normal refresh cycle.
-- New analyst endpoint `/api/intel/aircraft-alerts` returns all currently
-  spotted watchlist aircraft with registration, operator, category, and
-  position details.
+### New: `core/watchlist.py` — static watchlist registry
+
+- Loads four databases from `data/_additional/` at import time (singleton, no per-request
+  overhead): `plane_alert_db.json` (16,006 ICAO hex records), `tracked_names.json` (726
+  operator entries), `plan_ccg_vessels.json` (92 PLAN/CCG MMSIs), `yacht_alert_db.json`
+  (12 notable yacht MMSIs), `military_bases.json` (647 geocoded installations).
+- Public API: `get_aircraft_match(icao24)`, `get_vessel_match(mmsi)`,
+  `match_tracked_operator(operator)`, `stats()`, `MILITARY_BASES`.
+
+### OpenSky collector enrichment
+
+- `_state_to_event()` now calls `get_aircraft_match(icao24)` for every state vector.
+- Matched aircraft receive `attributes.watchlist_match` dict containing: registration,
+  operator, ac_type, category, tags, link, watchlist_db, icao24.
+- No overhead for unmatched aircraft (dict lookup, O(1)).
+
+### AIS collector enrichment
+
+- `_raw_to_event()` now calls `get_vessel_match(mmsi)` for every position report.
+- PLAN/CCG vessels and notable yachts receive `attributes.watchlist_match` at ingest.
+
+### New API routes
+
+- `GET /api/intel/aircraft-alerts?limit=N` — returns current OpenSky events where
+  `attributes.watchlist_match` is set. Response includes count, spotted_count (unique
+  ICAO addresses), category breakdown, and full alert rows.
+- `GET /api/military-bases` — static military installation feature list (647 records,
+  each: name, country, operator, branch, lat, lng).
+- `GET /api/watchlist/stats` — database sizes for health dashboard use.
+
+### Frontend
+
+- `createWatchlistAircraftIcon(rawValue)` — pulsating red SVG aircraft marker using CSS
+  `@keyframes wlAircraftPulse` (drop-shadow glow, 1.4s cycle, respects prefers-reduced-motion).
+- Watchlist aircraft in `_applyEventFeatures`: `_isWatchlistAircraft` flag derived from
+  `attributes.watchlist_match`; fill forced to `#ef4444`; `createWatchlistAircraftIcon`
+  used instead of `aircraftIcon`; fast-path icon update path updated to match.
+- `#aircraft-alert-banner` — absolutely positioned overlay at top-centre of map, shown
+  when any tracked aircraft are currently spotted. Displays count and up to 4 aircraft
+  labels (registration + category).
+- `loadAircraftAlerts()` + `updateAircraftAlertBanner()` — fetch `/api/intel/aircraft-alerts`
+  on every `refreshAll` cycle, update banner state.
+- `state.militaryBasesLayer` + `state.militaryBasesSnapshot` — dedicated layer group for
+  military base markers. Loaded lazily on first toggle-on.
+- `loadMilitaryBases()` + `renderMilitaryBasesLayer()` — fetch `/api/military-bases`, render
+  12px red star markers with tooltip. Default off; toggle under map layers.
+- `fShowMilitaryBases` checkbox + toggle handler wired. UI pref restore added.
+- `API.aircraftAlerts`, `API.militaryBases` constants added.
+- CSS: `@keyframes wlAircraftPulse`, `.wl-aircraft-pulse`, `#aircraft-alert-banner`,
+  `#aircraft-alert-banner.is-visible`, `.ab-count` all added to `style.css`.
 
 ---
 
 ## v1.13.0 — 2026-03-26
 
-**Frontend layer rollout, NERACOOS oceanographic moorings, and scheduler hardening**
+Sprint B frontend, NERACOOS mooring collector, maintenance tax TAX 1/2/3
 
-- Sanctioned vessel fleet map layer now live. FleetLeaks vessels with a spoofing
-  score of 1 or higher display with a dashed red border indicator; score 2 or 3
-  draws a distinct alert icon. Layer toggle and per-vessel detail popup included.
-- TankerTrackers maritime risk zones overlay now rendered on the map. Toggle in
-  the layer control shows or hides the 183 named polygon zones. Zones load
-  independently of the event refresh cycle.
-- Seized vessel and Iran Navy registry now appears as a distinct map layer. Seized
-  vessels and Iran Navy vessels render with separate icon styles and popup detail.
-- NERACOOS ERDDAP oceanographic moorings integrated. Six Gulf of Maine fixed
-  mooring stations (air temperature, wind, wave height, wave period, sea surface
-  temperature, salinity, pressure) collected at 60-minute intervals with no
-  authentication required. Stations: A01, B01, E01, M01, N01 met and wave arrays.
-- Backend scheduler refactored. All slow-polling reference collectors now share a
-  single wrapper function and a table-driven registration pattern. Adding a new
-  reference source requires one registry entry rather than a bespoke function.
-- Startup preload registry unified on the same pattern — eight sources now use
-  the common loader rather than eight identical functions.
-- Source colors, shapes, and staleness thresholds wired for FleetLeaks,
-  TankerTrackers seized, and NERACOOS in the frontend constant tables.
+### Maintenance (TAX 1/2/3) — no behaviour changes
+
+- **TAX 1 — app.py preload factory**: replaced 8 near-identical `_preload_*_cache()`
+  functions with a `_REF_PRELOADS` registry (list of 7 tuples) + one generic
+  `_preload_ref_cache()` driver. SMAPS kept its own function (two-stage transform).
+  Adding a new REF_SOURCE collector is now 1 tuple, not 1 new function.
+
+- **TAX 2 — scheduler slow-collector wrappers**: replaced 9 manual `pop`/`add_job`
+  blocks in `start_scheduler()` with `_build_slow_collector_jobs()` table.
+  Collapsed 4 identical standard wrappers (guide, marad, zones, seized) into
+  `_run_standard_ref_slow()`. Adding a new slow collector = 1 table entry.
+
+- **TAX 3 — app.js section boundary map**: 35-entry module boundary comment block
+  added at top of `frontend/js/app.js` listing start line of every logical section.
+  File grew from 5619 → 5876 lines with Sprint B additions; map keeps it navigable.
+
+### New collector — NERACOOS/ERDDAP moorings
+
+- `collectors/neracoos/neracoos_collector.py`: fetches latest observations from
+  6 NERACOOS fixed moorings in the Gulf of Maine / Northwest Atlantic via the
+  ERDDAP tabledap REST API (no auth, JSON format).
+  - Stations: A01 (met), A01_waves (wave strain gauge), B01 (met), E01 (met),
+    M01 (CTD 200 m depth), N01 (met)
+  - Attributes per station: air temperature, wind speed/direction, pressure,
+    significant wave height, wave period, sea water temperature, salinity (PSU)
+  - Source: `neracoos` | event type: `neracoos_mooring` | schedule: 60 min
+  - File cache fallback: `data/neracoos_cache.json`
+  - Frontend: emerald square markers, dedicated popup with all available fields
+
+### Sprint B frontend — sanctioned fleet, zones, seized vessels
+
+- **Sanctioned vessel layer** (`fleetleaks`): amber triangle markers. High-spoof
+  vessels (spoofing_score >= 2) get a dashed red outer ring via
+  `createSpoofingBorderIcon()`. Fill turns red for score >= 2.
+  Popup: vessel name, IMO, type, flag, AIS status, sanctioners, spoofing score,
+  per-agency sanction dates.
+
+- **TankerTrackers maritime risk zones**: orange polygon overlay loaded from
+  `/api/zones`. Toggle: "Maritime risk zones" (default on). Zone name shown
+  on hover tooltip. Layer sits above convergence risk zones, below markers.
+
+- **Seized / Iran Navy vessel layer** (`tankertrackers_seized`): orange star
+  for seized tankers, red star with white stroke for Iran Navy / IRGC assets.
+  Popup: name, IMO, alert type, last-seen date, confidence note.
+
+- All three new layers: added to `LAYER_NAMES`, `SOURCE_COLORS`, `SOURCE_SHAPES`,
+  `STALE_THRESHOLDS`, time-window filter exemption (snapshot-style data).
+
+### Data sources notes (notes.txt review)
+
+- **NERACOOS/ERDDAP**: implemented (see above).
+- **USDA NASS QuickStats**: agriculture data — no maritime relevance, deferred.
+- **BigBodyCobain/Shadowbroker GitHub**: flagged for manual inspection before
+  integration. The repository name is associated with a threat-actor group;
+  contents must be reviewed by a human before any data is ingested.
 
 ---
 
 ## v1.12.0 — 2026-03-26
 
-**Sanctioned fleet intelligence layer**
+Sanctioned fleet cluster, core hardening, DEVELOPER_PLAN, test expansion
 
-- Four new data sources integrated covering sanctioned vessel tracking, maritime
-  risk zone context, and seized vessel monitoring.
-- Live AIS positions are now collected for known sanctioned vessels alongside
-  spoofing anomaly signals: whole-degree position rounding, impossible speed for
-  vessel type, and missing heading data. Each vessel carries a spoofing score
-  from 0 to 3 derived from these flags.
-- Sanctions cross-reference data from multiple agencies (OFAC, EU, UK FCDO,
-  Canada, Switzerland, Australia, UN) merged into vessel records by IMO number
-  at collection time.
-- 183 named maritime risk zone polygons integrated covering chokepoints, conflict
-  zones, and high-risk transit corridors.
-- Seized and Iran Navy vessel registry integrated with last known position data.
-- New API endpoints expose sanctioned vessel lists with filters (vessel type,
-  spoofing score, sanctioning agency), maritime risk zone polygons, and the
-  sanctions registry by IMO.
-- Frontend map layer for sanctioned vessels is in the next release.
+### New collectors — sanctioned fleet cluster (Sprint B + C)
+
+- `collectors/fleetleaks/fleetleaks_vessels.py`: FleetLeaks live AIS snapshot
+  for sanctioned fleet. Computes derived anomaly fields at collection time:
+  `ais_position_precision` (whole-degree sentinel), `speed_anomaly` (vessel-type
+  max speed exceeded), `heading_available` (heading sentinel 511), and
+  `spoofing_score` 0–3 (sum of three flags). IMO-keyed sanctions data merged
+  from TankerTrackers cache at collection time.
+- `collectors/tankertrackers/tankertrackers_sanctions.py`: 1,370+ IMO-keyed
+  sanctions registry (OFAC, EU, FCDO, GAC, SECO, UANI, ASO, UN) with per-agency
+  sanction dates. Emits no EventRecords — lookup table loaded by FleetLeaks
+  and the API sanctions endpoints.
+- `collectors/tankertrackers/tankertrackers_zones.py`: 183 named maritime risk
+  zone polygons (WKT). Strips `SRID=4326;` prefix; computes centroid lat/lon;
+  emits one EventRecord per zone. Stored in ref_store for vessel-in-zone
+  correlation.
+- `collectors/tankertrackers/tankertrackers_lostandfound.py`: seized and
+  Iran Navy vessel registry. Emits EventRecords with `status` field
+  (`taken` / `iran_navy`); movement detection via position delta between polls.
+
+### New API routes — vessels module
+
+- `GET /api/vessels/sanctioned` — FleetLeaks snapshot with filters:
+  `type`, `anomaly` (spoofing_score ≥ 2), `ais_status`, `sanctioner`
+- `GET /api/vessels/sanctioned/{imo}` — single vessel by IMO
+- `GET /api/zones` — TankerTrackers maritime risk zone list
+- `GET /api/zones/{zone_id}` — single zone with WKT
+- `GET /api/sanctions` — sanctions registry (paginated)
+- `GET /api/sanctions/{imo}` — single vessel sanctions by IMO
+- `api/routes/vessels.py` router mounted at `/api`, tagged `vessels`
+
+### Scheduler integration
+
+- All four new collectors registered in `api/scheduler.py`:
+  FleetLeaks (5-min), TankerTrackers sanctions (60-min),
+  TankerTrackers zones (24-hour), TankerTrackers seized (30-min).
+- Cache preload on startup for FleetLeaks vessels and TankerTrackers zones.
+
+### Core modules
+
+- `core/dates.py`: centralised datetime parsing (7-tier pipeline: ISO → full DTG
+  → short DTG → bare date → US slash date → US slash datetime → dateutil).
+- `core/provenance.py`: `build_provenance()` helper for consistent provenance
+  dicts across all collectors.
+
+### Engineering
+
+- `DEVELOPER_PLAN.md`: full implementation spec for all v2.0 new data sources
+  (field schemas, TTLs, anomaly detection logic, unit test requirements).
+- `Things I have found.txt`: live endpoint research notes.
+- `tools/fill_notam_cache.py`: NOTAM cache warm-up utility.
+- `whitelist_vulture.py`: vulture whitelist for FastAPI route false positives.
+- Removed stale docs: `LAUNCH_BRIEF.txt`, `NEW_SOURCES_REVIEW.txt`,
+  `PLATFORM_REVIEW_2026-03-21.txt`.
+- `.gitignore` extended: exclude data cache/snapshot/mtimes/jsonl files and
+  VIIRS binary outputs.
+
+### Tests
+
+- 149 tests passing (up from 94). New test suites:
+  `tests/fleetleaks/test_fleetleaks_vessels.py`,
+  `tests/tankertrackers/test_tankertrackers_sanctions.py`,
+  `tests/tankertrackers/test_tankertrackers_zones.py`,
+  `tests/tankertrackers/test_tankertrackers_lostandfound.py`,
+  `tests/core/test_dates.py`, `tests/core/test_geo_extract.py`,
+  `tests/test_guide_provenance.py`.
 
 ---
 
 ## v1.11.0 — 2026-03-26
 
-**Data freshness and source reliability**
+Data freshness, parsing reliability, and source resilience
 
-- GPS disruption events now reflect their actual report date rather than the
-  collection time. Previously, all GUIDE events appeared with the same timestamp;
-  they now carry the date the disruption was first reported to NAVCEN.
-- Coordinate extraction improved across all text-based sources. Three additional
-  formats are now recognized, including labeled lat/lon pairs and signed decimal
-  coordinates. Sources that previously placed events at 0,0 due to unrecognized
-  coordinate notation now resolve correctly.
-- Datetime parsing hardened against non-standard concatenated date-time strings
-  used in certain official maritime data feeds.
-- Provenance and confidence metadata extended to two additional sources, giving
-  the analyst layer more signal on which position and timestamp fields are
-  authoritative versus inferred.
-- Convergence scoring and rule evaluation now use a consistent datetime parser
-  across all comparison paths, eliminating a class of silent mismatches.
-- Several resilience improvements to collectors that face upstream WAF
-  protection, including retry logic and structured fallback logging.
+### Data quality
+
+- GUIDE GPS disruption collector: corrected column mapping that caused all 448
+  historical events to carry the collection timestamp instead of the actual
+  report-opened date. All GUIDE events now reflect the real GPS disruption date.
+- GUIDE heatmap extraction: robust against page variants that emit a flat numeric
+  array instead of nested arrays. Both forms parsed into expected `[lat, lon, ts, id]`.
+- `core/dates.py`: added step-6 parser for USCG NAVCEN GUIDE `MM/DD/YYYYhh:mm:ss [TZ]`
+  format (date+time concatenated, optional multi-word TZ name). Pipeline order is now:
+  ISO → full DTG → short DTG → bare date → US slash date → US slash datetime
+  → dateutil → dateparser.
+- `core/convergence.py` and `core/rules.py`: replaced inline `fromisoformat` with
+  `parse_datetime` so timestamp comparison is consistent across the platform.
+
+### Coordinate extraction
+
+- `core/geo_extract.py`: added three new extraction patterns with overlap guards:
+  LAT/LON labeled with hemisphere, LAT/LON labeled with sign, bare signed decimal pair.
+  Decimal-point guard on the bare pair pattern reduces false positives against numeric text.
+  All six formats documented in module docstring in priority order.
+
+### Collector provenance and confidence
+
+- MARAD collector: emits `field_confidence` (coords 0.6 if approx/0.2 if inferred,
+  timestamp 0.85) and `provenance` on every event.
+- NGA MIS (MODU) collector: emits `field_confidence` (lat/lon 0.95, timestamp 0.8)
+  and `provenance` including raw MODU identifier.
+- SMAPS collector: Playwright WAF fallback with structured retry logging.
+  Cache-age validation uses `parse_datetime`.
+- DailyMem and NDBC SAR2 collectors: cache-age validation uses `parse_datetime`.
+
+### Bug fixes
+
+- `core/convergence.py`: `EventRecord` import was removed during refactor; restored.
+  Without it, any convergence scoring call raised `NameError` at runtime.
+- `collectors/notam/notam_collector.py`: duplicate FIR→airport entries for ZNY/KZNY removed.
+- `collectors/ndbc/ndbc_collector.py`: unused `prov_base` variable removed.
+- `core/ch_store.py`: `zip()` made explicit with `strict=False`.
+
+### Tests
+
+- 94 tests passing. No regressions.
+
+---
+
+
+Datetime parsing hardening, coordinate extraction expansion, version alignment
+
+### Features
+
+- `core/dates.py` extended with military DTG support (`DDHHmmZ MON YY[YY]`), short DTG
+  (`DDHHmmZ` anchored to current UTC month), bare date (`DD MON YY[YY]`), and US slash
+  date (`MM/DD/YYYY`). `parse_datetime()` now resolves all seven tiers before returning None.
+- `core/geo_extract.py` now extracts LAT/LON-labeled coordinates in both hemisphere
+  (`LAT 33.7N LON 118.2W`) and signed (`LAT: -33.7 LON: -118.2`) forms, and bare signed
+  decimal pairs (`33.7167, -118.25` or `33.7167 -118.25`).
+
+### Bug fixes
+
+- Version drift resolved: `pyproject.toml` and `api/app.py` both updated from `0.1.0`
+  to `1.10.1` (now `1.10.2`).
+- All raw `datetime.fromisoformat()` call sites in collectors and core modules replaced
+  with `parse_datetime()` from `core.dates`, eliminating silent parse failures on
+  non-ISO inputs and improving error handling consistency.
+  Affected files: `dailymem_collector.py`, `mis_collector.py`, `marad_collector.py`,
+  `ndbc_sar2_collector.py`, `core/rules.py`, `core/store.py`, `core/convergence.py`,
+  `api/routes/health.py`.
+- `collectors/guide/guide_collector.py` `_parse_date()` now uses `parse_datetime()`
+  instead of a local `strptime` for `MM/DD/YYYY`, centralizing all date parsing.
+
+### Engineering hygiene
+
+- 27 new tests added: `tests/core/test_dates.py` and `tests/core/test_geo_extract.py`
+  covering all new parsing formats and edge cases. Total test count: 94.
+- `core/redis_store.py` `_to_score()` replaced raw `fromisoformat` with `parse_datetime()`.
+- `api/routes/health.py` `GET /health` now returns `version` field from `app.version`,
+  eliminating the hardcoded version string in the frontend HTML. The UI badge updates
+  automatically on each page load.
 
 ---
 
 ## v1.10.1 - 2026-03-24
 
-**Intel table reliability and data freshness**
+Intel table freshness and comprehensive sorting fixes
 
-- Fixed intel table refresh behavior: analyst tables now update consistently regardless of panel visibility, eliminating stale data when reopening briefing panels.
-- Enhanced event sorting to ensure newest items appear at the top of all intel tables.
-- Maintained full backward compatibility with existing API consumers while improving data consistency.
+### Bug fixes
+
+- Fixed intel tables refresh logic: tables now update on every 30-second refresh cycle regardless of panel visibility, eliminating stale data when reopening the intel panel.
+- Fixed event sorting in store: `get_events()` now returns events sorted by timestamp (newest first), ensuring intel tables consistently show the most recent items at the top.
+- Fixed hypothesis sorting: `get_hypotheses()` now returns hypotheses sorted by timestamp (newest first), ensuring the rule engine output shows latest evaluations first.
+- Fixed GeoJSON sorting: `events_as_geojson()` now returns events sorted by timestamp (newest first), improving map display consistency.
+- All store tests pass with the new sorting behavior, maintaining backward compatibility for existing API consumers.
+
+### Engineering hygiene
+
+- Simplified frontend refresh logic by removing conditional table loading, improving data consistency across the dashboard.
+- Enhanced store reliability with deterministic event ordering across all retrieval methods, eliminating dependency on implicit insertion order assumptions.
+- Ensured all intel table API endpoints (`/nav-warnings`, `/broadcast-warnings`, `/notams/critical`, `/gps-disruptions`, `/marad-advisories`, `/icc-piracy`) consistently sort results newest-first.
 
 ---
 
 ## v1.10.0 - 2026-03-23
 
-**ICC-CCS live piracy, convergence zones, and map clarity**
+ICC-CCS live piracy, first convergence release, and map-clarity improvements
 
-- Added ICC-CCS IMB live piracy incidents as a first-class source, including a dedicated analyst table and map layer.
-- Shipped the first convergence release: Phantom Tide now scores multi-source overlap by map cell and renders those cells directly on the dashboard.
-- The dashboard now tells the operator when convergence cells are being hidden by zoom level instead of leaving the overlay ambiguous.
-- When every source layer is enabled, the interface now warns that the map is in its noisiest state.
-- Dense global layers received another performance pass so overview use is less expensive when multiple feeds are shown together.
-- Access handling now degrades more cleanly when the edge cannot recover a public client IP. Legitimate users who previously hit false "Non-Public IP Address Detected" blocks now get a short manual verification step instead of an immediate hard failure, and that prompt data is not retained.
+### Sources and intelligence
+
+- Added an ICC-CCS IMB piracy collector, API route, analyst table, and map layer so Phantom Tide now carries a live current-year piracy incident surface instead of relying on historical context alone.
+- Added the first shipped convergence system: weighted multi-source cell scoring in `core/convergence.py`, a new `/api/convergence` endpoint, and dashboard rendering of scored convergence zones with contributor drill-down.
+
+### Frontend and operator workflow
+
+- Replaced the old heuristic client-side risk overlay with backend-scored convergence cells rendered directly on the map.
+- Added sidebar status copy explaining how many convergence cells are visible at the current zoom and when lower-priority cells are intentionally hidden.
+- Added an explicit warning when all source layers are enabled so operators know they are in the noisiest possible view state.
+- Expanded dense-layer viewport culling beyond AIS/OpenSky/VIIRS to reduce unnecessary marker work when global layers are enabled together.
+
+### Engineering hygiene
+
+- Cleaned dead-code tooling output by whitelisting FastAPI decorator entry points and serializer-only model fields while removing genuinely unused constants and a stale convergence constant.
+- Normalized backend import ordering, slice formatting, and test fixtures so the new source and convergence code paths stay consistent with the repo style baseline.
 
 ## v1.9.5 - 2026-03-23
 
-**MARAD, source trust visibility, and release-sync cleanup**
+MARAD, collector trust visibility, and fetch hardening
 
-- Added MARAD MSCI advisories to the live platform surface, including a dedicated analyst table and map layer for regional U.S. maritime threat notices.
-- Source health now distinguishes between live, cache-backed, and failed states for slower reference collectors so degraded sources are visible instead of silently reading healthy.
-- Public-feed collectors now use stronger browser-like request headers, reducing avoidable upstream blocking on HTML and RSS fetches.
-- Public documentation is now explicitly aligned with the shipped internal release so the docs repo and application release marker stay in step.
+### Sources and intelligence
 
----
+- Added a MARAD MSCI advisory collector, API route, and frontend table/layer so regional U.S. maritime threat advisories are now part of the live analyst surface.
+- Added scheduler alerting when a collector misses repeated cycles, making quiet ingest failures visible before they age into stale data.
 
-## v1.9.4 — 2026-03-22
+### Collection reliability
 
-**Intel panel layout and footer visibility**
-
-- The intel strip now keeps a clearer two-panel layout on wider screens, with active briefing cards using more of the available lower-page space.
-- Footer links and attribution were enlarged and given stronger contrast so platform ownership and navigation remain legible.
-
----
-
-## v1.9.3 — 2026-03-22
-
-**Public page design and phone layout**
-
-- Public pages now use a denser, less generic layout with a split hero, signal framing, and stronger editorial hierarchy.
-- About page copy now makes clearer that Phantom Tide is not a chatbot layer over maritime data.
-- Mobile layout for public pages now reorganizes earlier with clearer tap targets and full-width actions on smaller screens.
-- Static HTML routes now revalidate more reliably, reducing the chance of stale public pages after a rebuild.
-
----
-
-## v1.9.2 — 2026-03-22
-
-**Analyst workflow and documentation**
-
-- Intel briefings now default to a calmer two-stream queue instead of a binary
-  hide or restore flow. Analysts can promote and reorder streams without losing
-  context.
-- Onboarding, keyboard shortcuts, confirmation dialogs, toast feedback, and
-  improved empty states make the platform's interaction model clearer on both
-  desktop and compact screens.
-- Frontend cache headers were tightened so rebuilt deployments are less likely
-  to leave users on stale dashboard bundles.
-- Public and internal README files now separate shipped capabilities from
-  roadmap items and reflect the current analyst workflow more accurately.
-
----
-
-## v1.9.1 — 2026-03-22
-
-**Hotfixes**
-
-- Data collection was silently failing for several sources after a container privilege change introduced in v1.9.0. Affected sources produced no new events despite reporting healthy status. Reverted.
-- Direct platform access was unavailable when the reverse proxy was not running. Restored for local use.
-- Clicking a row in any intel table was closing the table instead of keeping it open, and the map was not navigating to the selected item. Fixed. Tables now remain open and the map pans to the item correctly.
-
----
-
-## v1.9.0 — 2026-03-22
-
-**Public site, deployment hardening, documentation**
-
-### Public site
-
-- Design system rewritten. Flat dark palette, structured card borders, square controls, monospace footer. Removed visual patterns that dated the interface.
-- About page: social sharing metadata added. Above-the-fold call-to-action added.
-- Legal notice: complete rewrite. See [Legal Notice](/docs/license/).
-
-### Deployment
-
-- Build context hardened: credentials and secrets are no longer included in container images under any path.
-- Credentials for internal services are now environment-managed with no hardcoded defaults.
-- Container images pinned to specific versions; no floating tags.
-- Reverse proxy configuration adds standard security response headers and compression.
-- First-run script auto-generates strong random credentials for internal services. Idempotent on subsequent runs.
+- WAF-facing HTML and RSS collectors now use shared browser-like rotating headers backed by `fake-useragent` instead of static application user agents.
+- Slow reference collectors now expose honest run states through source health: live, cache-backed degraded, or empty / failed.
+- GUIDE, MARAD, GPS advisory, and NDBC sar2 no longer appear silently healthy when they are serving cached data or have no usable fallback.
 
 ### Documentation
 
-- Roadmap consolidated. Session notes removed; forward-looking content preserved.
-- Stale internal documents deleted.
+- Internal README now reflects MARAD as an active source, documents the MARAD intel endpoint, and records the new source-health behavior and remaining parity gaps.
+- Internal release marker advanced to `v1.9.5`.
+
+## v1.9.4 - 2026-03-22
+
+Intel panel space use and footer legibility
+
+### Dashboard UI
+
+- Intel tables now keep a true two-panel layout on wide screens instead of collapsing into a left-weighted strip with unused columns.
+- The queued-briefings toolbar now sits above a dedicated briefing grid, so the active briefing cards take the available height instead of sharing grid space with the toolbar.
+- Active briefing cards now have a larger minimum height, making low-row-count panels feel intentional rather than stranded in empty space.
+
+### Footer and chrome
+
+- Bottom footer band now uses larger type, stronger contrast, more vertical padding, and a visible credit treatment so the project owner name and links remain legible.
+- Intel header band received slightly stronger spacing and title treatment to better match the enlarged lower-panel footprint.
 
 ---
 
-## v1.8.2 — 2026-03-21
+## v1.9.3 - 2026-03-22
 
-**Collector restore**
+Public-page layout and phone responsiveness
 
-Two data collectors were failing silently on every cycle due to a runtime incompatibility in the shared text enrichment layer. The exception guard was too narrow and did not catch the error variant raised in this environment. Both collectors now run cleanly on every cycle.
+### Public pages
 
----
+- Rebuilt the shared public-page design system around denser, asymmetrical layout rather than generic stacked SaaS cards.
+- About page hero now uses a split layout with signal metrics, platform positioning, and a stronger editorial hierarchy.
+- Public messaging now states more clearly that Phantom Tide is not a chatbot veneer over maritime data.
 
-## v1.8.1 — 2026-03-21
+### Mobile
 
-**Hotfix**
+- Public navigation now shifts into explicit tap-target layouts before it becomes cramped.
+- Hero actions collapse to full-width controls on smaller screens.
+- Stat cards, signal bands, section headers, and footer layout now reorganize earlier for phones instead of relying on a single late stacking breakpoint.
 
-- Fixed a frontend parse error that silently prevented the dashboard from loading. Symptom: map tiles visible, no data, no API calls initiated.
+### Delivery
 
----
+- Frontend HTML cache policy now keys off response content type, so routes like `/about/` and `/docs/license/` receive `Cache-Control: no-store` rather than only the root document.
 
-## v1.8.0 — 2026-03-21
+### Documentation
 
-**Map feel, performance, bitemporal time**
-
-Map navigation:
-- Scroll wheel zoom accumulates ticks before committing — less accidental zoom
-- Zoom locks to half-integer steps, eliminating fractional micro-positions
-- Pan inertia and deceleration tuned for a snappier, less drifty feel
-
-Performance:
-- Marker icons memoised — first render cycle builds the cache; subsequent renders are O(1) lookups
-- Marker fast-path: if colour has not changed, no SVG or popup HTML is rebuilt
-- Search filter debounced to prevent full scans on every keystroke
-- Risk zone recompute debounced on zoom to prevent repeated full rebuilds during scroll
-- Blocked refresh queues and fires after interaction ends rather than being dropped
-
-Time semantics:
-- Events now carry three separate time fields: when the phenomenon was observed, when the platform ingested it, and when it expires
-- Time window filter respects expiry — events with a future expiry are never hidden
-- Detail panel shows a time provenance bar and expiry badge
+- Internal and public release markers were advanced to `v1.9.3`.
 
 ---
 
-## v1.7.0 — 2026-03-21
+## v1.9.2 - 2026-03-22
 
-**Geometry and shape rendering**
+Analyst UX, deploy freshness, documentation
 
-Events from text-based sources now render their full spatial footprint rather than a single point. Coordinate formats are extracted from source text and the correct geometry type is selected automatically: polygon for area descriptions, linestring for routes and cables, circle for exclusion zones.
+### Frontend
 
-- Geometry overlays respond to layer toggles
-- Clicking any shape overlay opens the detail panel
-- Weather data bypasses the time-window filter — it is reference data, not a streaming position feed
+- Intel briefings no longer rely on a binary hide or restore flow. The panel now keeps two live briefings visible by default, queues the rest, and lets analysts promote, queue, and reorder streams with persisted order.
+- Added first-run onboarding, keyboard shortcut help, toast feedback, destructive-action confirmation, and compact-screen Layer and Detail drawers so the dashboard behaves more predictably on mobile and desktop.
+- Empty states in detail and briefing surfaces now use explicit operator copy instead of leaving silent blanks.
 
----
+### Platform delivery
 
-## v1.6.0 — 2026-03-21
+- Frontend shell responses now send `Cache-Control: no-store`.
+- Frontend JavaScript and CSS now send `Cache-Control: no-cache`.
+- Rebuilt local app container verified to serve the new briefing queue markup and cache policy over `http://localhost`.
 
-**Ocean state layer, platform clusters, wind overlay**
+### Documentation
 
-- Delaunay triangulation produces a continuous ocean state field from sparse sensor observations. Triangle opacity encodes data confidence — dense coverage is opaque, sparse coverage fades out.
-- Severe sea states pulse
-- Wind direction arrows scaled by speed at each station
-- Drilling unit positions grouped by proximity into field polygons. Active fields distinguished from fields with removed units.
-- Platform position history retained for 90 days
-
----
-
-## v1.5.0 — 2026-03-21
-
-**Interface, time formatting, table navigation**
-
-- Universal timestamp formatter across all popup types and table cells. Single toggle switches between relative and absolute UTC display everywhere.
-- Accessibility: focus rings, font size floors, ARIA landmarks, button tap targets
-- Intel table row click navigates the map to the event location
-- All frontend dependencies vendored — no external CDN dependency
+- Internal README bumped to `v1.9.2` and now links directly to the internal changelog.
+- Internal roadmap current release and quality-track notes now reflect the briefing queue redesign and stale-bundle prevention work.
 
 ---
 
-## v1.0.0 — 2026-03-20
+## v1.9.1 - 2026-03-22
 
-**Initial release**
+Hotfixes
 
-Live maritime and airspace intelligence dashboard. Multiple independent data pipelines feeding a dark global map with 30-second refresh.
+- Data collection was silently failing for several sources after a container privilege change introduced in `v1.9.0`. Reverted.
+- Direct platform access was unavailable when the reverse proxy was not running. Restored for local use.
+- Clicking an intel table row was closing the table instead of keeping it open and moving the map. Fixed.
 
-- Reference store with atomic snapshot replacement — cancelled warnings disappear automatically
-- Ring buffer for streaming sources with configurable eviction
-- Hot cache with persistence backend
-- File cache fallback — platform shows data on restart before the first collection cycle completes
-- Cross-source rule engine
-- Docker Compose stack, health monitoring, per-source staleness tracking
+---
+
+## v1.9.0 - 2026-03-22
+
+Public site, deployment hardening, documentation
+
+- Public-facing site and legal notice refreshed.
+- Build context hardened so credentials and secrets are not baked into images.
+- Internal service credentials moved to environment-managed values.
+- Reverse proxy configuration now adds standard security response headers and compression.
+- Internal roadmap and documentation set were consolidated around the live codebase.
