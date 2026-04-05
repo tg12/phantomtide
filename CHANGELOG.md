@@ -6,14 +6,54 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.42.0 planning
+## v1.42.0 — 2026-04-05
 
-- Replay and post-deploy truth checks still gate the next source expansion.
-- Measured follow-through on the GeoJSON, browser-path, and persistence work
-  stays ahead of fresh feed growth.
-- MODIS Terra/Aqua thermal ingest remains an explicit datasource decision
-  pending triage against VIIRS for maritime contradiction value.
-- The next line remains a proof-and-recovery release, not a source-growth one.
+### Ports & Terminals, hypothesis expiry, and intel hardening
+
+**Ports & Terminals is now an enterprise-tier layer.**
+
+The global ports and terminals reference layer — introduced in v1.41.1 as a
+premium feature — is promoted to enterprise tier in this release.
+
+The change is load-driven. The dataset is large, the proximity-scan enrichment
+it triggers in VIIRS AOI processing is CPU-bound, and the indexing cost at
+startup is disproportionate for deployments that are not doing high-frequency
+maritime infrastructure analysis. Enterprise deployments that rely on the layer
+are unaffected; premium sessions will see the layer locked with an explicit
+upgrade prompt rather than a silent failure.
+
+The layer is also renamed from **Ports** to **Ports & Terminals** across all
+analyst-facing surfaces. The underlying API path is unchanged.
+
+---
+
+**Hypothesis panel expiry.**
+
+The rule engine hypothesis panel can accumulate entries across long-running
+deployments and become difficult to read. Hypotheses are now pruned
+automatically after 48 hours on every collector cycle. The
+`GET /api/hypotheses` endpoint gains a `max_age_hours` query parameter for
+on-demand age filtering independent of the scheduled prune.
+
+---
+
+**Intel route hardening.**
+
+Three intel table endpoints — nav warnings, broadcast warnings, and recent
+NOTAMs — were re-reading event data through a dict accessor path that silently
+returned `None` for missing fields. They now read typed `EventRecord` fields
+directly. The NOTAM endpoint was also over-fetching up to 5,000 records and
+sorting in Python before slicing; it now delegates limit and ordering to the
+store.
+
+---
+
+**Build tooling.**
+
+`iproute2` and `strace` are now included in the production image to support
+the hidden-cliff profiling pass in the current release cycle.
+
+---
 
 ---
 

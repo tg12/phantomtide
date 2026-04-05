@@ -18,14 +18,19 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.41.1**
+Current release: **v1.42.0**
 
-Next tracked release: **v1.42.0** (planning)
+The Ports & Terminals layer is now enterprise-tier. The global ports reference
+introduced in v1.41.1 is promoted from premium due to dataset scope and
+proximity-scan backend load. The layer is renamed from **Ports** to
+**Ports & Terminals** across all analyst-facing surfaces; the API path is
+unchanged.
 
-The current release adds a premium bundled ports layer and makes the thermal
-surfaces more explicit about what they are and are not saying: port-adjacent
-VIIRS hits now surface as thermal AOI triage with age and proxy-only caution
-instead of reading like direct explosion confirmation.
+Rule engine hypotheses now expire after 48 hours on every collector cycle,
+keeping the analyst panel uncluttered in long-running deployments.
+
+Intel table routes for nav warnings, broadcast warnings, and NOTAMs are
+hardened against silent `None` field access on event records.
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -251,14 +256,15 @@ Known limitations:
 
 Upcoming work already identified in the roadmap:
 
-- richer orbital context for disruption-event attribution
-- denser marine weather and ocean-state context
-- additional coastal alert geometry in selected regions
-- aviation weather and hazard context around key ports and airfields
-- deeper underwater-event and anomalous-pressure correlation
-- richer scored-cell drilldown so operators can inspect the exact evidence mix
-- stronger vessel-watchlist and queueing workflows
-- selected polar and Indian Ocean context layers where they improve contradiction reading
+- `v1.42.0` ships the Ports & Terminals enterprise-tier promotion, hypothesis
+  expiry, and intel route hardening. The ongoing hardening checklist is in
+  [docs/v1-42-hardening-checklist.md](docs/v1-42-hardening-checklist.md).
+- `v1.43.0` continues proving container CPU truth, async-path truth,
+  serialization cost, write-path behavior, frontend long-task pressure, and
+  release-environment drift before widening source scope again.
+- Richer orbital context, denser ocean-state coverage, deeper scored-cell
+  drilldown, and stronger watchlist workflows remain on the roadmap, but they
+  do not outrank runtime proof.
 
 These are planned items, not implied capabilities.
 
