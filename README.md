@@ -179,6 +179,17 @@ To request expanded access, use the Access button in the dashboard header or
 
 ---
 
+## Data Acknowledgements
+
+- Aircraft state and flight-position context are powered in part by
+  [The OpenSky Network](https://opensky-network.org).
+- Airport reference coordinates used for airspace notice lookups and
+  map-jump targets are sourced from [`mwgg/Airports`](https://github.com/mwgg/Airports).
+- Thanks to `mwgg/Airports` and alexander-san for their contribution and
+  collaboration around the project.
+
+---
+
 ## Disclaimer
 
 All data provided by this platform is offered "as is" and "as available",
