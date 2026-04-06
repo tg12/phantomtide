@@ -6,6 +6,59 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.46.0 — 2026-04-06
+
+### Aircraft identity: FAA registry lookup
+
+- Aircraft popups for US-registered aircraft (ICAO24 in the a00000–afffff
+  range) now include a "Load registry data" button that fetches owner,
+  N-number, manufacturer, model, year, type, seat count, weight class, and
+  registration expiry from the FAA Releasable Aircraft Registry (305,709
+  records, US public domain).
+- Deregistered aircraft receive a prominent red "DEREGISTERED" badge.
+- The popup header shows the registry build date so analysts know the data age.
+
+### New source: NWS coastal marine warnings
+
+- US coastal marine zone warnings (Gulf of Mexico, Atlantic, Pacific, Gulf
+  of Alaska) are now collected from the National Weather Service and displayed
+  as a dedicated layer.
+- 13 maritime event types covered: Hurricane Force Wind Warning through Small
+  Craft Advisory, filtered from the national alerts feed.
+- Warnings feed into the convergence scoring engine with severity-weighted
+  contribution (hurricane force = 2.5, storm warning = 2.0, down to 0.8 for
+  small craft advisories).
+
+### Area Intelligence Report
+
+- Right-clicking the map now includes an "Area Report..." option that
+  generates a structured plain-text SITREP for any radius.
+- The report includes a signal summary by source, a notable signals table,
+  nearby infrastructure, and entity feed hits — the same data shown in the
+  proximity query panel, formatted for copy-paste into an analyst log.
+
+### Bug fixes and reliability
+
+- **VIIRS thermal and DNB markers now visible during daytime hours.** VIIRS
+  satellite detections are collected 3–24 hours after the satellite pass.
+  DNB (night-light) detections are from nighttime orbital passes and are
+  structurally 6–18 hours old by observation time when viewed during the day.
+  The time-window filter now uses data ingestion time rather than observation
+  time, making all recent VIIRS data visible regardless of when the
+  satellite passed.
+
+- **OpenSky aircraft markers no longer flash/reset on page refresh.** Each
+  aircraft is now identified by a stable ID derived from its ICAO24 address.
+  Previously, IDs changed every 30 seconds as position timestamps rotated,
+  causing every aircraft to appear to vanish and re-appear on each refresh.
+
+- **VanIsle infrastructure data no longer fetches twice on startup.** A
+  scheduler timing issue caused the infrastructure collector to run once at
+  process start and once more immediately via its interval job. The interval
+  is now correctly offset so the startup run is the only first fetch.
+
+---
+
 ## v1.45.0 — 2026-04-06
 
 ### Bug fixes
