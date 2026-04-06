@@ -6,11 +6,74 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.45.0
+## v1.45.0 — 2026-04-06
 
-- Watchlist alert panel: sidebar listing of all on-map entities matched by
-  vessel and aircraft watchlists, sortable by last seen, with entity feed
-  corroboration badges where available.
+### Bug fixes
+
+- **Click-to-zoom on intel table rows fully restored.** Every table (aircraft,
+  thermal hotspots, vessels, NOTAMs, GPS disruptions, MARAD, ICC, entity feed)
+  had silently stopped jumping the map when rows were clicked. Root cause was
+  a runtime crash in the marker interaction guard that occurred before the map
+  focus call could fire. No data was affected; navigation and zoom functions
+  now work correctly across all intel tables.
+
+- **Clicking map markers overlaid by a convergence zone now works.** Previously,
+  a convergence zone polygon's filled area blocked clicks on markers underneath it.
+  The fix routes pointer events only through the zone border stroke, so markers
+  inside a convergence area are fully interactive.
+
+- **Tier upgrade now applies immediately.** Entering a premium access key
+  previously left starter-capped data visible until the next timed refresh cycle.
+  The upgrade now forces an immediate data refresh and clears the starter-tier
+  badge from affected layers.
+
+- **Sanctioned vessel popup cleaned up.** An informational note about upcoming
+  premium depth expansion was shown unconditionally on all tiers. It has been
+  removed as the expanded capability is now live.
+
+### Email gate: now optional
+
+- The first-visit email field is no longer required. Users can skip it by
+  clicking "Skip" or by leaving the field empty and clicking "Continue."
+  Non-empty fields are still validated and submitted. The modal text makes
+  clear that email is optional and used only for maintenance notices.
+
+### Supplemental Entity Feed — infrastructure overlay merged
+
+- VanIsle Network infrastructure (ports, desalination plants, pipelines,
+  refineries) is now part of the Supplemental Entity Feed layer. The
+  previously separate toggle has been removed. One toggle controls both the
+  entity corroboration rings and the infrastructure overlay.
+
+### Compliance signals: AIS dark gap and vessel loitering (premium)
+
+- Sanctioned vessel popups now show a red "AIS DARK GAP" badge or amber
+  "LOITERING" badge when the vessel is independently flagged by the entity
+  tracker for extended AIS silence or unusual loitering behavior.
+- Convergence cell popups now label these signal families explicitly as
+  "AIS dark gap (VanIsle)" and "Vessel loitering (VanIsle)" in their
+  contributing evidence breakdown.
+- The compliance signal feeds into the convergence scoring engine with
+  weighting that reflects the significance of intentional AIS absence.
+
+### Watchlist alert sidebar panel (premium)
+
+- A persistent panel above "Recent NOTAMs" in the left sidebar lists every
+  entity currently active in the entity feed that matches the vessel or
+  aircraft watchlist.
+- Each row shows an on-map status indicator (green dot = currently visible
+  on the map), entity type, display name, watchlist database, and last-seen
+  time.
+- Clicking a row flies the map to the entity's last known position.
+- The panel updates every refresh cycle. When no watchlisted entities are
+  on-map, it shows a quiet empty state rather than hiding.
+
+### Performance: frontend split
+
+- The main JavaScript file has been split into three purpose-separated
+  files loaded in dependency order. Parse time, maintainability, and
+  parallel load behavior are improved. No user-visible functionality
+  has changed.
 
 ---
 
