@@ -8,23 +8,19 @@ Dates are UTC. Versions follow semantic versioning.
 
 ## v1.49.0 — 2026-04-07
 
-### GPS interference layer (GPSJam)
+### GPS navigation signal interference layer
 
-- A new **GPS Interference Grid** layer is now live, sourced from
-  [gpsjam.org](https://gpsjam.org).  Each day's grid covers roughly 575
-  H3 hexagonal cells (~42 km diameter each) where aircraft GPS receivers
-  showed degradation.
-- Cells are colour-coded amber on the map.  Clicking a cell shows the
-  percentage of aircraft reporting bad GPS, good/bad/total counts, H3 cell
-  ID, and the feed date.
-- Two severity tiers are tracked: **high** (≥50% of aircraft affected,
-  typically 200–250 cells per day) and **medium** (25–49%).  Both feed the
-  convergence scoring engine (high weight 1.5; medium weight 0.8) so a
-  vessel dark event in a high-interference cell scores differently from one
-  in a clear-sky environment.
-- A vessel going dark in a zone where GPSJam shows ≥60% interference that
-  day distinguishes spoofing/jamming from simple comms failure — the Kp
-  index and GUIDE operator reports provide additional corroboration.
+- A new **GPS interference grid** layer is now live, updated daily from
+  aggregated aircraft receiver reports.  Affected cells are displayed as
+  amber hexagons on the map.  Clicking a cell shows the percentage of
+  aircraft reporting degradation and the observation date.
+- Two severity tiers are tracked: **high** (≥50% of aircraft affected) and
+  **medium** (25–49%).  Both feed the convergence scoring engine so a vessel
+  dark event in a high-interference zone scores differently from one in a
+  clear environment.
+- Correlating a vessel going dark with an active high-interference grid cell
+  at the same position and date helps distinguish GPS spoofing/jamming from
+  a simple communications failure.
 
 ### HF/NAVTEX blackout indicator
 
@@ -35,15 +31,16 @@ Dates are UTC. Versions follow semantic versioning.
   MF/HF weather fax bands.  An active HF blackout means vessel distress
   calls on HF may not be receivable.
 - Correlating a vessel comms gap with an active G3+ storm removes the
-  jamming hypothesis without needing GPSJam confirmation.
+  jamming hypothesis and narrows the cause to atmospheric conditions.
 
 ### SATCOM constellation coverage (utility layer)
 
-- Satellite visibility data for Inmarsat, Iridium-NEXT, Starlink, SES, and
-  Telesat constellations is now cached internally from CelesTrak TLEs.
+- Satellite visibility data for major commercial SATCOM constellations is
+  now cached internally from public TLE sources, refreshed every 6 hours.
 - This data underpins future vessel-level SATCOM coverage annotation: if
-  the Inmarsat geometry shows zero satellites above the horizon at a vessel's
-  position, a VSAT outage is explicable by geometry rather than interference.
+  the geometry shows zero satellites above the horizon at a vessel's
+  position, a VSAT outage is explicable by coverage gap rather than
+  interference.
 
 ---
 
