@@ -6,6 +6,47 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.49.0 — 2026-04-07
+
+### GPS interference layer (GPSJam)
+
+- A new **GPS Interference Grid** layer is now live, sourced from
+  [gpsjam.org](https://gpsjam.org).  Each day's grid covers roughly 575
+  H3 hexagonal cells (~42 km diameter each) where aircraft GPS receivers
+  showed degradation.
+- Cells are colour-coded amber on the map.  Clicking a cell shows the
+  percentage of aircraft reporting bad GPS, good/bad/total counts, H3 cell
+  ID, and the feed date.
+- Two severity tiers are tracked: **high** (≥50% of aircraft affected,
+  typically 200–250 cells per day) and **medium** (25–49%).  Both feed the
+  convergence scoring engine (high weight 1.5; medium weight 0.8) so a
+  vessel dark event in a high-interference cell scores differently from one
+  in a clear-sky environment.
+- A vessel going dark in a zone where GPSJam shows ≥60% interference that
+  day distinguishes spoofing/jamming from simple comms failure — the Kp
+  index and GUIDE operator reports provide additional corroboration.
+
+### HF/NAVTEX blackout indicator
+
+- When NOAA SWPC data indicates HF radio blackout risk (Kp G3+ geomagnetic
+  storm, or an M1.0+ X-ray solar flare, or an active ICAO space weather
+  advisory), a derived **HF Blackout Zone** event is now generated.
+- This covers the 2–30 MHz spectrum including NAVTEX, GMDSS distress, and
+  MF/HF weather fax bands.  An active HF blackout means vessel distress
+  calls on HF may not be receivable.
+- Correlating a vessel comms gap with an active G3+ storm removes the
+  jamming hypothesis without needing GPSJam confirmation.
+
+### SATCOM constellation coverage (utility layer)
+
+- Satellite visibility data for Inmarsat, Iridium-NEXT, Starlink, SES, and
+  Telesat constellations is now cached internally from CelesTrak TLEs.
+- This data underpins future vessel-level SATCOM coverage annotation: if
+  the Inmarsat geometry shows zero satellites above the horizon at a vessel's
+  position, a VSAT outage is explicable by geometry rather than interference.
+
+---
+
 ## v1.46.0 — 2026-04-06
 
 ### Aircraft identity: FAA registry lookup
