@@ -6,6 +6,83 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.50.0 — 2026-04-07
+
+### Production resilience and performance hardening
+
+This release addresses silent failure modes, data loss vectors, and
+performance bottlenecks identified during a comprehensive architecture audit.
+
+#### Reliability
+
+- **Health endpoint overhaul**: The `/api/health` endpoint now reports
+  semantic system status (`ok` / `degraded` / `unhealthy`) based on data
+  freshness of critical sources (AIS, OpenSky, live AIS, NOTAM, NGA
+  warnings).  Previously, "ok" only meant the process was alive.  A new
+  `degraded_reasons` field provides machine-readable diagnostics.
+- **ClickHouse archival data loss detection**: The in-memory buffer that
+  feeds ClickHouse writes now tracks overflow.  When buffer capacity is
+  reached, the health endpoint reports the count of dropped events so
+  operators can tune flush intervals or increase capacity.
+- **Scheduler job resilience**: All scheduled background jobs now tolerate
+  up to 2 minutes of scheduler backpressure before being classified as
+  misfires.  Previously, a delay of more than 1 second caused silent job
+  skips.
+- **Reference data protection**: Collectors that return empty results due to
+  upstream failures no longer wipe existing reference data (NOTAMs,
+  navigation warnings, etc.).  The system retains the last known good
+  snapshot until a successful collection replaces it.
+- **Redis automatic reconnection**: If the Redis connection drops at
+  runtime, the system now detects the failure and automatically reconnects
+  on a cooldown schedule.  Previously, a Redis outage after startup
+  permanently disabled event persistence until the next process restart.
+
+#### Performance
+
+- **VIIRS thermal baseline**: The per-cell statistical computation that
+  scores thermal anomalies is now numpy-vectorized.  Large datasets
+  (500k+ observations) process 10-50x faster, eliminating scheduler
+  stalls during periodic baseline rebuilds.
+- **Geospatial math consolidation**: Haversine distance calculations —
+  previously duplicated across four modules with minor implementation
+  differences — are consolidated into a single numpy-accelerated utility
+  module (`core/geo_math`).  The VIIRS dark vessel proximity search now
+  uses a single vectorized call over all candidate vessels instead of a
+  per-vessel Python loop.
+
+---
+
+## v1.49.1 — 2026-04-07
+
+### Supplemental air tracking data corrections
+
+- **Zimbabwe government aircraft** (Z-WPF, Z-WPE): updated operator attribution.
+  Robert Mugabe, who died in September 2019, is no longer referenced as president.
+  Both aircraft are Boeing 767s operated by Air Zimbabwe and used on occasion as
+  state transport under President Emmerson Mnangagwa (in office since November 2017).
+- **Sudan government aircraft** (ST-PRA): attribution corrected.  Omar Al-Bashir
+  was removed from power in April 2019 and faces outstanding ICC arrest warrants.
+  The Ilyushin Il-62M itself was destroyed at Khartoum airport during the April
+  2023 civil war and is no longer active.
+- **Russia — Shuvalov-linked aircraft** (M-VQBI): title corrected.  The individual
+  linked to this aircraft left the Russian government in May 2018 and now leads a
+  state development corporation.
+- **Belarus government aircraft** (EW-85815): status note added.  The Tupolev
+  Tu-154M type was effectively retired globally by 2020–2021; operational status
+  of this specific airframe is unconfirmed.
+- **Qatar Amiri Flight** (VP-BAT): corrected.  The Boeing 747SP was retired from
+  Qatar royal service around 2018–2019, subsequently re-registered as a US
+  civil aircraft, and is listed for commercial sale.
+- **NOAA Aircraft Operations Center fleet description**: updated to reflect the
+  G-IV/SP phaseout.  The first replacement Gulfstream G550 entered service in
+  spring 2025; a second arrives in 2028.  WP-3D Orion, Twin Otter, and King Air
+  350CER fleet counts remain unchanged.
+- **Bristow / HM Coastguard SAR network**: description updated to enumerate all
+  10 permanent helicopter SAR bases and note two seasonal bases (Oban and Carlisle)
+  activated in 2026 under the UKSAR2G programme.
+
+---
+
 ## v1.49.0 — 2026-04-07
 
 ### GPS navigation signal interference layer
