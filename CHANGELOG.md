@@ -6,12 +6,28 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.52.0 planning
+## [Unreleased] — v1.53.0 planning
 
-- Graceful shutdown, marker viewport discipline, and the next analyst-history
-  work stay on the next tracked line.
-- SARSAT distress-beacon and orbital context remain queued for the next full
-  minor release.
+- Maintenance / backend-unavailable state, incremental marker diffing, and
+  FAA restricted-airspace expansion now form the active next line.
+- Airframes API access, `mmcGlobal` scraping, SARSAT distress-beacon work,
+  and Space-Track remain deferred behind the bounded FAA and map-path scope.
+
+## v1.52.0 — 2026-04-08
+
+### Archived map windows, calmer dense layers, safer restart behavior
+
+- Phantom Tide now lets analysts pin the map to recent archived windows with
+  explicit history controls, and live polling pauses while that history view is
+  active so the interface does not mix past and present.
+- Dense map layers now build a bounded in-viewport marker budget instead of
+  instantiating every off-screen marker first, which keeps the live map calmer
+  on heavy layers.
+- Shutdown behavior is more deliberate: the scheduler stops in order, pending
+  evidence writes are drained, and Redis closes cleanly during split-role
+  deploy or restart.
+- Browser-side trust and session tokens are harder to tamper with, and the
+  onboarding email path now keeps its expected success response shape.
 
 ## v1.51.2 — 2026-04-08
 

@@ -19,9 +19,9 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.51.2**
+Current release: **v1.52.0**
 
-Next tracked release: **v1.52.0**
+Next tracked release: **v1.53.0**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -40,6 +40,25 @@ The guide explains:
 - how to work tracked-aircraft alerts and convergence zones
 - how to use Proximity Query and Area Intelligence Report
 - what adapts automatically in the UI, and what stays fixed for trust
+
+## Data Cadence And Freshness
+
+Phantom Tide does not pull every upstream on the same interval.
+
+- Fast operational sources such as AIS, OpenSky, NOTAM, and SWPC run on a `5 minute` collection loop.
+- The supplemental vessel and aircraft entity feed also refreshes on a `5 minute` cadence.
+- Mid-speed sources such as live AIS snapshots, VIIRS, NDBC, MARAD, ECCC, and NWS Marine run on `15-30 minute` or `30-60 minute` cadences depending on how often the upstream meaningfully changes.
+- Slow sources such as GUIDE, GPS advisory bulletins, GPSJam, and TankerTrackers zones run on `4 hour`, `6 hour`, or `24 hour` cadences.
+- The browser itself refreshes on a `30 second` loop, but that does not mean every upstream source is recollected every 30 seconds.
+
+Freshness is surfaced semantically, not cosmetically:
+
+- `Live` means the latest ingest for that source succeeded and is within its expected freshness window.
+- `Degraded` means the source answered but quality, completeness, or subtype fidelity fell.
+- `Stale` means older or cached data is still being shown for continuity and should not be treated as current truth.
+- `Tier-limited` means the feature exists but the current access level intentionally caps it.
+
+The public operator guide explains how to read those states. The internal scheduler is the authoritative timing source.
 
 ---
 
