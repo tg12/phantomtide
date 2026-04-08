@@ -6,17 +6,31 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.53.0 planning
+## [Unreleased]
 
-- Explicit degraded-state handling, incremental marker diffing, and scheduled
-  reference-geometry expansion now form the active next line.
-- Higher-risk external connector work remains deferred behind the bounded
-  map-path and reference-state scope.
-- Release lock-down work is in progress around registry lifecycle checks,
-  analyst-tool serialization contracts, and split-runtime cleanup behavior.
-- Aircraft identity surfaces are also getting a clearer registrant
-  categorization layer without treating registrant metadata as full operator
-  truth.
+## v1.53.0 — 2026-04-08
+
+### FAA owner-type UX, performance hardening, and operational reliability
+
+- Aircraft popup panels now colour-code by FAA registrant type so analysts
+  can immediately distinguish corporate, LLC, government, and individual
+  ownership without reading fine text.
+- EMODnet subsea cable, pipeline, and wind-farm layers restored after upstream
+  renamed their GeoServer namespaces.
+- Newly-appeared aircraft now receive a bounded visual emphasis on arrival,
+  consistent with how fire detections, seized vessels, and DART buoy anomalies
+  have been signalled since v1.51.x.
+- Internal spoofing triage clustering rewritten from O(n²) single-linkage to
+  O(n) H3 hex binning, significantly reducing worst-case processing time on
+  dense unknown-MMSI buckets.
+- Dark-fleet proximity scan rebuilt with a spatial grid index reducing the
+  per-detection AIS search from linear to near-constant time.
+- ClickHouse batch writes now run in an isolated thread with a 45-second
+  timeout so a slow or unresponsive ClickHouse cannot stall data collection
+  pipelines.
+- A per-source circuit breaker now prevents dead upstream sources from being
+  polled continuously after repeated failures; the circuit reopens
+  automatically with exponential back-off.
 
 ## v1.52.0 — 2026-04-08
 
