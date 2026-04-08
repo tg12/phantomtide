@@ -8,37 +8,42 @@ Dates are UTC. Versions follow semantic versioning.
 
 ## [Unreleased] — v1.53.0 planning
 
-- Maintenance / backend-unavailable state, incremental marker diffing, and
-  FAA restricted-airspace expansion now form the active next line.
-- Airframes API access, `mmcGlobal` scraping, SARSAT distress-beacon work,
-  and Space-Track remain deferred behind the bounded FAA and map-path scope.
+- Explicit degraded-state handling, incremental marker diffing, and scheduled
+  reference-geometry expansion now form the active next line.
+- Higher-risk external connector work remains deferred behind the bounded
+  map-path and reference-state scope.
+- Release lock-down work is in progress around registry lifecycle checks,
+  analyst-tool serialization contracts, and split-runtime cleanup behavior.
+- Aircraft identity surfaces are also getting a clearer registrant
+  categorization layer without treating registrant metadata as full operator
+  truth.
 
 ## v1.52.0 — 2026-04-08
 
-### Archived map windows, calmer dense layers, safer restart behavior
+### Temporal pinning, viewport budgeting, and controlled shutdown
 
-- Phantom Tide now lets analysts pin the map to recent archived windows with
-  explicit history controls, and live polling pauses while that history view is
-  active so the interface does not mix past and present.
-- Dense map layers now build a bounded in-viewport marker budget instead of
-  instantiating every off-screen marker first, which keeps the live map calmer
-  on heavy layers.
-- Shutdown behavior is more deliberate: the scheduler stops in order, pending
-  evidence writes are drained, and Redis closes cleanly during split-role
-  deploy or restart.
-- Browser-side trust and session tokens are harder to tamper with, and the
-  onboarding email path now keeps its expected success response shape.
+- Analysts can now pin the map to recent archived windows with explicit
+  temporal controls, and live polling pauses while archived state is active so
+  the interface does not mix present and historical views.
+- Dense layers now build a bounded in-viewport marker budget instead of
+  instantiating off-screen state first, which reduces redraw pressure on heavy
+  views.
+- Shutdown behavior is now ordered and drain-aware: background work stops in
+  sequence, buffered evidence writes are flushed, and cache connections close
+  cleanly during split-role restart paths.
+- Browser trust and session token handling were hardened, and the onboarding
+  path now preserves its expected success contract.
 
 ## v1.51.2 — 2026-04-08
 
-### Tighter workspace, calmer refresh, clearer runtime truth
+### Interface compaction, selective refresh, and runtime-state disclosure
 
 - The workspace chrome is more compact. Access, session, and system state now
   collapse into summary sections so the live map and layer controls reclaim the
   first screenful on desktop.
-- Expensive VIIRS hotspot clustering is no longer pulled through the ordinary
-  idle refresh path unless the relevant fire context is visible, which reduces
-  unnecessary pressure on the API.
+- Expensive derived clustering work is no longer pulled through the ordinary
+  idle refresh path unless the relevant context is visible, which reduces
+  unnecessary request-path pressure.
 - Runtime truth is more explicit: the health surface now reports deployment
   role, scheduler ownership, trust mode, and related runtime invariants, making
   split-role drift easier to spot.
@@ -47,26 +52,26 @@ Dates are UTC. Versions follow semantic versioning.
 
 ## v1.51.1 — 2026-04-08
 
-### Calmer refresh, clearer operator guidance, safer browser path
+### Runtime-role separation, trust enforcement, and operator-path refinement
 
 - Phantom Tide now ships with a dedicated background worker for scheduler and
   collector work, reducing pressure on the public API process.
 - The browser refresh path is staged more deliberately, so core source/map
   updates land before secondary intel refreshes pile on.
-- A real public operator guide now documents the map-first workflow, source
-  state semantics, adaptive-mode limits, and the keyboard fast lane.
+- A real public operator guide now documents the map-first workflow,
+  state-semantics model, adaptive-mode limits, and the keyboard fast lane.
 - Browser trust handling is now explicit and safer to operate, and several map
   refresh guards were added so bad coordinates do not cascade into redraw
   crashes.
 
 ## v1.51.0 — 2026-04-08
 
-### Faster steady-state refresh, stronger analyst workflow
+### Validator-based revalidation, delta semantics, and access-path correctness
 
 This release improves the real browser hot path and makes several analyst-facing
 surfaces more explicit and easier to trust.
 
-#### Performance and map refresh
+#### Transport and refresh path
 
 - High-frequency map and intel routes now support real browser revalidation
   with `ETag` / `304 Not Modified` on unchanged data. This reduces repeated
@@ -76,7 +81,7 @@ surfaces more explicit and easier to trust.
 - The frontend refresh loop now uses bounded jitter and backoff under pressure
   instead of hammering the API in synchronized 30-second bursts.
 
-#### Analyst workflow
+#### Analyst-facing state semantics
 
 - Convergence zones now expose a 72-hour change view. Cells can show prior
   score, score delta, and whether a hotspot is newly emerged versus 3 days ago.
@@ -88,7 +93,7 @@ surfaces more explicit and easier to trust.
   clearly in the product docs and About page so the platform's distinctive
   capabilities are easier to understand.
 
-#### Trust and access
+#### Session and access contract
 
 - API-key upgrade flow now distinguishes expired or disabled keys from generic
   invalid tokens.
@@ -97,18 +102,18 @@ surfaces more explicit and easier to trust.
 
 ## v1.50.0 — 2026-04-07
 
-### Production resilience and performance hardening
+### Semantic health, bounded persistence, and numerical acceleration
 
 This release addresses silent failure modes, data loss vectors, and
 performance bottlenecks identified during a comprehensive architecture audit.
 
-#### Reliability
+#### Reliability contracts
 
 - **Health endpoint overhaul**: The `/api/health` endpoint now reports
   semantic system status (`ok` / `degraded` / `unhealthy`) based on data
-  freshness of critical sources (AIS, OpenSky, live AIS, NOTAM, NGA
-  warnings).  Previously, "ok" only meant the process was alive.  A new
-  `degraded_reasons` field provides machine-readable diagnostics.
+  freshness of critical signal families. Previously, "ok" only meant the
+  process was alive. A new `degraded_reasons` field provides machine-readable
+  diagnostics.
 - **ClickHouse archival data loss detection**: The in-memory buffer that
   feeds ClickHouse writes now tracks overflow.  When buffer capacity is
   reached, the health endpoint reports the count of dropped events so
@@ -117,27 +122,26 @@ performance bottlenecks identified during a comprehensive architecture audit.
   up to 2 minutes of scheduler backpressure before being classified as
   misfires.  Previously, a delay of more than 1 second caused silent job
   skips.
-- **Reference data protection**: Collectors that return empty results due to
-  upstream failures no longer wipe existing reference data (NOTAMs,
-  navigation warnings, etc.).  The system retains the last known good
-  snapshot until a successful collection replaces it.
+- **Reference data protection**: Collection paths that return empty results due
+  to upstream failures no longer wipe existing reference state. The system
+  retains the last known good snapshot until a successful collection replaces
+  it.
 - **Redis automatic reconnection**: If the Redis connection drops at
   runtime, the system now detects the failure and automatically reconnects
   on a cooldown schedule.  Previously, a Redis outage after startup
   permanently disabled event persistence until the next process restart.
 
-#### Performance
+#### Computational path
 
-- **VIIRS thermal baseline**: The per-cell statistical computation that
-  scores thermal anomalies is now numpy-vectorized.  Large datasets
-  (500k+ observations) process 10-50x faster, eliminating scheduler
-  stalls during periodic baseline rebuilds.
+- **Baseline anomaly computation**: The per-cell statistical path for anomaly
+  scoring is now numpy-vectorized. Large datasets (500k+ observations)
+  process 10-50x faster, eliminating scheduler stalls during periodic
+  rebuilds.
 - **Geospatial math consolidation**: Haversine distance calculations —
   previously duplicated across four modules with minor implementation
   differences — are consolidated into a single numpy-accelerated utility
-  module (`core/geo_math`).  The VIIRS dark vessel proximity search now
-  uses a single vectorized call over all candidate vessels instead of a
-  per-vessel Python loop.
+  module. Candidate-proximity searches now use a single vectorized call
+  instead of per-entity Python loops.
 
 ---
 
