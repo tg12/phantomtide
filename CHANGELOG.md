@@ -6,6 +6,42 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.51.0 — 2026-04-08
+
+### Faster steady-state refresh, stronger analyst workflow
+
+This release improves the real browser hot path and makes several analyst-facing
+surfaces more explicit and easier to trust.
+
+#### Performance and map refresh
+
+- High-frequency map and intel routes now support real browser revalidation
+  with `ETag` / `304 Not Modified` on unchanged data. This reduces repeated
+  full-body downloads and reparsing on steady-state refresh.
+- Dense GeoJSON payloads were trimmed on the hot path so unchanged or low-value
+  fields do not ride every refresh by default.
+- The frontend refresh loop now uses bounded jitter and backoff under pressure
+  instead of hammering the API in synchronized 30-second bursts.
+
+#### Analyst workflow
+
+- Convergence zones now expose a 72-hour change view. Cells can show prior
+  score, score delta, and whether a hotspot is newly emerged versus 3 days ago.
+- The geometry-anomalies analyst overlay is more usable: severity, raised
+  geometry-test labels, and observed-window context are shown directly.
+- The Area Intelligence Report now visibly anchors the queried radius on the
+  map before building its plain-text SITREP, making the workflow easier to read.
+- Tracked aircraft workflow and convergence scoring are now foregrounded more
+  clearly in the product docs and About page so the platform's distinctive
+  capabilities are easier to understand.
+
+#### Trust and access
+
+- API-key upgrade flow now distinguishes expired or disabled keys from generic
+  invalid tokens.
+- The starter onboarding `Skip` path now works correctly. Skipping no longer
+  traps the browser in a gate-reopen loop on the next protected API request.
+
 ## v1.50.0 — 2026-04-07
 
 ### Production resilience and performance hardening

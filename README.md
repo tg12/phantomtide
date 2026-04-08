@@ -19,9 +19,28 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.50.0**
+Current release: **v1.51.0**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
+
+---
+
+## What Is Distinctive
+
+Phantom Tide's differentiators are not "more layers." They are:
+
+- **Scored convergence zones**: multi-source overlap is ranked with explicit
+  contributor weights and evidence counts so the map answers where to look
+  first, not just what exists.
+- **Tracked aircraft as an analyst workflow**: aircraft are surfaced with
+  mission cues, watchlist context, alert banners, and map-focus jumps rather
+  than as a passive ADS-B layer.
+- **Fast context pivots**: proximity query, Area Intelligence Report, thermal-
+  to-infrastructure pivots, and drill-down detail views are built to compress
+  analyst thought into a few clicks.
+
+If the platform feels fast, it is because it reduces time-to-question, not
+because it simply renders more data.
 
 ---
 
@@ -40,11 +59,13 @@ strategic infrastructure into a single working surface.
 **Core capabilities:**
 
 - Cross-source global map with live and reference layers in one view
-- Convergence zones computed from multi-source overlap rather than single-source alerts
+- Scored convergence zones computed from multi-source overlap rather than single-source alerts
+- Convergence cells expose signal-family weights, evidence counts, and change-over-time context
 - Geometry-aware rendering for points, circles, routes, and polygons
 - Intel tables for high-value notice, disruption, and advisory queues
 - Advisory rows that jump the map to relevant coordinates without a manual search
 - Rule-based hypotheses with evidence references and confidence tiers
+- Tracked aircraft workflow with mission cues, callsign-family enrichment, watchlist context, and alert banners
 - Space-environment context for geomagnetic and communications-disruption risk
 - GPS interference attribution using environmental, notice, and constellation context together
 - Ocean-state and wind context rendered as a continuous field, not isolated station markers
@@ -55,7 +76,7 @@ strategic infrastructure into a single working surface.
 - Static maritime reference overlays for jurisdictional boundaries, routing measures, and infrastructure
 - Derived context in detail views: jurisdictional membership, routing context, and proximity to infrastructure
 - Thermal anomaly alerts that pivot into nearby infrastructure context
-- Proximity query with explicit distance ranking across all active source types
+- Proximity query and Area Intelligence Report with explicit distance ranking across all active source types
 - Vessel-in-zone correlation against watchlist and sanctioned-fleet reference data
 - Convergence popup showing signal family weights, event counts, and contributing evidence
 - Progressive zoom: dense real-time layers suppressed at world zoom, rendered on drill-down
@@ -79,6 +100,7 @@ strategic infrastructure into a single working surface.
 Most maritime tools are good at one of these jobs:
 
 - show vessel positions
+- show aircraft positions
 - show incidents
 - show weather
 - show advisories
@@ -93,6 +115,7 @@ Examples:
 - Aircraft hold near a maritime disruption area while the sea picture below changes.
 
 The platform is strongest when multiple weak signals become one strong question.
+The convergence score is the platform's triage layer for that question.
 
 ---
 
