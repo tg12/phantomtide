@@ -6,6 +6,27 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## [Unreleased] — v1.52.0 planning
+
+- Graceful shutdown, marker viewport discipline, and the next analyst-history
+  work stay on the next tracked line.
+- SARSAT distress-beacon and orbital context remain queued for the next full
+  minor release.
+
+## v1.51.1 — 2026-04-08
+
+### Calmer refresh, clearer operator guidance, safer browser path
+
+- Phantom Tide now ships with a dedicated background worker for scheduler and
+  collector work, reducing pressure on the public API process.
+- The browser refresh path is staged more deliberately, so core source/map
+  updates land before secondary intel refreshes pile on.
+- A real public operator guide now documents the map-first workflow, source
+  state semantics, adaptive-mode limits, and the keyboard fast lane.
+- Browser trust handling is now explicit and safer to operate, and several map
+  refresh guards were added so bad coordinates do not cascade into redraw
+  crashes.
+
 ## v1.51.0 — 2026-04-08
 
 ### Faster steady-state refresh, stronger analyst workflow

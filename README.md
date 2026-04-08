@@ -19,9 +19,27 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.51.0**
+Current release: **v1.51.1**
+
+Next tracked release: **v1.52.0**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
+
+---
+
+## Operator Guide
+
+Start here if you want the task-shaped workflow rather than the platform brief:
+
+- Live operator guide: [phantom.labs.jamessawyer.co.uk/docs/guide/](https://phantom.labs.jamessawyer.co.uk/docs/guide/)
+- About page: [phantom.labs.jamessawyer.co.uk/about/](https://phantom.labs.jamessawyer.co.uk/about/)
+
+The guide explains:
+
+- how to read live, degraded, stale, and tier-limited state
+- how to work tracked-aircraft alerts and convergence zones
+- how to use Proximity Query and Area Intelligence Report
+- what adapts automatically in the UI, and what stays fixed for trust
 
 ---
 
