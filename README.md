@@ -27,7 +27,7 @@ Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
 ---
 
-## Operator Guide
+## Operating Surface
 
 Start here if you want the task-shaped workflow rather than the platform brief:
 
@@ -37,18 +37,19 @@ Start here if you want the task-shaped workflow rather than the platform brief:
 The guide explains:
 
 - how to read live, degraded, stale, and tier-limited state
-- how to work tracked-aircraft alerts and convergence zones
-- how to use Proximity Query and Area Intelligence Report
+- how to work recurrent air and maritime signals through the map surface
+- how to move from spatial context into a structured briefing
 - what adapts automatically in the UI, and what stays fixed for trust
 
-## Data Cadence And Freshness
+## Execution Cadence And Freshness Semantics
 
-Phantom Tide does not pull every upstream on the same interval.
+Phantom Tide does not execute every acquisition path on the same cadence.
 
-- Fast operational sources such as AIS, OpenSky, NOTAM, and SWPC run on a `5 minute` collection loop.
-- The supplemental vessel and aircraft entity feed also refreshes on a `5 minute` cadence.
-- Mid-speed sources such as live AIS snapshots, VIIRS, NDBC, MARAD, ECCC, and NWS Marine run on `15-30 minute` or `30-60 minute` cadences depending on how often the upstream meaningfully changes.
-- Slow sources such as GUIDE, GPS advisory bulletins, GPSJam, and TankerTrackers zones run on `4 hour`, `6 hour`, or `24 hour` cadences.
+- High-frequency movement and notice pipelines run on short collection loops.
+- Medium-cadence environmental and reference updates refresh on `15-60 minute`
+  windows depending on signal half-life.
+- Slow-cadence reference corpora and advisory layers refresh on multi-hour or
+  daily intervals.
 - The browser itself refreshes on a `30 second` loop, but that does not mean every upstream source is recollected every 30 seconds.
 
 Freshness is surfaced semantically, not cosmetically:
@@ -58,13 +59,15 @@ Freshness is surfaced semantically, not cosmetically:
 - `Stale` means older or cached data is still being shown for continuity and should not be treated as current truth.
 - `Tier-limited` means the feature exists but the current access level intentionally caps it.
 
-The public operator guide explains how to read those states. The internal scheduler is the authoritative timing source.
+The public operator guide explains how to read those states. The internal
+scheduler remains the authoritative timing source.
 
 ---
 
-## What Is Distinctive
+## Analytical Primitives
 
-Phantom Tide's differentiators are not "more layers." They are:
+Phantom Tide is built around a few technical primitives rather than a long feed
+catalog:
 
 - **Scored convergence zones**: multi-source overlap is ranked with explicit
   contributor weights and evidence counts so the map answers where to look
@@ -87,11 +90,10 @@ which things should not be happening together.*
 
 ---
 
-## What It Does
+## System Surface
 
-Phantom Tide combines live, periodic, and reference layers across surface
-movement, air activity, official advisories, environmental context, and
-strategic infrastructure into a single working surface.
+Phantom Tide combines live telemetry, periodic advisories, historical windows,
+and reference geometry into a single operational surface.
 
 **Core capabilities:**
 
@@ -104,7 +106,7 @@ strategic infrastructure into a single working surface.
 - Rule-based hypotheses with evidence references and confidence tiers
 - Tracked aircraft workflow with mission cues, callsign-family enrichment, watchlist context, and alert banners
 - Space-environment context for geomagnetic and communications-disruption risk
-- GPS interference attribution using environmental, notice, and constellation context together
+- Navigation-disruption attribution using environmental, notice, and orbital context together
 - Ocean-state and wind context rendered as a continuous field, not isolated station markers
 - Detail panel with observation time, ingest time, expiry, and geometry context
 - Source health reporting with explicit live, cache-backed, and failed states
@@ -117,22 +119,22 @@ strategic infrastructure into a single working surface.
 - Vessel-in-zone correlation against watchlist and sanctioned-fleet reference data
 - Convergence popup showing signal family weights, event counts, and contributing evidence
 - Progressive zoom: dense real-time layers suppressed at world zoom, rendered on drill-down
-- GPS disruption events annotated with orbital visibility context to separate jamming patterns from environmental causes
+- Disruption events annotated with orbital visibility context to separate infrastructure effects from environmental causes
 - Deep-ocean pressure anomaly context for underwater event triage
 - Watchlist-matched entity tracking with highlight rings on active positions
 - Plain-language advisory popups replacing raw aviation and maritime codes
 - Single-source-of-truth tier access control with per-feature gating across starter, premium, and enterprise tiers
 - Performance: response pre-serialisation and conditional HTTP caching on high-frequency routes
 
-**What it does not do:**
+**Non-goals:**
 
-- It does not aggregate social media.
-- It does not scrape news and relabel it as intelligence.
-- It does not hide uncertainty behind a single composite score.
+- It does not treat public commentary as a primary evidence class.
+- It does not collapse uncertainty into a single opaque score.
+- It does not confuse continuity of display with continuity of truth.
 
 ---
 
-## Why It Is Different
+## Operating Thesis
 
 Most maritime tools are good at one of these jobs:
 
@@ -142,7 +144,7 @@ Most maritime tools are good at one of these jobs:
 - show weather
 - show advisories
 
-Phantom Tide is built for the boundary between them.
+Phantom Tide is built for the boundary conditions between them.
 
 Examples:
 
@@ -239,17 +241,25 @@ To request expanded access, use the Access button in the dashboard header or
 
 ---
 
-## Data Acknowledgements
+## Runtime Construction
 
-- Aircraft state and flight-position context are powered in part by
-  [The OpenSky Network](https://opensky-network.org).
-- Airport reference coordinates used for airspace notice lookups and
-  map-jump targets are sourced from [`mwgg/Airports`](https://github.com/mwgg/Airports).
-- Callsign reference material used in project research and documentation draws on
-  Nigel's work at [Biggin Hill Flyers: Callsigns](http://bigginflyers.uk/Callsigns.htm).
-- The frontend map runtime bundles [Leaflet](https://leafletjs.com) under the BSD-2-Clause license.
-- Thanks to `mwgg/Airports`, Nigel, and alexander-san for their contribution and
-  collaboration around the project.
+Phantom Tide is built as a split runtime:
+
+- a browser surface for spatial interaction and analyst workflow
+- an API path for query, gating, and evidence serving
+- a worker path for collection, normalization, scheduled refresh, and archive writes
+
+The current implementation emphasizes deterministic operational behavior:
+
+- pre-serialized heavy responses and conditional HTTP revalidation on hot paths
+- lazy activation for dense layers rather than default full-paint behavior
+- explicit freshness, degraded, and stale-state semantics in the UI
+- modular frontend code separated by state, data, and rendering concerns
+- containerized execution with persistent runtime data and independent storage paths
+
+Third-party components and reference corpora are used under their respective
+licenses. This README describes the product surface and runtime design, not a
+complete inventory of upstream inputs.
 
 ---
 
