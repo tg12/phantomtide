@@ -13,6 +13,22 @@ Dates are UTC. Versions follow semantic versioning.
 - SARSAT distress-beacon and orbital context remain queued for the next full
   minor release.
 
+## v1.51.2 — 2026-04-08
+
+### Tighter workspace, calmer refresh, clearer runtime truth
+
+- The workspace chrome is more compact. Access, session, and system state now
+  collapse into summary sections so the live map and layer controls reclaim the
+  first screenful on desktop.
+- Expensive VIIRS hotspot clustering is no longer pulled through the ordinary
+  idle refresh path unless the relevant fire context is visible, which reduces
+  unnecessary pressure on the API.
+- Runtime truth is more explicit: the health surface now reports deployment
+  role, scheduler ownership, trust mode, and related runtime invariants, making
+  split-role drift easier to spot.
+- Public acknowledgements were cleaned up so the UI points to public docs
+  rather than carrying extra attribution clutter in the product chrome.
+
 ## v1.51.1 — 2026-04-08
 
 ### Calmer refresh, clearer operator guidance, safer browser path

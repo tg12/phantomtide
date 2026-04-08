@@ -19,7 +19,7 @@ The result is a working picture that answers three questions quickly:
 2. Which sources agree, and which ones do not?
 3. How much confidence should an analyst place in that signal?
 
-Current release: **v1.51.1**
+Current release: **v1.51.2**
 
 Next tracked release: **v1.52.0**
 
@@ -226,7 +226,10 @@ To request expanded access, use the Access button in the dashboard header or
   [The OpenSky Network](https://opensky-network.org).
 - Airport reference coordinates used for airspace notice lookups and
   map-jump targets are sourced from [`mwgg/Airports`](https://github.com/mwgg/Airports).
-- Thanks to `mwgg/Airports` and alexander-san for their contribution and
+- Callsign reference material used in project research and documentation draws on
+  Nigel's work at [Biggin Hill Flyers: Callsigns](http://bigginflyers.uk/Callsigns.htm).
+- The frontend map runtime bundles [Leaflet](https://leafletjs.com) under the BSD-2-Clause license.
+- Thanks to `mwgg/Airports`, Nigel, and alexander-san for their contribution and
   collaboration around the project.
 
 ---
