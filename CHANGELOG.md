@@ -6,7 +6,36 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased]
+## [Unreleased] — v1.54.1 planning
+
+### Stabilization follow-through
+
+- Reduce startup duplication between the API and worker roles.
+- Lower refresh burst pressure so secondary intel work does not bunch behind
+  the main map pass.
+- Validate Linux worker-count and allocator tuning on the deployed runtime.
+
+## v1.54.0 — 2026-04-09
+
+### Event rails, backend trust, calmer redraws, and analyst truth fixes
+
+- The live events timeline now states what it really is: a pollable
+  live-receipt rail, not a disguised historical archive feed.
+- API responses now include a machine-readable backend-trust header so ingest
+  clients can tell when the service is serving normal shared state versus
+  snapshot-backed or otherwise degraded runtime state.
+- Phantom Tide now exposes a replay-oriented aircraft-airspace crossing ledger
+  for FAA restricted-airspace context, with watermark polling for backend
+  consumers. This is groundwork for later alerting, not a premature loud alarm
+  surface.
+- Several viewport-capped reference layers now update in place during map
+  pan/zoom instead of clearing and rebuilding every visible object, reducing
+  unnecessary redraw churn on desktop analyst sessions.
+- The browser refresh path now seeds frontend trust before its first protected
+  data refresh on nonce-enforced deployments, which prevents startup refresh
+  loops from hard-failing on protected reads.
+- GeoJSON cache eviction no longer crashes on vessel-enriched map payloads when
+  cache revisions include multiple upstream dependencies.
 
 ## v1.53.0 — 2026-04-08
 

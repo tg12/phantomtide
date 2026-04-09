@@ -1,27 +1,38 @@
 # Phantom Tide
 
-**Cross-domain maritime and airspace intelligence from open signals**
-
-> The useful signal is usually not the dot on the map. It is the gap between
-> what is being broadcast and what the rest of the environment says is true.
+Cross-domain maritime and airspace intelligence from open signals.
 
 ---
 
-Phantom Tide is a maritime and airspace OSINT platform built around that idea.
-It does not treat vessel movement, aircraft activity, notices, weather, and
-environmental data as separate products. It evaluates them together through
-geospatial-intelligence workflows focused on timing, geometry, proximity, and
-contradiction.
+Phantom Tide is a geospatial OSINT tool for analysts who need to answer one
+question quickly: what deserves attention right now, and why?
 
-The result is a working picture that answers three questions quickly:
+It is not just a map of feeds. It does three specific jobs:
 
-1. Where is the most interesting contradiction right now?
-2. Which sources agree, and which ones do not?
-3. How much confidence should an analyst place in that signal?
+1. Rank cross-source hotspots instead of showing every signal as equal.
+2. Keep time, freshness, and degraded-state truth visible.
+3. Move from map anomaly to usable context in a few clicks.
 
-Current release: **v1.52.0**
+What is special about it:
 
-Next tracked release: **v1.53.0**
+- It scores overlap between sources instead of treating every feed as a
+  separate product.
+- It treats aircraft as an analyst workflow, not just an ADS-B layer.
+- It ships fast pivots such as proximity query, Area Intelligence Report, and
+  infrastructure-aware thermal context.
+- It exposes stale, degraded, cached, and tier-limited states directly instead
+  of quietly flattening them into a healthy-looking map.
+
+What this public repository is:
+
+- Public docs, release notes, screenshots, and feedback intake.
+- Not the full application codebase.
+- Use the hosted product and the docs here to evaluate the workflow and
+  release line.
+
+Current release: **v1.54.0**
+
+Next tracked release: **v1.54.1**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -43,16 +54,14 @@ The guide explains:
 
 ## Execution Cadence And Freshness Semantics
 
-Phantom Tide does not execute every acquisition path on the same cadence.
+Not every source updates at the same interval.
 
-- High-frequency movement and notice pipelines run on short collection loops.
-- Medium-cadence environmental and reference updates refresh on `15-60 minute`
-  windows depending on signal half-life.
-- Slow-cadence reference corpora and advisory layers refresh on multi-hour or
-  daily intervals.
-- The browser itself refreshes on a `30 second` loop, but that does not mean every upstream source is recollected every 30 seconds.
+- Movement and notice feeds update frequently.
+- Environmental and reference feeds usually update every `15-60 minutes`.
+- Large reference datasets and some advisories update hourly or daily.
+- The browser refreshes every `30 seconds`, but upstream collection does not.
 
-Freshness is surfaced semantically, not cosmetically:
+Freshness is explicit:
 
 - `Live` means the latest ingest for that source succeeded and is within its expected freshness window.
 - `Degraded` means the source answered but quality, completeness, or subtype fidelity fell.
@@ -66,7 +75,7 @@ scheduler remains the authoritative timing source.
 
 ## Analytical Primitives
 
-Phantom Tide is built around a few technical primitives rather than a long feed
+Phantom Tide is built around a few product primitives rather than a long feed
 catalog:
 
 - **Scored convergence zones**: multi-source overlap is ranked with explicit
@@ -79,8 +88,8 @@ catalog:
   to-infrastructure pivots, and drill-down detail views are built to compress
   analyst thought into a few clicks.
 
-If the platform feels fast, it is because it reduces time-to-question, not
-because it simply renders more data.
+The value is not "more feeds." The value is less analyst time spent stitching
+those feeds together by hand.
 
 ---
 
@@ -98,8 +107,8 @@ and reference geometry into a single operational surface.
 **Core capabilities:**
 
 - Cross-source global map with live and reference layers in one view
-- Scored convergence zones computed from multi-source overlap rather than single-source alerts
-- Convergence cells expose signal-family weights, evidence counts, and change-over-time context
+- Ranked convergence zones built from multi-source overlap
+- Convergence cells show source-family weights, evidence counts, and trend
 - Geometry-aware rendering for points, circles, routes, and polygons
 - Intel tables for high-value notice, disruption, and advisory queues
 - Advisory rows that jump the map to relevant coordinates without a manual search
@@ -117,7 +126,6 @@ and reference geometry into a single operational surface.
 - Thermal anomaly alerts that pivot into nearby infrastructure context
 - Proximity query and Area Intelligence Report with explicit distance ranking across all active source types
 - Vessel-in-zone correlation against watchlist and sanctioned-fleet reference data
-- Convergence popup showing signal family weights, event counts, and contributing evidence
 - Progressive zoom: dense real-time layers suppressed at world zoom, rendered on drill-down
 - Disruption events annotated with orbital visibility context to separate infrastructure effects from environmental causes
 - Deep-ocean pressure anomaly context for underwater event triage
@@ -136,7 +144,7 @@ and reference geometry into a single operational surface.
 
 ## Operating Thesis
 
-Most maritime tools are good at one of these jobs:
+Most tools are good at one of these jobs:
 
 - show vessel positions
 - show aircraft positions
@@ -144,7 +152,7 @@ Most maritime tools are good at one of these jobs:
 - show weather
 - show advisories
 
-Phantom Tide is built for the boundary conditions between them.
+Phantom Tide is built for the seams between them.
 
 Examples:
 
@@ -153,8 +161,8 @@ Examples:
 - Traffic disappears from a corridor while warnings and weather remain active.
 - Aircraft hold near a maritime disruption area while the sea picture below changes.
 
-The platform is strongest when multiple weak signals become one strong question.
-The convergence score is the platform's triage layer for that question.
+The platform is strongest when several weak signals combine into one strong
+question. Convergence is the triage layer for that question.
 
 ---
 
