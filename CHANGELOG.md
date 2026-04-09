@@ -6,14 +6,28 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.54.1 planning
+## [Unreleased] — v1.54.2 planning
 
-### Stabilization follow-through
+### Next release direction
 
 - Reduce startup duplication between the API and worker roles.
 - Lower refresh burst pressure so secondary intel work does not bunch behind
   the main map pass.
 - Validate Linux worker-count and allocator tuning on the deployed runtime.
+
+## v1.54.1 — 2026-04-09
+
+### Map-first traffic query and calmer runtime truth
+
+- Right-click map workflow now includes a direct nearby aircraft-and-ships
+  query with explicit radius selection, current source freshness context, and
+  click-through drill-in to the nearest plotted live track.
+- The same nearby-traffic query now has proper validator support and powers
+  the area-report traffic slice, reducing drift between the fast query surface
+  and the plain-text sitrep workflow.
+- Frontend startup and protected reads are more reliable on locked deployments,
+  and the browser no longer amplifies runtime-sync-only backend states into a
+  louder analyst-facing alarm.
 
 ## v1.54.0 — 2026-04-09
 
