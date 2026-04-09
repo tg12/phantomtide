@@ -6,14 +6,32 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.54.2 planning
+## [Unreleased] — v1.54.3 planning
 
 ### Next release direction
 
-- Reduce startup duplication between the API and worker roles.
-- Lower refresh burst pressure so secondary intel work does not bunch behind
-  the main map pass.
-- Validate Linux worker-count and allocator tuning on the deployed runtime.
+- Reduce dense Leaflet marker churn and animation cost on live maps.
+- Materialize the heaviest deferred intel products so the secondary lane stays
+  cheap on production servers.
+- Keep release and degraded-state truth tighter than surface complexity.
+
+## v1.54.2 — 2026-04-09
+
+### Truth surfaced more explicitly, refreshes got calmer
+
+- Split-runtime health now exposes when the service is using a coherent live
+  generation versus a fallback snapshot, instead of flattening those states
+  into one generic degraded banner.
+- Historical drift in snapshot-style feeds is now easier to detect because the
+  system tracks whether rows were new, changed, removed, and archived during
+  each refresh cycle.
+- The browser refresh path now blocks only on the primary map feeds; secondary
+  layers and secondary intel work moved out of the critical path, so live
+  refreshes are less likely to bunch into one burst.
+- Background intel fetch failures no longer shout the same full-backend outage
+  message as a critical map/API failure.
+- Release metadata and browser asset markers were resynced for `v1.54.2`, so
+  the shipped line is easier to verify and easier to roll back to.
 
 ## v1.54.1 — 2026-04-09
 
