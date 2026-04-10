@@ -8,6 +8,35 @@ Dates are UTC. Versions follow semantic versioning.
 
 ## [Unreleased] — v1.54.3 planning
 
+### Stabilization progress
+
+- Archive replay metadata is more explicit. Evidence rows now carry source
+  semantics for live movement, stable snapshots, reference snapshots,
+  target-state checks, and derived analytical events, so replay consumers can
+  distinguish continuous movement from latest-state or replacement feeds.
+- Runtime truth is stricter. The service now rejects stale local snapshots and
+  mismatched live/snapshot generations instead of quietly mixing epochs.
+- Health output is more operator-friendly. Source-local gaps such as temporary
+  empty AIS, truncated NOTAM snapshots, or truncated NGA MIS snapshots now land
+  as advisories instead of forcing the main backend health banner into a loud
+  degraded state.
+- Health output also exposes more diagnostics: rolling route latency
+  percentiles, generation mismatch counters, stale snapshot reject counters,
+  and explicit archive queue depth for ClickHouse backlog monitoring.
+- A first backend slice of vessel-target history is available by IMO for
+  sanctioned and seized vessel replay context. It returns target identity,
+  latest state, track points, source checks, derived context, generation
+  context, and response-state metadata from the existing evidence archive.
+- The browser now records timeout counts by route and keeps the last confirmed
+  successful hot-refresh time visible during normal cadence.
+- Nearby aircraft-and-ships right-click actions now open the detail surface
+  immediately with a loading state, then explain when the route falls back to
+  already plotted map tracks because the live nearby-traffic API is
+  unavailable.
+- Planning notes were updated to mark completed first slices and keep export,
+  frontend vessel-history affordances, and materialized secondary analytical
+  products as explicit remaining work.
+
 ### Next release direction
 
 - Reduce dense Leaflet marker churn and animation cost on live maps.
