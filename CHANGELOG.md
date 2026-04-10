@@ -6,43 +6,48 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.54.3 planning
+## [Unreleased]
 
-### Stabilization progress
+## v1.54.3 — 2026-04-10
 
-- Archive replay metadata is more explicit. Evidence rows now carry source
-  semantics for live movement, stable snapshots, reference snapshots,
-  target-state checks, and derived analytical events, so replay consumers can
-  distinguish continuous movement from latest-state or replacement feeds.
-- Runtime truth is stricter. The service now rejects stale local snapshots and
-  mismatched live/snapshot generations instead of quietly mixing epochs.
-- Health output is more operator-friendly. Source-local gaps such as temporary
-  empty AIS, truncated NOTAM snapshots, or truncated NGA MIS snapshots now land
-  as advisories instead of forcing the main backend health banner into a loud
-  degraded state.
-- Health output also exposes more diagnostics: rolling route latency
-  percentiles, generation mismatch counters, stale snapshot reject counters,
-  and explicit archive queue depth for ClickHouse backlog monitoring.
-- A first backend slice of vessel-target history is available by IMO for
-  sanctioned and seized vessel replay context. It returns target identity,
-  latest state, track points, source checks, derived context, generation
-  context, and response-state metadata from the existing evidence archive.
-- The browser now records timeout counts by route and keeps the last confirmed
-  successful hot-refresh time visible during normal cadence.
-- Nearby aircraft-and-ships right-click actions now open the detail surface
-  immediately with a loading state, then explain when the route falls back to
-  already plotted map tracks because the live nearby-traffic API is
-  unavailable.
-- Planning notes were updated to mark completed first slices and keep export,
-  frontend vessel-history affordances, and materialized secondary analytical
-  products as explicit remaining work.
+### Map accuracy, source reliability, and ClickHouse resilience
 
-### Next release direction
+- **Layer event counts now match what you see on the map.** Count badges
+  previously included events with null or zero coordinates that never produce
+  markers. Badges now reflect the rendered count only.
+- **NWS Marine alerts are back.** A 2025 NWS API change made the batch
+  zone-geometry endpoint return null geometry for all features, causing the
+  collector to produce 0 usable events. Zone boundaries are now fetched
+  individually, cached locally for 6 hours, and resolved in parallel so
+  subsequent runs cost almost nothing.
+- **VIIRS layer no longer reuses incomplete downloads.** Partial HDF5 files and
+  HTML error pages saved to disk during upstream outages are now detected and
+  re-downloaded automatically.
+- **Layer data no longer goes stale silently after a backend sync.** A bug in
+  the GeoJSON cache meant that store updates made during runtime sync were never
+  surfaced to clients until a restart. This is fixed.
+- **Events are no longer dropped during a ClickHouse outage.** Events that
+  cannot reach ClickHouse are spilled to a local file and replayed automatically
+  once the connection recovers.
+- **Persistently-down non-critical sources now appear in health.** Collectors
+  that have been failing continuously for more than 3 hours are now visible as
+  advisories in the health payload instead of silently failing in the background.
+- **Layers panel heading layout fixed.** The tier label and enable-layers button
+  no longer stack vertically.
 
-- Reduce dense Leaflet marker churn and animation cost on live maps.
-- Materialize the heaviest deferred intel products so the secondary lane stays
-  cheap on production servers.
-- Keep release and degraded-state truth tighter than surface complexity.
+### Also in this release (stabilization work from v1.54.3 planning)
+
+- Archive replay rows now carry explicit source semantics — live movement,
+  stable snapshots, reference snapshots, target-state checks, and derived
+  analytical events — so downstream consumers can distinguish feed types.
+- Runtime truth is stricter: stale local snapshots and mismatched live/snapshot
+  generations are now rejected rather than silently mixed.
+- Health now exposes route latency percentiles (p50, p95, p99), generation
+  mismatch counters, and ClickHouse archive queue depth.
+- A first backend slice of vessel-target history by IMO is available for
+  sanctioned and seized vessel replay context over the evidence archive.
+- Browser nearby traffic actions open the detail panel immediately with a loading
+  state rather than blocking on the API response.
 
 ## v1.54.2 — 2026-04-09
 
