@@ -6,9 +6,28 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased]
+## [Unreleased] — v1.54.4 planning
 
 ## v1.54.3 — 2026-04-10
+
+### Interface stabilization and release hygiene
+
+- **Alert behavior is now governed by one queue contract.** Invalid alerts no
+  longer mount, dismissed alerts unmount cleanly, only one alert expands at a
+  time, and selected alerts now hand detail ownership to the inspector instead
+  of fighting the map.
+- **The operator shell is more stable under degraded backend state.** Startup
+  transport failures, onboarding loops, and local auth-off paths no longer
+  trap the dashboard behind blocking overlays when the correct behavior is to
+  degrade in place.
+- **The desktop workspace was tightened without changing the product model.**
+  Header groups, layer rail density, alert stack placement, and inspector
+  ownership were cleaned up so the map remains dominant and the screen reads
+  more like an operational console than a patched demo.
+- **Release metadata is back under one source of truth.** Runtime version,
+  cache-buster markers, package metadata, launcher banner, and both repos'
+  README/CHANGELOG surfaces are now syncable from one release command instead
+  of being updated manually in several places.
 
 ### Map accuracy, source reliability, and ClickHouse resilience
 
