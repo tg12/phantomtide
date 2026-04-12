@@ -14,13 +14,12 @@ Dates are UTC. Versions follow semantic versioning.
 
 - **Aircraft explainers now carry bounded UK airspace context.** Selected
   aircraft detail and the Area Intelligence Report now reuse the same
-  query-backed UK NATS / DroneMap explainer lane, with explicit
-  explanatory-only wording instead of widening default map rendering.
+  query-backed UK airspace explainer lane, with explicit explanatory-only
+  wording instead of widening default map rendering.
 - **Vessel identity joins now behave like advisory context, not a second truth
-  surface.** MarineTraffic crosswalks now surface match basis, confidence,
-  alias variation, and contradiction-aware cautioning across watchlist,
-  spoofing, and selected-vessel detail without reading like entity
-  confirmation.
+  surface.** Identity joins now surface match basis, confidence, alias
+  variation, and contradiction-aware cautioning across watchlist, spoofing,
+  and selected-vessel detail without reading like entity confirmation.
 - **Identity workflow language is less likely to overclaim.** Vessel detail
   panels now frame identity joins as context and caution signals, not system
   verdicts.
