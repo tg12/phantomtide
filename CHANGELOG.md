@@ -6,7 +6,35 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.54.4 planning
+## [Unreleased] — v1.60.0 planning
+
+## v1.54.4 — 2026-04-12
+
+### Viewport trust, exact-only refinery context, and lighter refresh pressure
+
+- **The map is less likely to fight the analyst.** Deferred map focus, static
+  detail clicks, alert handoff, and refresh-time detail updates now share one
+  guarded interaction contract, so background refresh is much less likely to
+  snap the viewport after you have started dragging or zooming.
+- **Incident banners are a real action surface now.** Selectable alert banners
+  gained an explicit primary action and keyboard-safe inspector handoff
+  instead of depending on a clickable live-region container.
+- **Hidden workflows spend less refresh budget.** Convergence history stays
+  cold until the risk-zone workflow is actually enabled, hidden satellite
+  layers no longer consume a deferred refresh slot, and the replay-first
+  airspace-crossing feed is shared across banner and intel consumers instead
+  of being fetched twice per cycle.
+- **China teapot refineries now participate in the live product.** The exact-
+  only refinery dataset now powers a premium lazy map layer, area-report
+  context, vessel-detail maritime context, and live sanctioned/seized vessel
+  map detail without letting centroid-grade fallback points masquerade as map
+  truth.
+- **The refinery layer now tells the truth when nothing is in view.** If the
+  exact-only refinery points are loaded but off-screen, the layer note says so
+  explicitly instead of looking dead from the default world view.
+- **Restore-time health truth is stronger.** Runtime artifact freshness and
+  missing-artifact degradation are now exposed directly in health for shared
+  runtime state, local event snapshots, and scheduler heartbeat files.
 
 ## v1.54.3 — 2026-04-10
 
