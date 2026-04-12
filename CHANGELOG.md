@@ -6,7 +6,37 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.60.0 planning
+## [Unreleased] — v1.60.1 planning
+
+## v1.60.0 — 2026-04-12
+
+### Reference-backed explainers, identity context, and calmer operator truth
+
+- **Aircraft explainers now carry bounded UK airspace context.** Selected
+  aircraft detail and the Area Intelligence Report now reuse the same
+  query-backed UK NATS / DroneMap explainer lane, with explicit
+  explanatory-only wording instead of widening default map rendering.
+- **Vessel identity joins now behave like advisory context, not a second truth
+  surface.** MarineTraffic crosswalks now surface match basis, confidence,
+  alias variation, and contradiction-aware cautioning across watchlist,
+  spoofing, and selected-vessel detail without reading like entity
+  confirmation.
+- **Identity workflow language is less likely to overclaim.** Vessel detail
+  panels now frame identity joins as context and caution signals, not system
+  verdicts.
+- **Starter mode now boots lighter.** Default Starter load is reduced to a
+  smaller baseline so the shell spends less refresh budget before the analyst
+  has chosen heavier overlays.
+- **Degraded backend state no longer blocks the whole shell by default.**
+  Source-age, truncation, and scheduler-owner degradation now stay as warning
+  surfaces unless the API is actually unreachable.
+- **China teapot refineries are more visible as a static context layer.** The
+  exact-only refinery layer now renders with a stronger map treatment so it
+  reads as intentional context instead of disappearing into country-scale map
+  clutter.
+- **Map jumps are less brittle on event detail.** Event-detail focus now
+  preserves property-backed coordinates and normalizes wrapped longitudes,
+  closing a class of wrong-world jumps on point detail reopen.
 
 ## v1.54.4 — 2026-04-12
 
