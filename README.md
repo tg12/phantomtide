@@ -30,9 +30,9 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v1.60.0**
+Current release: **v1.70.0**
 
-Next tracked release: **v1.60.1**
+Next tracked release: **v1.70.1**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 

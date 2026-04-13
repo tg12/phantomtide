@@ -6,7 +6,27 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.60.1 planning
+## [Unreleased] — v1.70.1 planning
+
+## v1.70.0 — 2026-04-13
+
+### Replay trust, archive truth, and stricter analyst semantics
+
+- Aircraft airspace-crossing analysis is now replay-first and path-based,
+  rather than reading sampled points as a stronger alert than the evidence
+  supports.
+- Archive-backed scored and confidence-bearing surfaces now fail closed during
+  degraded archive durability instead of quietly continuing through backlog or
+  loss states.
+- Replay identity and provenance are stronger: archive rows now carry typed
+  identity and fetch/archive fields directly instead of depending on mixed-ID
+  fallbacks and opaque blobs.
+- Reference-context geography is less misleading. The platform now distinguishes
+  unknown coverage from known absence and uses a bounded PostGIS-backed context
+  path with explicit fallback semantics.
+- Convergence, thermal, and VIIRS significance surfaces now state their
+  heuristic method and bounds explicitly instead of implying calibrated
+  confidence where none exists.
 
 ## v1.60.0 — 2026-04-12
 
