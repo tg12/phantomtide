@@ -36,6 +36,14 @@ Current release: **v1.72.0**
 
 Next tracked release: **v1.72.1**
 
+Tracked next-release addition:
+
+- one public ingestion endpoint only:
+  `/api/public/aircraft/restricted-airspace-crossings`
+- this feed publishes replay-derived restricted-airspace crossing candidates
+  for external polling and dataset building
+- it does not turn the rest of the platform into a public history API
+
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
 ---
@@ -53,6 +61,43 @@ The guide explains:
 - how to work recurrent air and maritime signals through the map surface
 - how to move from spatial context into a structured briefing
 - what adapts automatically in the UI, and what stays fixed for trust
+
+## Public Restricted-Airspace Feed
+
+The next release adds one public machine-consumable endpoint:
+
+`GET /api/public/aircraft/restricted-airspace-crossings`
+
+What it is for:
+
+- ingesting replay-derived restricted-airspace crossing candidates
+- polling by `sample_after` watermark
+- building a public dataset over time from a bounded rolling window
+
+What it is not:
+
+- a live enforcement alert
+- proof of wrongdoing or regulatory violation
+- a general public archive/history API for the rest of Phantom Tide
+- plus many more bug fixes and improvements etc and some UI changes
+
+Example polling pattern:
+
+```bash
+curl "https://phantom.labs.jamessawyer.co.uk/api/public/aircraft/restricted-airspace-crossings?hours=24&limit=100"
+curl "https://phantom.labs.jamessawyer.co.uk/api/public/aircraft/restricted-airspace-crossings?sample_after=2026-04-14T12:00:00Z"
+```
+
+Local stack test:
+
+```bash
+docker compose up --build
+curl "http://localhost/api/public/aircraft/restricted-airspace-crossings?hours=24&limit=100"
+curl "http://localhost/api/public/aircraft/restricted-airspace-crossings?sample_after=2026-04-14T12:00:00Z"
+```
+
+This public endpoint is intentionally callable without a browser session. The
+rest of the broader archive/history surface remains private or tier-gated.
 
 ## Workspace Sync And Freshness Semantics
 
