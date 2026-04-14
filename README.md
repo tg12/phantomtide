@@ -17,6 +17,8 @@ What is special about it:
 
 - It scores overlap between sources instead of treating every feed as a
   separate product.
+- It defaults to a stable analyst workspace instead of a noisy auto-refreshing
+  map.
 - It treats aircraft as an analyst workflow, not just an ADS-B layer.
 - It ships fast pivots such as proximity query, Area Intelligence Report, and
   infrastructure-aware thermal context.
@@ -89,8 +91,11 @@ catalog:
   contributor weights and evidence counts so the map answers where to look
   first, not just what exists.
 - **Tracked aircraft as an analyst workflow**: aircraft are surfaced with
-  mission cues, watchlist context, alert banners, and map-focus jumps rather
-  than as a passive ADS-B layer.
+  mission cues, watchlist context, alert banners, free-text quick jump, and
+  map-focus jumps rather than as a passive ADS-B layer.
+- **Stable workspace sync**: the shell checks for visible-lane changes without
+  redrawing underneath an active investigation, and live mode pauses itself
+  while the analyst is inspecting detail or manipulating the map.
 - **Fast context pivots**: proximity query, Area Intelligence Report, thermal-
   to-infrastructure pivots, and drill-down detail views are built to compress
   analyst thought into a few clicks.
@@ -120,7 +125,8 @@ and reference geometry into a single operational surface.
 - Intel tables for high-value notice, disruption, and advisory queues
 - Advisory rows that jump the map to relevant coordinates without a manual search
 - Rule-based hypotheses with evidence references and confidence tiers
-- Tracked aircraft workflow with mission cues, callsign-family enrichment, watchlist context, and alert banners
+- Tracked aircraft workflow with mission cues, callsign-family enrichment, watchlist context, alert banners, and free-text quick jump
+- Stable workspace sync with explicit `New data`, `Live paused`, stale-state, and manual refresh ownership
 - Space-environment context for geomagnetic and communications-disruption risk
 - Navigation-disruption attribution using environmental, notice, and orbital context together
 - Ocean-state and wind context rendered as a continuous field, not isolated station markers
@@ -224,6 +230,11 @@ and opens the detail panel without losing the table.*
 
 ![Intel tables panel](docs/screenshots/intel_tables.png)
 *Structured analyst tables keep high-value sources readable and actionable.*
+
+### Aircraft Quick Jump
+
+![Aircraft quick jump search](docs/screenshots/aircraft_search.png)
+*Free-text aircraft search resolves across loaded live tracks, alerts, and tracked/watchlist aircraft so the operator can jump straight to the right signal.*
 
 ### Source Health
 

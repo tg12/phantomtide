@@ -22,8 +22,20 @@ Do not treat an empty map as proof of absence until you have checked zoom, time 
 ## Tracked aircraft
 
 - Use the alert banner or aircraft intel table to jump to the aircraft.
+- Use `/` to open the aircraft quick-jump search when you already know part of
+  the callsign, registration, ICAO24, owner, or model.
 - Open detail before trusting the icon alone.
 - Pull track history when the question is movement, not just presence.
+
+## Workspace sync
+
+- Manual mode is the default. The map stays still until you accept new state.
+- `New data` means a visible lane changed in the backend, not that the current
+  view already moved.
+- `Live paused` means live mode is on, but the product is intentionally
+  holding changes while you inspect detail, type, or manipulate the map.
+- Use `Refresh now` when you want the workspace to accept the latest visible
+  state on your terms.
 
 ## Convergence zones
 
