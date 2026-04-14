@@ -30,9 +30,9 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v1.70.0**
+Current release: **v1.72.0**
 
-Next tracked release: **v1.70.1**
+Next tracked release: **v1.72.1**
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -52,14 +52,17 @@ The guide explains:
 - how to move from spatial context into a structured briefing
 - what adapts automatically in the UI, and what stays fixed for trust
 
-## Execution Cadence And Freshness Semantics
+## Workspace Sync And Freshness Semantics
 
 Not every source updates at the same interval.
 
 - Movement and notice feeds update frequently.
 - Environmental and reference feeds usually update every `15-60 minutes`.
 - Large reference datasets and some advisories update hourly or daily.
-- The browser refreshes every `30 seconds`, but upstream collection does not.
+- The browser now defaults to a stable manual workspace and only applies new
+  state when the analyst refreshes or explicitly enables live mode.
+- The shell still checks lightweight visible-lane change markers in the
+  background, but that does not mean the workspace itself moved.
 
 Freshness is explicit:
 
@@ -67,6 +70,10 @@ Freshness is explicit:
 - `Degraded` means the source answered but quality, completeness, or subtype fidelity fell.
 - `Stale` means older or cached data is still being shown for continuity and should not be treated as current truth.
 - `Tier-limited` means the feature exists but the current access level intentionally caps it.
+- `New data available` means the visible workspace changed in the backend, but
+  the current view has not applied that state yet.
+- `Live paused` means live mode is enabled, but the browser is intentionally
+  holding changes while you inspect detail, type, or manipulate the map.
 
 The public operator guide explains how to read those states. The internal
 scheduler remains the authoritative timing source.

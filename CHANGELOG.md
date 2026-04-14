@@ -6,7 +6,39 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.70.1 planning
+## [Unreleased] — v1.72.1 planning
+
+## v1.72.0 — 2026-04-14
+
+### Stable analyst workspace, faster aircraft search, stronger maritime context
+
+- The browser now defaults to a stable workspace instead of silently
+  reapplying every visible change on a fixed timer. Phantom Tide checks a
+  lightweight visible-lane manifest, surfaces `New data` when the current
+  workspace changed, and lets the analyst choose when to apply that state.
+- Live mode remains available for passive browsing, but it now pauses while
+  you are inspecting detail, typing, moving the map, or scrubbing history so
+  the workspace does not move underneath an active investigation.
+- The header sync action is now rate-limited. Manual workspace sync can only
+  be forced once every three minutes, with a visible cooldown instead of
+  repeated redraw churn.
+- Aircraft quick jump is now a real free-text search surface. The modal opened
+  with `/` searches across loaded live tracks, alerts, and tracked/watchlist
+  aircraft with bounded fuzzy matching on callsign, registration, ICAO24,
+  owner/operator, model, and watchlist context.
+- Maritime reference context is wider and more useful. The product now ships
+  bounded PortWatch and HELCOM explainer layers for nearby ports,
+  chokepoints, disruptions, Baltic response capability, refuge areas, passage
+  baselines, spills, and shipping-accident context without turning them into
+  heavy default-render overlays.
+- Analyst payloads now use generic `reference_*` maritime context keys instead
+  of leaking internal source branding directly through the UI contract.
+- Map and intel routes now expose stronger `partial`, `empty_reason`, and
+  freshness truth so a clean-looking empty result is less likely to hide a
+  degraded or unavailable dependency.
+- The release also tightens exact-match maritime identity maintenance with a
+  stronger U.S. Navy / MSC support-vessel dataset and a documented static
+  vessel triage workflow for future updates.
 
 ## v1.70.0 — 2026-04-13
 
