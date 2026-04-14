@@ -17,8 +17,8 @@ Dates are UTC. Versions follow semantic versioning.
 - It keeps the contract intentionally narrow: one public endpoint only, with
   explicit candidate semantics, polling watermarks, freshness truth, and
   replay-first cautioning instead of turning the wider product into a public
-  history API. Plus many more bug fixes and improvements etc and some UI
-  changes.
+  history API.
+- Plus many more bug fixes and improvements etc and some UI changes.
 
 ## v1.72.0 — 2026-04-14
 
@@ -50,8 +50,8 @@ Dates are UTC. Versions follow semantic versioning.
   degraded or unavailable dependency.
 - The release also tightens exact-match maritime identity maintenance with a
   stronger support-vessel identity dataset and a documented static vessel
-  triage workflow for future updates. Plus many more bug fixes and
-  improvements etc and some UI changes.
+  triage workflow for future updates.
+- Plus many more bug fixes and improvements etc and some UI changes.
 
 ## v1.70.0 — 2026-04-13
 
