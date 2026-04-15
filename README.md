@@ -32,17 +32,16 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v1.72.0**
+Current release: **v1.72.1**
 
-Next tracked release: **v1.72.1**
+Next tracked release: **v1.72.2**
 
 Tracked next-release addition:
 
-- one public ingestion endpoint only:
-  `/api/public/aircraft/restricted-airspace-crossings`
-- this feed publishes replay-derived restricted-airspace crossing candidates
-  for external polling and dataset building
-- it does not turn the rest of the platform into a public history API
+- harden collector-backed context when artifacts are stale, reused, or
+  partially unavailable
+- keep optional large GeoJSON layers from becoming a default render-path cost
+- add only the next collector-backed workflow that improves entity explanation
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -64,7 +63,7 @@ The guide explains:
 
 ## Public Restricted-Airspace Feed
 
-The next release adds one public machine-consumable endpoint:
+The current release includes one public machine-consumable endpoint:
 
 `GET /api/public/aircraft/restricted-airspace-crossings`
 
@@ -112,6 +111,20 @@ curl "http://localhost/api/public/aircraft/restricted-airspace-crossings?include
 
 This public endpoint is intentionally callable without a browser session. The
 rest of the broader archive/history surface remains private or tier-gated.
+
+## Collector-Backed Context
+
+The current release also connects collector-published datasets into the map and
+detail workflow:
+
+- optional map layers for chokepoints, NATS airspace, ports, pipelines,
+  refineries, desalination sites, and seaport/terminal infrastructure
+- selected vessel and aircraft detail now explains nearest chokepoint,
+  infrastructure, and airspace context from loaded map layers
+- vessel and aircraft intelligence rows can include high-level dark-vessel,
+  U.S. Navy, sanctioned, military, and emergency context
+- artifact freshness and reuse remain visible so data presence is not confused
+  with data freshness
 
 ## Workspace Sync And Freshness Semantics
 

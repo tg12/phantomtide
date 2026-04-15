@@ -6,19 +6,30 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.72.1 planning
+## [Unreleased] — v1.72.2 planning
 
-### Public restricted-airspace crossing feed
+No committed changes yet.
 
-- Phantom Tide is adding one bounded public API endpoint:
-  `/api/public/aircraft/restricted-airspace-crossings`
+## v1.72.1 — 2026-04-15
+
+### Public feed and collector-backed map context
+
+- Phantom Tide now ships one bounded public API endpoint:
+  `/api/public/aircraft/restricted-airspace-crossings`.
 - The feed is designed for external polling and dataset building from
-  replay-derived restricted-airspace crossing candidates.
-- It keeps the contract intentionally narrow: one public endpoint only, with
-  explicit candidate semantics, polling watermarks, freshness truth, and
-  replay-first cautioning instead of turning the wider product into a public
-  history API.
-- Plus many more bug fixes and improvements etc and some UI changes.
+  replay-derived restricted-airspace crossing candidates, with polling
+  watermarks, freshness truth, and replay-first cautioning.
+- Data Collector Service artifacts now appear as product-facing intelligence
+  context instead of remaining only in integration notes.
+- Optional map layers now cover collector-backed chokepoints, NATS UAS
+  restrictions, NATS visual reference points, NATS sectors, ports, pipelines,
+  refineries, desalination sites, and seaport/terminal infrastructure.
+- Selected vessel and aircraft detail can now explain nearest chokepoint,
+  infrastructure, and airspace context from the loaded map-layer cache.
+- Vessel and aircraft intelligence rows now use high-level attribution for
+  dark-vessel, U.S. Navy, sanctioned, military, and emergency context.
+- The release also tightens Firefox console noise and dead-code audit hygiene
+  around framework-wired routes.
 
 ## v1.72.0 — 2026-04-14
 
