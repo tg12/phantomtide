@@ -6,9 +6,29 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.72.2 planning
+## v1.72.2 - 2026-04-16
 
-No committed changes yet.
+### Track-history accumulation fix
+
+- The public restricted-airspace crossing feed now produces real aircraft
+  counts and crossing candidates.  A deduplication bug caused every OpenSky
+  positional observation after the first to be silently discarded from the
+  archive; no aircraft ever accumulated more than one track point, so the
+  crossing detector had no data to evaluate.
+
+### Collector context and public feed trust
+
+- The public restricted-airspace feed now includes a compact `quality` block
+  by default so polling clients can distinguish confirmed empty windows from
+  partial responses caused by reference-data or aircraft-history freshness
+  gaps without requesting the full metadata payload.
+- Selected-entity collector context now labels stale, reused, capped, and
+  mixed-run map-layer context more explicitly. This keeps a coherent-looking
+  nearest chokepoint, infrastructure, or airspace explanation from reading as
+  a single fresh snapshot when loaded artifacts came from different collector
+  runs.
+- Large collector-backed GeoJSON context scans remain bounded in the browser
+  and disclose when nearest-context results may be incomplete.
 
 ## v1.72.1 — 2026-04-15
 
