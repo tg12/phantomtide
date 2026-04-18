@@ -6,29 +6,27 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## v1.72.2 - 2026-04-16
+## [Unreleased] — v1.73.0 planning
 
-### Track-history accumulation fix
+## v1.72.2 - 2026-04-18
 
-- The public restricted-airspace crossing feed now produces real aircraft
-  counts and crossing candidates.  A deduplication bug caused every OpenSky
-  positional observation after the first to be silently discarded from the
-  archive; no aircraft ever accumulated more than one track point, so the
-  crossing detector had no data to evaluate.
+### Public feed, workspace truth, and collector-context hardening
 
-### Collector context and public feed trust
-
-- The public restricted-airspace feed now includes a compact `quality` block
-  by default so polling clients can distinguish confirmed empty windows from
-  partial responses caused by reference-data or aircraft-history freshness
-  gaps without requesting the full metadata payload.
-- Selected-entity collector context now labels stale, reused, capped, and
-  mixed-run map-layer context more explicitly. This keeps a coherent-looking
-  nearest chokepoint, infrastructure, or airspace explanation from reading as
-  a single fresh snapshot when loaded artifacts came from different collector
-  runs.
-- Large collector-backed GeoJSON context scans remain bounded in the browser
-  and disclose when nearest-context results may be incomplete.
+- The public restricted-airspace crossing feed now includes a compact
+  `quality` block by default, so downstream polling clients can distinguish
+  confirmed empty windows from partial archive or reference-data degradation
+  without requesting the full metadata payload.
+- The collector-backed shell is more honest under partial or mixed state.
+  Loaded map-layer context now discloses stale, reused, mixed-run, and
+  scan-bounded artifact state more explicitly instead of letting coherent-
+  looking context read as a single fresh snapshot.
+- The browser now surfaces partial workspace hydration as a first-class
+  warning. If collector artifacts or saved layer restores are still loading or
+  failed in the latest pass, the shell now says so directly instead of showing
+  a quietly incomplete workspace.
+- Large optional GeoJSON and bootstrap layer restores now run through bounded
+  browser queues so high-value context recovers first and “enable all layers”
+  is less likely to collapse into random absence.
 
 ## v1.72.1 — 2026-04-15
 

@@ -32,16 +32,18 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v1.72.1**
+Current release: **v1.72.2**
 
-Next tracked release: **v1.72.2**
+Next tracked release: **v1.73.0**
 
 Tracked next-release addition:
 
-- harden collector-backed context when artifacts are stale, reused, or
-  partially unavailable
-- keep optional large GeoJSON layers from becoming a default render-path cost
-- add only the next collector-backed workflow that improves entity explanation
+- make mixed browser workspace state more explicit when visible lanes are not
+  fully coherent yet
+- add per-layer truth strips so hidden scope and partial render state are less
+  likely to read as confirmed absence
+- harden client refresh behavior under degraded backend pressure with bounded
+  retry spread instead of bursty tab-aligned polling
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -89,6 +91,7 @@ curl "https://phantom.labs.jamessawyer.co.uk/api/public/aircraft/restricted-airs
 
 Default response shape is intentionally simple:
 
+- `quality`
 - `when`
 - `who`
 - `what`
@@ -123,8 +126,8 @@ detail workflow:
   infrastructure, and airspace context from loaded map layers
 - vessel and aircraft intelligence rows can include high-level dark-vessel,
   U.S. Navy, sanctioned, military, and emergency context
-- artifact freshness and reuse remain visible so data presence is not confused
-  with data freshness
+- artifact freshness, reuse, mixed-run state, and scan caps remain visible so
+  data presence is not confused with current or complete context
 
 ## Workspace Sync And Freshness Semantics
 
