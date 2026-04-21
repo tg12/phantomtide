@@ -20,6 +20,8 @@ What is special about it:
 - It defaults to a stable analyst workspace instead of a noisy auto-refreshing
   map.
 - It treats aircraft as an analyst workflow, not just an ADS-B layer.
+- It treats maritime communications as analyst context, not just another
+  plotted feed.
 - It ships fast pivots such as proximity query, Area Intelligence Report, and
   infrastructure-aware thermal context.
 - It exposes stale, degraded, cached, and tier-limited states directly instead
@@ -32,18 +34,28 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v1.72.2**
+Current release: **v1.75.0**
 
-Next tracked release: **v1.73.0**
+Next tracked release: **v1.76.0**
 
 Tracked next-release addition:
 
-- make mixed browser workspace state more explicit when visible lanes are not
-  fully coherent yet
-- add per-layer truth strips so hidden scope and partial render state are less
-  likely to read as confirmed absence
-- harden client refresh behavior under degraded backend pressure with bounded
-  retry spread instead of bursty tab-aligned polling
+- build a trusted coast-station and rescue-endpoint geometry registry so more
+  DSC counterpart links can be drawn directly on the map
+- add analyst filters for DSC class, counterpart type, and unresolved geometry
+- keep reducing false-absence and mixed-workspace ambiguity under degraded
+  backend pressure
+
+Recent release additions:
+
+- DSC communications are now a first-class analyst workflow rather than a
+  feed-branded sidecar.
+- Vessel detail can pull linked DSC communications into the same right-side
+  panel and draw mapped counterpart links back onto the map.
+- DSC rows are classified into analyst-facing semantics such as test call,
+  safety voice handoff, routine call, distress relay, and SAR-linked urgency.
+- Public docs and screenshots now reflect the current portal surface instead
+  of the older pre-DSC workflow.
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
@@ -126,6 +138,9 @@ detail workflow:
   infrastructure, and airspace context from loaded map layers
 - vessel and aircraft intelligence rows can include high-level dark-vessel,
   U.S. Navy, sanctioned, military, and emergency context
+- DSC communications now feed both an analyst table and vessel-linked detail
+  context, including mapped counterpart links when the other ship or coast
+  station has usable geometry
 - artifact freshness, reuse, mixed-run state, and scan caps remain visible so
   data presence is not confused with current or complete context
 
@@ -168,6 +183,10 @@ catalog:
 - **Tracked aircraft as an analyst workflow**: aircraft are surfaced with
   mission cues, watchlist context, alert banners, free-text quick jump, and
   map-focus jumps rather than as a passive ADS-B layer.
+- **Communications as operational context**: DSC traffic is classified into
+  test, safety, routine, distress, and SAR-linked semantics so radio checks do
+  not read like incidents and vessel-to-counterpart links can be inspected in
+  the main workflow.
 - **Stable workspace sync**: the shell checks for visible-lane changes without
   redrawing underneath an active investigation, and live mode pauses itself
   while the analyst is inspecting detail or manipulating the map.
@@ -198,6 +217,8 @@ and reference geometry into a single operational surface.
 - Convergence cells show source-family weights, evidence counts, and trend
 - Geometry-aware rendering for points, circles, routes, and polygons
 - Intel tables for high-value notice, disruption, and advisory queues
+- DSC communications table with analyst ranking across mapped and unmapped
+  traffic, plus vessel-linked comms context in the detail panel
 - Advisory rows that jump the map to relevant coordinates without a manual search
 - Rule-based hypotheses with evidence references and confidence tiers
 - Tracked aircraft workflow with mission cues, callsign-family enrichment, watchlist context, alert banners, and free-text quick jump
@@ -218,6 +239,8 @@ and reference geometry into a single operational surface.
 - Disruption events annotated with orbital visibility context to separate infrastructure effects from environmental causes
 - Deep-ocean pressure anomaly context for underwater event triage
 - Watchlist-matched entity tracking with highlight rings on active positions
+- Vessel selection can draw mapped DSC counterpart links to show who is
+  talking to whom in the current comms graph
 - Plain-language advisory popups replacing raw aviation and maritime codes
 - Single-source-of-truth tier access control with per-feature gating across starter, premium, and enterprise tiers
 - Performance: response pre-serialisation and conditional HTTP caching on high-frequency routes
@@ -306,15 +329,28 @@ and opens the detail panel without losing the table.*
 ![Intel tables panel](docs/screenshots/intel_tables.png)
 *Structured analyst tables keep high-value sources readable and actionable.*
 
+### DSC Communications
+
+![DSC communications analyst table](docs/screenshots/dsc_communications.png)
+*DSC communications are surfaced as an analyst table, not a feed-branded sidecar.
+Mapped and unmapped traffic stay visible, and vessel selection can pivot that
+same comms graph back onto the map as counterpart links. Test traffic is kept
+visible but classified separately so it does not read like an incident queue.*
+
+![DSC communication detail](docs/screenshots/dsc_detail.png)
+*Selecting a communication opens the same right-side detail workflow used by
+the rest of the product, with party context, telecommands, timing, analyst
+classification, and map focus kept in one analyst surface.*
+
+![Vessel detail with DSC context](docs/screenshots/dsc_vessel_workflow.png)
+*Selecting a vessel can now pull linked DSC communications into the same
+detail panel and draw mapped comms counterparts back onto the map, so the
+operator can see who is talking to whom without leaving the main workflow.*
+
 ### Aircraft Quick Jump
 
 ![Aircraft quick jump search](docs/screenshots/aircraft_search.png)
 *Free-text aircraft search resolves across loaded live tracks, alerts, and tracked/watchlist aircraft so the operator can jump straight to the right signal.*
-
-### Source Health
-
-![Source health panel](docs/screenshots/source_health.png)
-*Live, cache-backed, and failed source states reported explicitly per collector.*
 
 ### Proximity Query
 

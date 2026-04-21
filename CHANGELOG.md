@@ -6,7 +6,131 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.73.0 planning
+## v1.75.0 - 2026-04-21
+
+### DSC communications become an analyst workflow
+
+- DSC communications are now surfaced as a first-class analyst lane instead of
+  a feed-branded sidecar. The intel workspace keeps mapped and unmapped
+  communications visible together so the operator can inspect the comms graph,
+  not just the subset with immediate map geometry.
+- Selected vessels can now load linked DSC communications directly into the
+  same right-side detail panel used for the rest of Phantom Tide. When the
+  counterpart ship or coast station has resolvable geometry, the map draws a
+  communication link so the operator can see who is talking to whom without
+  leaving the main workflow.
+
+### Analyst-facing DSC semantics
+
+- DSC rows are now classified into analyst-facing semantics such as `Test
+  call`, `Safety voice handoff`, `Routine call`, `Distress relay`, and
+  SAR-linked urgency or coordination. This keeps routine radio checks from
+  dominating the table while preserving them as evidence.
+- SAR-linked classification is now inferred from rescue-coordination endpoint
+  identity in addition to distress/urgency protocol fields, so non-distress
+  rescue coordination traffic can still be surfaced as operationally relevant
+  context.
+
+### Public docs and screenshots refreshed
+
+- The public README now matches the current portal surface and release line
+  instead of the older v1.72.x product brief.
+- Public screenshots were regenerated from the rebuilt local stack, including
+  new DSC communications, DSC detail, and vessel-led DSC workflow views.
+
+## v1.74.0 - 2026-04-19
+
+### AIS dead reckoning breach detection (Rule 007)
+
+- A new inference rule fires when a VIIRS thermal event falls inside the
+  projected motion corridor of a vessel that has gone AIS-silent.
+- The corridor extends forward from the vessel's last known position along
+  its last reported course and speed. Lateral uncertainty starts at 10 km and
+  grows with elapsed silence (2.5 km/h, capped at 50 km) to reflect
+  accumulating positional ambiguity.
+- Watchlist tier: any corridor VIIRS hit — plausible co-location requiring
+  corroboration.
+- Alert tier: corridor hit with high fire radiative power (>= 30 MW) from a
+  maritime-class detection — strong coincidence of two independent anomaly
+  signals with tight spatial constraint.
+- Vessels without a last-known course are excluded; silence alone is flagged
+  in retained negative evidence together with the corridor width and elapsed
+  silence duration.
+
+### Thermal-AIS coincidence gap detection (Rule 006)
+
+- A new inference rule fires when a VIIRS thermal anomaly cell has absent or
+  sparse AIS traffic in its vicinity, signaling possible dark ship-to-ship
+  transfer, unreported offshore activity, or transponder-off operation.
+- Zero-AIS tier (Watchlist): anomaly score >= 6.0 with no vessel identity
+  within 30 nm. Maritime detection types (offshore, thermal_anomaly) are
+  annotated in the hypothesis statement.
+- Sparse-AIS tier (Exploratory): EXTREME anomaly score (>= 12.0) with at
+  most one AIS vessel within 30 nm.
+- Both tiers retain full negative evidence: AIS count, search radius, cell
+  score and severity, and an explicit caveat that remote or low-traffic areas
+  may have structurally low AIS coverage independently of any suppression.
+
+### GPSJam interference layer
+
+- The GPSJam daily H3 interference grid is now fully visible on the map and
+  included in proximity queries. A rendering bug prevented the layer from
+  appearing: the source was not registered in the layer name index, so all
+  markers were silently discarded before display.
+- The observation timestamp is now anchored to noon UTC of the published
+  observation date rather than the ingestion wall-clock, so GPSJam events
+  age correctly against stale-threshold display logic.
+
+### Proximity panel completeness and clipboard export
+
+- The right-click proximity panel now shows all sources inside the radius
+  circle, not only the first matching category.
+- A copy button exports a padded plain-text snapshot covering event rows
+  (all sources), datacenter infrastructure hits, and entity intelligence
+  hits.
+
+### US Navy vessel tracking improvements
+
+- The navy vessel overlay now sources last-known positions from entity feed
+  intelligence rows when a direct AIS fix or watchlist-alert position is
+  unavailable. Popups distinguish last-known positions from current fixes.
+
+## v1.73.0 - 2026-04-19
+
+### Per-layer false-absence disclosure
+
+- The map left-rail now shows a distinct zoom-action strip for each source
+  that is hidden because the current zoom level is below the operator's
+  disclosure threshold. The strip displays the withheld count and a "zoom to
+  N+" button so the analyst can act without guessing why markers are absent.
+  AIS, OpenSky, VIIRS, SMAPS, DailyMem, NGA MIS, NDBC, and NDBC SAR2 all
+  gain this treatment. The indigo count badge distinguishes zoom-suppressed
+  state from the amber tier-cap state.
+
+### Auth substrate (dormant, migrations only)
+
+- The Postgres schema now includes dormant auth tables (`pt_users`,
+  `pt_sessions`, `pt_entitlements`, `pt_auth_audit`) that establish the
+  migration boundary for v2.0 per-user analyst workspaces. No application
+  routes read or write these tables in v1.73.0.
+- `/api/health` now includes an `auth` block reporting whether the Postgres
+  auth backend is reachable and whether the session and entitlement tables
+  are present.
+
+### Airspace crossing inside-window detection fix
+
+- Aircraft entering the tracked airspace window already inside a restricted
+  zone now correctly emit an `inside_window_start` crossing event. Shapely
+  2.x changed the semantics of `STRtree.query(point, predicate="covers")` —
+  it now tests `point.covers(polygon)` rather than `polygon.covers(point)`.
+  Changed to `predicate="covered_by"` to restore correct containment lookup.
+
+### Antimeridian polygon rendering
+
+- Polylines crossing the 180° dateline are now split at the antimeridian and
+  rendered as two arcs rather than a single line that spans the globe
+  backwards. Affected layers: maritime EEZ boundaries, submarine cables,
+  vessel routing paths, AIS spoof track overlays, and event geometry.
 
 ## v1.72.2 - 2026-04-18
 

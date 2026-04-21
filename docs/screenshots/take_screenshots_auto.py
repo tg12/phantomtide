@@ -10,9 +10,11 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import sys
 import time
 from pathlib import Path
+from urllib.request import Request, urlopen
 
 try:
     from playwright.sync_api import Page, sync_playwright
@@ -47,6 +49,35 @@ def suppress_modals(page: Page) -> None:
             #auth-dialog { display: none !important; }
         `;
         document.head.appendChild(s);
+    }""")
+
+
+def apply_capture_chrome(page: Page) -> None:
+    """Hide transient failure chrome and empty inspector states for public docs."""
+
+    page.evaluate("""() => {
+        if (!document.getElementById('_pt_docs_capture')) {
+            const s = document.createElement('style');
+            s.id = '_pt_docs_capture';
+            s.textContent = `
+                #alert-stack,
+                #backend-outage-overlay,
+                #hdr-next-refresh-metric,
+                .legend-state-badge--degraded,
+                .legend-state-badge--down {
+                    display: none !important;
+                }
+                #right-panel[data-capture-empty="1"] {
+                    display: none !important;
+                }
+            `;
+            document.head.appendChild(s);
+        }
+        const rightPanel = document.getElementById('right-panel');
+        const detailEmpty = document.querySelector('#detail-panel .detail-empty-none');
+        if (rightPanel) {
+            rightPanel.setAttribute('data-capture-empty', detailEmpty ? '1' : '0');
+        }
     }""")
 
 
@@ -109,6 +140,7 @@ def load(page: Page, base_url: str, key: str, zoom: tuple[float, float, int] | N
         pass
     time.sleep(0.8)
     suppress_modals(page)
+    apply_capture_chrome(page)
     if key:
         authenticate(page, base_url, key)
     time.sleep(0.5)
@@ -119,7 +151,19 @@ def load(page: Page, base_url: str, key: str, zoom: tuple[float, float, int] | N
         page.evaluate(f"void map.setView([{lat}, {lon}], {z})")
         time.sleep(0.8)
     wait_data(page)
+    apply_capture_chrome(page)
     time.sleep(1.0)
+
+
+def fetch_dsc_payload(base_url: str, limit: int = 25) -> dict:
+    """Load the live DSC communications payload from the local stack."""
+
+    request = Request(
+        f"{base_url}/api/intel/dsc-signals?limit={limit}",
+        headers={"X-Phantom-Frontend": "dashboard-web"},
+    )
+    with urlopen(request, timeout=30) as response:
+        return json.load(response)
 
 
 # ---------------------------------------------------------------------------
@@ -143,7 +187,7 @@ def run(base_url: str, key: str) -> None:
         # ------------------------------------------------------------------
         # 1. overview — world zoom, all layers on
         # ------------------------------------------------------------------
-        print("1/16  overview")
+        print("1/19  overview")
         load(page, base_url, key)
         # close intel panel if open
         if not page.evaluate("() => document.getElementById('tables-panel')?.hidden ?? true"):
@@ -154,7 +198,7 @@ def run(base_url: str, key: str) -> None:
         # ------------------------------------------------------------------
         # 2. sidebar — layer panel open
         # ------------------------------------------------------------------
-        print("2/16  sidebar")
+        print("2/19  sidebar")
         load(page, base_url, key)
         page.evaluate("""() => {
             const btn = document.querySelector(
@@ -168,25 +212,102 @@ def run(base_url: str, key: str) -> None:
         # ------------------------------------------------------------------
         # 3. intel_tables — tables panel open
         # ------------------------------------------------------------------
-        print("3/16  intel_tables")
+        print("3/19  intel_tables")
         load(page, base_url, key)
         page.evaluate("() => document.getElementById('btn-tables')?.click()")
         time.sleep(1.5)
         take(page, "intel_tables")
 
         # ------------------------------------------------------------------
-        # 4. source_health
+        # 4. dsc_communications — DSC intel table in analyst workspace
         # ------------------------------------------------------------------
-        print("4/16  source_health")
+        print("4/19  dsc_communications")
         load(page, base_url, key)
-        page.evaluate("() => document.getElementById('source-health-toggle')?.click()")
+        page.evaluate("() => document.getElementById('btn-tables')?.click()")
+        time.sleep(1.0)
+        dsc_payload = fetch_dsc_payload(base_url)
+        page.evaluate("""(payload) => {
+            renderYaddnetSignalsTable(payload);
+            const section = document.querySelector('[data-briefing="yaddnet_signals"]');
+            if (section) section.scrollIntoView({behavior: 'instant', block: 'start'});
+        }""", dsc_payload)
         time.sleep(0.8)
-        take(page, "source_health")
+        take(page, "dsc_communications")
 
         # ------------------------------------------------------------------
-        # 5. detail_panel — click first available marker
+        # 5. dsc_detail — selected DSC communication detail
         # ------------------------------------------------------------------
-        print("5/16  detail_panel")
+        print("5/19  dsc_detail")
+        target_row = next(
+            (
+                row
+                for row in dsc_payload.get("signals", [])
+                if row.get("latitude") is not None and row.get("longitude") is not None
+            ),
+            dsc_payload.get("signals", [None])[0],
+        )
+        if target_row:
+            page.evaluate("""(row) => {
+                const props = _yaddnetSignalRowToProps(row);
+                openSelectionDetail(props, 'yaddnet', row.latitude, row.longitude, {targetZoom: 6});
+            }""", target_row)
+            time.sleep(1.0)
+            apply_capture_chrome(page)
+            take(page, "dsc_detail")
+
+        # ------------------------------------------------------------------
+        # 6. dsc_vessel_workflow — vessel detail panel with DSC context
+        # ------------------------------------------------------------------
+        print("6/19  dsc_vessel_workflow")
+        vessel_row = next(
+            (
+                row
+                for row in dsc_payload.get("signals", [])
+                if row.get("latitude") is not None
+                and row.get("longitude") is not None
+                and isinstance(row.get("from_party"), dict)
+                and str((row.get("from_party") or {}).get("type") or "").upper() == "SHIP"
+            ),
+            target_row,
+        )
+        if vessel_row and vessel_row.get("latitude") is not None and vessel_row.get("longitude") is not None:
+            from_party = vessel_row.get("from_party") or {}
+            page.evaluate("""(payload) => {
+                const row = payload.row || {};
+                const party = payload.party || {};
+                openSelectionDetail(
+                    {
+                        source: 'ais',
+                        event_type: 'ais_position',
+                        timestamp: row.timestamp || '',
+                        mmsi: party.mmsi || '',
+                        callsign: party.callsign || '',
+                        vessel_name: party.name || '',
+                        raw_value: {
+                            mmsi: party.mmsi || '',
+                            callsign: party.callsign || '',
+                            shipname: party.name || '',
+                        },
+                        attributes: {
+                            callsign: party.callsign || '',
+                            ship_type: party.ship_type || '',
+                            flag: party.country || '',
+                        },
+                    },
+                    'ais',
+                    Number(row.latitude),
+                    Number(row.longitude),
+                    {targetZoom: 6},
+                );
+            }""", {"row": vessel_row, "party": from_party})
+            page.wait_for_timeout(2200)
+            apply_capture_chrome(page)
+            take(page, "dsc_vessel_workflow")
+
+        # ------------------------------------------------------------------
+        # 7. detail_panel — click first available marker
+        # ------------------------------------------------------------------
+        print("7/18  detail_panel")
         load(page, base_url, key)
         page.evaluate("""() => {
             const m = document.querySelector(
@@ -195,12 +316,13 @@ def run(base_url: str, key: str) -> None:
             if (m) m.click();
         }""")
         time.sleep(0.8)
+        apply_capture_chrome(page)
         take(page, "detail_panel")
 
         # ------------------------------------------------------------------
-        # 6. detail_panel_warning — prefer a coloured/advisory marker
+        # 8. detail_panel_warning — prefer a coloured/advisory marker
         # ------------------------------------------------------------------
-        print("6/16  detail_panel_warning")
+        print("8/18  detail_panel_warning")
         load(page, base_url, key)
         page.evaluate("""() => {
             const all = Array.from(document.querySelectorAll('.leaflet-marker-icon'));
@@ -211,12 +333,13 @@ def run(base_url: str, key: str) -> None:
             (advisory || all[0])?.click();
         }""")
         time.sleep(0.8)
+        apply_capture_chrome(page)
         take(page, "detail_panel_warning")
 
         # ------------------------------------------------------------------
-        # 7. detail_panel_notam — open tables, click first NOTAM row
+        # 9. detail_panel_notam — open tables, click first NOTAM row
         # ------------------------------------------------------------------
-        print("7/16  detail_panel_notam")
+        print("9/18  detail_panel_notam")
         load(page, base_url, key)
         page.evaluate("() => document.getElementById('btn-tables')?.click()")
         time.sleep(1.5)
@@ -225,12 +348,13 @@ def run(base_url: str, key: str) -> None:
             if (row) row.click();
         }""")
         time.sleep(0.8)
+        apply_capture_chrome(page)
         take(page, "detail_panel_notam")
 
         # ------------------------------------------------------------------
-        # 8. risk_zones — convergence heat cells
+        # 10. risk_zones — convergence heat cells
         # ------------------------------------------------------------------
-        print("8/16  risk_zones")
+        print("10/18  risk_zones")
         load(page, base_url, key)
         page.evaluate("""() => {
             const cb = document.querySelector(
@@ -242,23 +366,23 @@ def run(base_url: str, key: str) -> None:
         take(page, "risk_zones")
 
         # ------------------------------------------------------------------
-        # 9. weather_mesh — NDBC North Atlantic
+        # 11. weather_mesh — NDBC North Atlantic
         # ------------------------------------------------------------------
-        print("9/16  weather_mesh")
+        print("11/18  weather_mesh")
         load(page, base_url, key, zoom=(45, -40, 4))
         take(page, "weather_mesh")
 
         # ------------------------------------------------------------------
-        # 10. atlantic — regional North Atlantic
+        # 12. atlantic — regional North Atlantic
         # ------------------------------------------------------------------
-        print("10/16  atlantic")
+        print("12/18  atlantic")
         load(page, base_url, key, zoom=(40, -30, 4))
         take(page, "atlantic")
 
         # ------------------------------------------------------------------
-        # 11. proximity_menu — right-click context menu
+        # 13. proximity_menu — right-click context menu
         # ------------------------------------------------------------------
-        print("11/16  proximity_menu")
+        print("13/18  proximity_menu")
         load(page, base_url, key)
         box = page.query_selector("#map")
         if box:
@@ -273,9 +397,9 @@ def run(base_url: str, key: str) -> None:
         take(page, "proximity_menu")
 
         # ------------------------------------------------------------------
-        # 12. proximity_results — click first radius option
+        # 14. proximity_results — click first radius option
         # ------------------------------------------------------------------
-        print("12/16  proximity_results")
+        print("14/18  proximity_results")
         page.evaluate("""() => {
             const items = document.querySelectorAll('.prox-menu-item');
             if (items.length > 1) items[1].click();
@@ -285,9 +409,9 @@ def run(base_url: str, key: str) -> None:
         take(page, "proximity_results")
 
         # ------------------------------------------------------------------
-        # 13. sigmet_popup — click a SIGMET polygon (v1.44.0)
+        # 15. sigmet_popup — click a SIGMET polygon (v1.44.0)
         # ------------------------------------------------------------------
-        print("13/16  sigmet_popup")
+        print("15/18  sigmet_popup")
         load(page, base_url, key)
         page.evaluate("""() => {
             const cb = document.querySelector('input[data-layer="sigmet"]');
@@ -307,12 +431,13 @@ def run(base_url: str, key: str) -> None:
             }
         }""")
         time.sleep(0.8)
+        apply_capture_chrome(page)
         take(page, "sigmet_popup")
 
         # ------------------------------------------------------------------
-        # 14. entity_feed — watchlist hits intel table (v1.44.0)
+        # 16. entity_feed — watchlist hits intel table (v1.44.0)
         # ------------------------------------------------------------------
-        print("14/16  entity_feed")
+        print("16/18  entity_feed")
         load(page, base_url, key)
         page.evaluate("""() => {
             const cb = document.querySelector('input[data-layer="entity_feed"]');
@@ -329,16 +454,16 @@ def run(base_url: str, key: str) -> None:
         take(page, "entity_feed")
 
         # ------------------------------------------------------------------
-        # 15. middle_east — Red Sea / Persian Gulf
+        # 17. middle_east — Red Sea / Persian Gulf
         # ------------------------------------------------------------------
-        print("15/16  middle_east")
+        print("17/18  middle_east")
         load(page, base_url, key, zoom=(20, 45, 5))
         take(page, "middle_east")
 
         # ------------------------------------------------------------------
-        # 16. aircraft_search — quick jump modal (v1.72.0)
+        # 18. aircraft_search — quick jump modal (v1.72.0)
         # ------------------------------------------------------------------
-        print("16/16  aircraft_search")
+        print("18/18  aircraft_search")
         load(page, base_url, key)
         page.keyboard.press("/")
         time.sleep(0.8)
