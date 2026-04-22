@@ -1,0 +1,2020 @@
+{
+  "hours": 96,
+  "aircraft_count": 117,
+  "crossing_count": 100,
+  "latest_when": "2026-04-21T10:01:02",
+  "poll_after": "2026-04-21T10:01:02",
+  "crossings": [
+    {
+      "event_id": "airspace-crossing:0c216d:faa_special_use_airspace:KANE WEST MOA:1365:entered:2026-04-21T10:01:02",
+      "when": "2026-04-21T10:01:02",
+      "who": {
+        "icao24": "0c216d",
+        "callsign": "CMP383"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:KANE WEST MOA:1365",
+          "name": "KANE WEST MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 33.0,
+        "lon": -116.047
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0ff7:faa_special_use_airspace:W-228D:721:exited:2026-04-21T09:56:02",
+      "when": "2026-04-21T09:56:02",
+      "who": {
+        "icao24": "0d0ff7",
+        "callsign": "AMX689"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-228D:721",
+          "name": "W-228D",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 25.785,
+        "lon": -96.907
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:W-386:740:entered:2026-04-21T09:56:02",
+      "when": "2026-04-21T09:56:02",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-386:740",
+          "name": "W-386",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 37.499,
+        "lon": -75.215
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0963:faa_special_use_airspace:RANDOLPH 1B MOA:235:traversed_between_samples:2026-04-21T09:56:01",
+      "when": "2026-04-21T09:56:01",
+      "who": {
+        "icao24": "0d0963",
+        "callsign": "VIV633"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:RANDOLPH 1B MOA:235",
+          "name": "RANDOLPH 1B MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 28.725,
+        "lon": -98.565
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d08d1:faa_special_use_airspace:RESERVE MOA:240:exited:2026-04-21T09:54:51",
+      "when": "2026-04-21T09:54:51",
+      "who": {
+        "icao24": "0d08d1",
+        "callsign": "AMX058"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:RESERVE MOA:240",
+          "name": "RESERVE MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 34.081,
+        "lon": -109.356
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d08d1:faa_special_use_airspace:RESERVE MOA:240:entered:2026-04-21T09:51:03",
+      "when": "2026-04-21T09:51:03",
+      "who": {
+        "icao24": "0d08d1",
+        "callsign": "AMX058"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:RESERVE MOA:240",
+          "name": "RESERVE MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 33.752,
+        "lon": -108.897
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d10fd:faa_special_use_airspace:KANE WEST MOA:1365:traversed_between_samples:2026-04-21T09:51:02",
+      "when": "2026-04-21T09:51:02",
+      "who": {
+        "icao24": "0d10fd",
+        "callsign": "VOI7811"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:KANE WEST MOA:1365",
+          "name": "KANE WEST MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 32.567,
+        "lon": -115.493
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0963:faa_special_use_airspace:A-638:20:traversed_between_samples:2026-04-21T09:51:02",
+      "when": "2026-04-21T09:51:02",
+      "who": {
+        "icao24": "0d0963",
+        "callsign": "VIV633"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:A-638:20",
+          "name": "A-638",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 29.207,
+        "lon": -98.183
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:W-72A:1011:exited:2026-04-21T09:51:02",
+      "when": "2026-04-21T09:51:02",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-72A:1011",
+          "name": "W-72A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 36.936,
+        "lon": -75.46
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:W-72A:1010:exited:2026-04-21T09:51:02",
+      "when": "2026-04-21T09:51:02",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-72A:1010",
+          "name": "W-72A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 36.936,
+        "lon": -75.46
+      }
+    },
+    {
+      "event_id": "airspace-crossing:06a0df:faa_special_use_airspace:W-59C:765:exited:2026-04-21T09:51:01",
+      "when": "2026-04-21T09:51:01",
+      "who": {
+        "icao24": "06a0df",
+        "callsign": "QTR8167"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-59C:765",
+          "name": "W-59C",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 28.243,
+        "lon": -92.856
+      }
+    },
+    {
+      "event_id": "airspace-crossing:06a0df:faa_special_use_airspace:W-59B:764:exited:2026-04-21T09:51:01",
+      "when": "2026-04-21T09:51:01",
+      "who": {
+        "icao24": "06a0df",
+        "callsign": "QTR8167"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-59B:764",
+          "name": "W-59B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 28.243,
+        "lon": -92.856
+      }
+    },
+    {
+      "event_id": "airspace-crossing:06a0df:faa_special_use_airspace:W-147B:683:entered:2026-04-21T09:51:01",
+      "when": "2026-04-21T09:51:01",
+      "who": {
+        "icao24": "06a0df",
+        "callsign": "QTR8167"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-147B:683",
+          "name": "W-147B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 28.243,
+        "lon": -92.856
+      }
+    },
+    {
+      "event_id": "airspace-crossing:06a0df:faa_special_use_airspace:W-147A:682:entered:2026-04-21T09:51:01",
+      "when": "2026-04-21T09:51:01",
+      "who": {
+        "icao24": "06a0df",
+        "callsign": "QTR8167"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-147A:682",
+          "name": "W-147A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 28.243,
+        "lon": -92.856
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c605e:faa_special_use_airspace:W-72B:768:entered:2026-04-21T09:50:25",
+      "when": "2026-04-21T09:50:25",
+      "who": {
+        "icao24": "0c605e",
+        "callsign": "BWA527"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-72B:768",
+          "name": "W-72B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 36.675,
+        "lon": -73.862
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c605e:faa_special_use_airspace:W-387B:745:traversed_between_samples:2026-04-21T09:50:25",
+      "when": "2026-04-21T09:50:25",
+      "who": {
+        "icao24": "0c605e",
+        "callsign": "BWA527"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-387B:745",
+          "name": "W-387B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 36.675,
+        "lon": -73.862
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c605e:faa_special_use_airspace:W-387A:744:traversed_between_samples:2026-04-21T09:50:25",
+      "when": "2026-04-21T09:50:25",
+      "who": {
+        "icao24": "0c605e",
+        "callsign": "BWA527"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-387A:744",
+          "name": "W-387A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 36.675,
+        "lon": -73.862
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c605e:faa_special_use_airspace:W-386:740:exited:2026-04-21T09:50:25",
+      "when": "2026-04-21T09:50:25",
+      "who": {
+        "icao24": "0c605e",
+        "callsign": "BWA527"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-386:740",
+          "name": "W-386",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 36.675,
+        "lon": -73.862
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0ff7:faa_special_use_airspace:W-228D:721:entered:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0d0ff7",
+        "callsign": "AMX689"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-228D:721",
+          "name": "W-228D",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 26.968,
+        "lon": -96.571
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0ff7:faa_special_use_airspace:W-228C:720:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0d0ff7",
+        "callsign": "AMX689"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-228C:720",
+          "name": "W-228C",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 26.968,
+        "lon": -96.571
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0ff7:faa_special_use_airspace:W-228A:718:exited:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0d0ff7",
+        "callsign": "AMX689"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-228A:718",
+          "name": "W-228A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 26.968,
+        "lon": -96.571
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:W-371:739:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-371:739",
+          "name": "W-371",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:W-122:680:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-122:680",
+          "name": "W-122",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:R-6601C:627:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-6601C:627",
+          "name": "R-6601C",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:R-6601B:626:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-6601B:626",
+          "name": "R-6601B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:R-6601A:625:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-6601A:625",
+          "name": "R-6601A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:R-5314J:576:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-5314J:576",
+          "name": "R-5314J",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:R-5314H:575:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-5314H:575",
+          "name": "R-5314H",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:R-5302C:1204:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-5302C:1204",
+          "name": "R-5302C",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:R-5302B:1296:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-5302B:1296",
+          "name": "R-5302B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:R-5301:1205:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-5301:1205",
+          "name": "R-5301",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:PHELPS B MOA:218:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:PHELPS B MOA:218",
+          "name": "PHELPS B MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:PHELPS A MOA:217:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:PHELPS A MOA:217",
+          "name": "PHELPS A MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:PAMLICO C MOA:1505:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:PAMLICO C MOA:1505",
+          "name": "PAMLICO C MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:PAMLICO B MOA:210:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:PAMLICO B MOA:210",
+          "name": "PAMLICO B MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c4184:faa_special_use_airspace:DUKE MOA:105:traversed_between_samples:2026-04-21T09:46:01",
+      "when": "2026-04-21T09:46:01",
+      "who": {
+        "icao24": "0c4184",
+        "callsign": "DWI6021"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:DUKE MOA:105",
+          "name": "DUKE MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 5.058,
+        "lon": -62.929
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0b91:faa_special_use_airspace:HACKETT MOA:844:traversed_between_samples:2026-04-21T09:46:00",
+      "when": "2026-04-21T09:46:00",
+      "who": {
+        "icao24": "0d0b91",
+        "callsign": "VOI700"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:HACKETT MOA:844",
+          "name": "HACKETT MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 32.563,
+        "lon": -93.234
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:W-72A:1011:entered:2026-04-21T09:46:00",
+      "when": "2026-04-21T09:46:00",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-72A:1011",
+          "name": "W-72A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 36.363,
+        "lon": -75.706
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:W-72A:1010:entered:2026-04-21T09:46:00",
+      "when": "2026-04-21T09:46:00",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-72A:1010",
+          "name": "W-72A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 36.363,
+        "lon": -75.706
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:R-5314E:573:exited:2026-04-21T09:46:00",
+      "when": "2026-04-21T09:46:00",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-5314E:573",
+          "name": "R-5314E",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 36.363,
+        "lon": -75.706
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c20b9:faa_special_use_airspace:W-497B:1168:exited:2026-04-21T09:45:59",
+      "when": "2026-04-21T09:45:59",
+      "who": {
+        "icao24": "0c20b9",
+        "callsign": "CMP815"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-497B:1168",
+          "name": "W-497B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 26.672,
+        "lon": -78.551
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c20b9:faa_special_use_airspace:W-497B:1167:traversed_between_samples:2026-04-21T09:45:59",
+      "when": "2026-04-21T09:45:59",
+      "who": {
+        "icao24": "0c20b9",
+        "callsign": "CMP815"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-497B:1167",
+          "name": "W-497B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 26.672,
+        "lon": -78.551
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c2018:faa_special_use_airspace:W-371:739:traversed_between_samples:2026-04-21T09:45:59",
+      "when": "2026-04-21T09:45:59",
+      "who": {
+        "icao24": "0c2018",
+        "callsign": "CMP451"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-371:739",
+          "name": "W-371",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 18.464,
+        "lon": -66.257
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c2018:faa_special_use_airspace:MUNIZ 2 MOA:203:traversed_between_samples:2026-04-21T09:45:59",
+      "when": "2026-04-21T09:45:59",
+      "who": {
+        "icao24": "0c2018",
+        "callsign": "CMP451"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:MUNIZ 2 MOA:203",
+          "name": "MUNIZ 2 MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 18.464,
+        "lon": -66.257
+      }
+    },
+    {
+      "event_id": "airspace-crossing:06a0df:faa_special_use_airspace:W-59C:765:entered:2026-04-21T09:45:16",
+      "when": "2026-04-21T09:45:16",
+      "who": {
+        "icao24": "06a0df",
+        "callsign": "QTR8167"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-59C:765",
+          "name": "W-59C",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 28.886,
+        "lon": -92.461
+      }
+    },
+    {
+      "event_id": "airspace-crossing:06a0df:faa_special_use_airspace:W-59B:764:entered:2026-04-21T09:45:16",
+      "when": "2026-04-21T09:45:16",
+      "who": {
+        "icao24": "06a0df",
+        "callsign": "QTR8167"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-59B:764",
+          "name": "W-59B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 28.886,
+        "lon": -92.461
+      }
+    },
+    {
+      "event_id": "airspace-crossing:06a0df:faa_special_use_airspace:A-381:1082:exited:2026-04-21T09:45:16",
+      "when": "2026-04-21T09:45:16",
+      "who": {
+        "icao24": "06a0df",
+        "callsign": "QTR8167"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:A-381:1082",
+          "name": "A-381",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 28.886,
+        "lon": -92.461
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0ff7:faa_special_use_airspace:W-228B:719:traversed_between_samples:2026-04-21T09:41:04",
+      "when": "2026-04-21T09:41:04",
+      "who": {
+        "icao24": "0d0ff7",
+        "callsign": "AMX689"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-228B:719",
+          "name": "W-228B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 27.556,
+        "lon": -96.401
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0ff7:faa_special_use_airspace:W-228A:718:entered:2026-04-21T09:41:04",
+      "when": "2026-04-21T09:41:04",
+      "who": {
+        "icao24": "0d0ff7",
+        "callsign": "AMX689"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-228A:718",
+          "name": "W-228A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 27.556,
+        "lon": -96.401
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0ff7:faa_special_use_airspace:W-147C:684:exited:2026-04-21T09:41:04",
+      "when": "2026-04-21T09:41:04",
+      "who": {
+        "icao24": "0d0ff7",
+        "callsign": "AMX689"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-147C:684",
+          "name": "W-147C",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 27.556,
+        "lon": -96.401
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0ed6:faa_special_use_airspace:W-104C:669:traversed_between_samples:2026-04-21T09:41:03",
+      "when": "2026-04-21T09:41:03",
+      "who": {
+        "icao24": "0d0ed6",
+        "callsign": "AMX025"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-104C:669",
+          "name": "W-104C",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 43.567,
+        "lon": -66.993
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0ed6:faa_special_use_airspace:W-104B:668:traversed_between_samples:2026-04-21T09:41:03",
+      "when": "2026-04-21T09:41:03",
+      "who": {
+        "icao24": "0d0ed6",
+        "callsign": "AMX025"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-104B:668",
+          "name": "W-104B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 43.567,
+        "lon": -66.993
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0b91:faa_special_use_airspace:WARRIOR 1 LOW MOA:950:exited:2026-04-21T09:41:03",
+      "when": "2026-04-21T09:41:03",
+      "who": {
+        "icao24": "0d0b91",
+        "callsign": "VOI700"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:WARRIOR 1 LOW MOA:950",
+          "name": "WARRIOR 1 LOW MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 31.965,
+        "lon": -93.436
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0b91:faa_special_use_airspace:WARRIOR 1 HIGH MOA:949:exited:2026-04-21T09:41:03",
+      "when": "2026-04-21T09:41:03",
+      "who": {
+        "icao24": "0d0b91",
+        "callsign": "VOI700"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:WARRIOR 1 HIGH MOA:949",
+          "name": "WARRIOR 1 HIGH MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 31.965,
+        "lon": -93.436
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c605e:faa_special_use_airspace:W-386:740:entered:2026-04-21T09:41:03",
+      "when": "2026-04-21T09:41:03",
+      "who": {
+        "icao24": "0c605e",
+        "callsign": "BWA527"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-386:740",
+          "name": "W-386",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 37.978,
+        "lon": -73.957
+      }
+    },
+    {
+      "event_id": "airspace-crossing:02013c:faa_special_use_airspace:W-506:752:traversed_between_samples:2026-04-21T09:41:03",
+      "when": "2026-04-21T09:41:03",
+      "who": {
+        "icao24": "02013c",
+        "callsign": "RAM231"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-506:752",
+          "name": "W-506",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 54.238,
+        "lon": 90.198
+      }
+    },
+    {
+      "event_id": "airspace-crossing:02013c:faa_special_use_airspace:W-105A:670:traversed_between_samples:2026-04-21T09:41:03",
+      "when": "2026-04-21T09:41:03",
+      "who": {
+        "icao24": "02013c",
+        "callsign": "RAM231"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-105A:670",
+          "name": "W-105A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 54.238,
+        "lon": 90.198
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c20b9:faa_special_use_airspace:W-497B:1168:entered:2026-04-21T09:41:02",
+      "when": "2026-04-21T09:41:02",
+      "who": {
+        "icao24": "0c20b9",
+        "callsign": "CMP815"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-497B:1168",
+          "name": "W-497B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 27.254,
+        "lon": -78.435
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c20b9:faa_special_use_airspace:W-497B:1166:exited:2026-04-21T09:41:02",
+      "when": "2026-04-21T09:41:02",
+      "who": {
+        "icao24": "0c20b9",
+        "callsign": "CMP815"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-497B:1166",
+          "name": "W-497B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 27.254,
+        "lon": -78.435
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:R-5314E:573:entered:2026-04-21T09:41:02",
+      "when": "2026-04-21T09:41:02",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-5314E:573",
+          "name": "R-5314E",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 35.797,
+        "lon": -75.946
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:R-5314D:572:traversed_between_samples:2026-04-21T09:41:02",
+      "when": "2026-04-21T09:41:02",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-5314D:572",
+          "name": "R-5314D",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 35.797,
+        "lon": -75.946
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:R-5314B:570:traversed_between_samples:2026-04-21T09:41:02",
+      "when": "2026-04-21T09:41:02",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-5314B:570",
+          "name": "R-5314B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 35.797,
+        "lon": -75.946
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:R-5314A:569:traversed_between_samples:2026-04-21T09:41:02",
+      "when": "2026-04-21T09:41:02",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-5314A:569",
+          "name": "R-5314A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 35.797,
+        "lon": -75.946
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:PAMLICO C MOA:1505:traversed_between_samples:2026-04-21T09:41:02",
+      "when": "2026-04-21T09:41:02",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:PAMLICO C MOA:1505",
+          "name": "PAMLICO C MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 35.797,
+        "lon": -75.946
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:PAMLICO B MOA:210:exited:2026-04-21T09:41:02",
+      "when": "2026-04-21T09:41:02",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:PAMLICO B MOA:210",
+          "name": "PAMLICO B MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 35.797,
+        "lon": -75.946
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0ff7:faa_special_use_airspace:W-147C:684:entered:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0d0ff7",
+        "callsign": "AMX689"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-147C:684",
+          "name": "W-147C",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 28.16,
+        "lon": -96.225
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0b91:faa_special_use_airspace:WARRIOR 2 LOW MOA:956:traversed_between_samples:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0d0b91",
+        "callsign": "VOI700"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:WARRIOR 2 LOW MOA:956",
+          "name": "WARRIOR 2 LOW MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 31.344,
+        "lon": -93.644
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0b91:faa_special_use_airspace:WARRIOR 2 LOW MOA:954:traversed_between_samples:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0d0b91",
+        "callsign": "VOI700"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:WARRIOR 2 LOW MOA:954",
+          "name": "WARRIOR 2 LOW MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 31.344,
+        "lon": -93.644
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0b91:faa_special_use_airspace:WARRIOR 2 HIGH MOA:298:traversed_between_samples:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0d0b91",
+        "callsign": "VOI700"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:WARRIOR 2 HIGH MOA:298",
+          "name": "WARRIOR 2 HIGH MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 31.344,
+        "lon": -93.644
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0b91:faa_special_use_airspace:WARRIOR 1 LOW MOA:950:entered:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0d0b91",
+        "callsign": "VOI700"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:WARRIOR 1 LOW MOA:950",
+          "name": "WARRIOR 1 LOW MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 31.344,
+        "lon": -93.644
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0b91:faa_special_use_airspace:WARRIOR 1 HIGH MOA:949:entered:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0d0b91",
+        "callsign": "VOI700"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:WARRIOR 1 HIGH MOA:949",
+          "name": "WARRIOR 1 HIGH MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 31.344,
+        "lon": -93.644
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0867:faa_special_use_airspace:KANE WEST MOA:1365:traversed_between_samples:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0d0867",
+        "callsign": "VOI1813"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:KANE WEST MOA:1365",
+          "name": "KANE WEST MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 32.685,
+        "lon": -115.715
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c605e:faa_special_use_airspace:W-107C:678:exited:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0c605e",
+        "callsign": "BWA527"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-107C:678",
+          "name": "W-107C",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 38.691,
+        "lon": -73.997
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c605e:faa_special_use_airspace:W-107A:676:traversed_between_samples:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0c605e",
+        "callsign": "BWA527"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-107A:676",
+          "name": "W-107A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 38.691,
+        "lon": -73.997
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:W-122:680:exited:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-122:680",
+          "name": "W-122",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 35.224,
+        "lon": -76.184
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:R-5306F:1473:traversed_between_samples:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-5306F:1473",
+          "name": "R-5306F",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 35.224,
+        "lon": -76.184
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:R-5306A:559:traversed_between_samples:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-5306A:559",
+          "name": "R-5306A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 35.224,
+        "lon": -76.184
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:PAMLICO B MOA:210:entered:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:PAMLICO B MOA:210",
+          "name": "PAMLICO B MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 35.224,
+        "lon": -76.184
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0ac9c3:faa_special_use_airspace:CORE MOA:89:traversed_between_samples:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "0ac9c3",
+        "callsign": "AVA222"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:CORE MOA:89",
+          "name": "CORE MOA",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 35.224,
+        "lon": -76.184
+      }
+    },
+    {
+      "event_id": "airspace-crossing:06a0df:faa_special_use_airspace:A-381:1082:entered:2026-04-21T09:35:59",
+      "when": "2026-04-21T09:35:59",
+      "who": {
+        "icao24": "06a0df",
+        "callsign": "QTR8167"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:A-381:1082",
+          "name": "A-381",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 29.92,
+        "lon": -91.813
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0ed6:faa_special_use_airspace:W-104C:669:traversed_between_samples:2026-04-21T09:31:00",
+      "when": "2026-04-21T09:31:00",
+      "who": {
+        "icao24": "0d0ed6",
+        "callsign": "AMX025"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-104C:669",
+          "name": "W-104C",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 42.618,
+        "lon": -68.535
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0ed6:faa_special_use_airspace:W-104B:668:traversed_between_samples:2026-04-21T09:31:00",
+      "when": "2026-04-21T09:31:00",
+      "who": {
+        "icao24": "0d0ed6",
+        "callsign": "AMX025"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-104B:668",
+          "name": "W-104B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 42.618,
+        "lon": -68.535
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c605e:faa_special_use_airspace:W-107C:678:entered:2026-04-21T09:31:00",
+      "when": "2026-04-21T09:31:00",
+      "who": {
+        "icao24": "0c605e",
+        "callsign": "BWA527"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-107C:678",
+          "name": "W-107C",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 39.36,
+        "lon": -74.032
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c605e:faa_special_use_airspace:W-107B:677:exited:2026-04-21T09:31:00",
+      "when": "2026-04-21T09:31:00",
+      "who": {
+        "icao24": "0c605e",
+        "callsign": "BWA527"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-107B:677",
+          "name": "W-107B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 39.36,
+        "lon": -74.032
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0dd1:faa_special_use_airspace:R-5502B:585:traversed_between_samples:2026-04-21T09:26:00",
+      "when": "2026-04-21T09:26:00",
+      "who": {
+        "icao24": "0d0dd1",
+        "callsign": "AMX692"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-5502B:585",
+          "name": "R-5502B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 41.768,
+        "lon": -82.974
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0b91:faa_special_use_airspace:A-381:1082:exited:2026-04-21T09:26:00",
+      "when": "2026-04-21T09:26:00",
+      "who": {
+        "icao24": "0d0b91",
+        "callsign": "VOI700"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:A-381:1082",
+          "name": "A-381",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 30.106,
+        "lon": -94.049
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0a9a:faa_special_use_airspace:W-104C:669:exited:2026-04-21T09:26:00",
+      "when": "2026-04-21T09:26:00",
+      "who": {
+        "icao24": "0d0a9a",
+        "callsign": "AMX007"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-104C:669",
+          "name": "W-104C",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 43.623,
+        "lon": -66.887
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0d0a9a:faa_special_use_airspace:W-104B:668:exited:2026-04-21T09:26:00",
+      "when": "2026-04-21T09:26:00",
+      "who": {
+        "icao24": "0d0a9a",
+        "callsign": "AMX007"
+      },
+      "what": {
+        "transition": "exited",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-104B:668",
+          "name": "W-104B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 43.623,
+        "lon": -66.887
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c605e:faa_special_use_airspace:W-107B:677:entered:2026-04-21T09:26:00",
+      "when": "2026-04-21T09:26:00",
+      "who": {
+        "icao24": "0c605e",
+        "callsign": "BWA527"
+      },
+      "what": {
+        "transition": "entered",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-107B:677",
+          "name": "W-107B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 39.88,
+        "lon": -73.705
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c6060:faa_special_use_airspace:W-72A:1011:traversed_between_samples:2026-04-21T09:25:45",
+      "when": "2026-04-21T09:25:45",
+      "who": {
+        "icao24": "0c6060",
+        "callsign": "BWA463"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-72A:1011",
+          "name": "W-72A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 8.56,
+        "lon": -59.664
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c6060:faa_special_use_airspace:W-72A:1010:traversed_between_samples:2026-04-21T09:25:45",
+      "when": "2026-04-21T09:25:45",
+      "who": {
+        "icao24": "0c6060",
+        "callsign": "BWA463"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-72A:1010",
+          "name": "W-72A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 8.56,
+        "lon": -59.664
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c6060:faa_special_use_airspace:W-72A:1009:traversed_between_samples:2026-04-21T09:25:45",
+      "when": "2026-04-21T09:25:45",
+      "who": {
+        "icao24": "0c6060",
+        "callsign": "BWA463"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-72A:1009",
+          "name": "W-72A",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 8.56,
+        "lon": -59.664
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c6060:faa_special_use_airspace:W-50B:754:traversed_between_samples:2026-04-21T09:25:45",
+      "when": "2026-04-21T09:25:45",
+      "who": {
+        "icao24": "0c6060",
+        "callsign": "BWA463"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-50B:754",
+          "name": "W-50B",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 8.56,
+        "lon": -59.664
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c6060:faa_special_use_airspace:W-122:680:traversed_between_samples:2026-04-21T09:25:45",
+      "when": "2026-04-21T09:25:45",
+      "who": {
+        "icao24": "0c6060",
+        "callsign": "BWA463"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-122:680",
+          "name": "W-122",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 8.56,
+        "lon": -59.664
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c6060:faa_special_use_airspace:W-110:679:traversed_between_samples:2026-04-21T09:25:45",
+      "when": "2026-04-21T09:25:45",
+      "who": {
+        "icao24": "0c6060",
+        "callsign": "BWA463"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:W-110:679",
+          "name": "W-110",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 8.56,
+        "lon": -59.664
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c6060:faa_special_use_airspace:R-4008:484:traversed_between_samples:2026-04-21T09:25:45",
+      "when": "2026-04-21T09:25:45",
+      "who": {
+        "icao24": "0c6060",
+        "callsign": "BWA463"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-4008:484",
+          "name": "R-4008",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 8.56,
+        "lon": -59.664
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c6060:faa_special_use_airspace:R-4007:483:traversed_between_samples:2026-04-21T09:25:45",
+      "when": "2026-04-21T09:25:45",
+      "who": {
+        "icao24": "0c6060",
+        "callsign": "BWA463"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-4007:483",
+          "name": "R-4007",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 8.56,
+        "lon": -59.664
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c6060:faa_special_use_airspace:R-4006:1037:traversed_between_samples:2026-04-21T09:25:45",
+      "when": "2026-04-21T09:25:45",
+      "who": {
+        "icao24": "0c6060",
+        "callsign": "BWA463"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-4006:1037",
+          "name": "R-4006",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 8.56,
+        "lon": -59.664
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c6060:faa_special_use_airspace:R-4006:1035:traversed_between_samples:2026-04-21T09:25:45",
+      "when": "2026-04-21T09:25:45",
+      "who": {
+        "icao24": "0c6060",
+        "callsign": "BWA463"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-4006:1035",
+          "name": "R-4006",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 8.56,
+        "lon": -59.664
+      }
+    },
+    {
+      "event_id": "airspace-crossing:0c6060:faa_special_use_airspace:R-4005:482:traversed_between_samples:2026-04-21T09:25:45",
+      "when": "2026-04-21T09:25:45",
+      "who": {
+        "icao24": "0c6060",
+        "callsign": "BWA463"
+      },
+      "what": {
+        "transition": "traversed_between_samples",
+        "airspace": {
+          "feature_id": "faa_special_use_airspace:R-4005:482",
+          "name": "R-4005",
+          "restriction_label": ""
+        }
+      },
+      "where": {
+        "lat": 8.56,
+        "lon": -59.664
+      }
+    }
+  ],
+  "partial": false,
+  "empty_reason": null,
+  "quality": {
+    "status": "current",
+    "reason": null,
+    "reference_available": true,
+    "reference_feature_count": 1565,
+    "missing_reference_count": 0,
+    "aircraft_history_status": "current",
+    "latest_history_success_at": "2026-04-21T10:01:16.450007+00:00"
+  }
+}

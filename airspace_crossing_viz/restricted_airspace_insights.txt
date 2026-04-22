@@ -1,0 +1,7 @@
+Restricted airspace crossings over 96 hours
+- 100 crossings from 18 aircraft
+- Most crossed airspace: W-72A (7 events, 7% share)
+- Most frequent aircraft: AVA222 (17 events, 17% share)
+- Most common transition: traversed_between_samples (56 events)
+- Requested lookback window: 2026-04-17 10:01 to 2026-04-21 10:01 UTC
+- Observed sample span: 2026-04-21 09:25 to 2026-04-21 10:01 UTC

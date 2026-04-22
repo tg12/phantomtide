@@ -6,6 +6,59 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v1.76.0 - 2026-04-22
+
+### Bounded heavy-layer delivery and faster all-layers recovery
+
+- Two of the heaviest static reference layers now support bounded delivery
+  instead of always forcing whole-world geometry through the browser.
+  `maritime-regions` and FAA restricted-airspace can now return viewport-bounded
+  slices, so the map no longer has to download and parse the full global EEZ or
+  FAA polygon set just to render the visible area.
+- Bulk layer-enable behavior is less self-destructive. The browser now batches
+  layer-enable work instead of fanning out repeated refresh and render passes
+  while the workspace is still settling.
+- Zoom-gated reference layers no longer fetch below the zoom level where they
+  can actually render usefully. This reduces wasted transfer and parse work on
+  first load and on broad-area map views.
+
+### Better truth under slow or partial live refresh
+
+- The browser is less trigger-happy about declaring a live refresh delay.
+  A single missed browser deadline no longer immediately reads as a visible
+  incident if the dashboard still has recent confirmed-good state.
+- When repeated deadline misses do happen, the degraded-state banner now names
+  the route that timed out. This turns a vague "browser deadline exceeded"
+  warning into something the operator can actually triage.
+- The shell still keeps the last confirmed-good state visible during retry, but
+  it is more explicit about when the problem is a repeated route-level delay
+  rather than a one-off slow fetch.
+
+### DSC workflow moves from rows to relationship context
+
+- DSC communications now expose busiest counterpart relationships in the
+  intelligence workflow, including top directed contact pairs in the live graph.
+- Selected vessels can surface "who this ship calls most" style context from
+  the same DSC evidence base, making it easier to move from a single DSC row to
+  an emerging communications pattern.
+- Counterpart-link drawing remains conditional on usable geometry, but the
+  surrounding table and detail workflow now preserves more of the unresolved
+  comms graph instead of flattening it away.
+
+### Release and runtime hardening
+
+- The dashboard no longer depends on `flagcdn.com` for vessel or watchlist flag
+  badges. Flag images are now bundled locally so popups and tables keep working
+  when the external CDN is blocked or unavailable.
+- Local and remote rebuild paths are now more explicit:
+  - local `clean-rebuild` keeps runtime volumes while forcing fresh images and
+    containers
+  - local `nuke` stays destructive and explicit
+  - remote deploy now has a matching `--fresh` path plus a guarded
+    Phantom Tide-only `--nuke` path for full runtime reset and staged recovery
+- Release/performance capture now stamps the running app version and local git
+  state so stale rebuilds are easier to catch during validation.
+
 ## v1.75.0 - 2026-04-21
 
 ### DSC communications become an analyst workflow
