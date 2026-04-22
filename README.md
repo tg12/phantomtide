@@ -135,14 +135,9 @@ dashboard view for public feed evaluation and external review.*
 
 ### Demo Videos
 
-GitHub-style README pages do not reliably support embedded YouTube players.
-The standard approach is a linked thumbnail or a direct watch link.
+[![Demo 1](https://img.youtube.com/vi/lkKAVnKr6I4/hqdefault.jpg)](https://www.youtube.com/watch?v=lkKAVnKr6I4)
 
-[![Restricted-airspace crossings demo](https://img.youtube.com/vi/lkKAVnKr6I4/hqdefault.jpg)](https://www.youtube.com/watch?v=lkKAVnKr6I4)
-*Demo: restricted-airspace crossings workflow.*
-
-[![Phantom Tide demo](https://img.youtube.com/vi/_ThWtQ5JG1M/hqdefault.jpg)](https://www.youtube.com/watch?v=_ThWtQ5JG1M)
-*Demo: broader Phantom Tide workflow.*
+[![Demo 2](https://img.youtube.com/vi/_ThWtQ5JG1M/hqdefault.jpg)](https://www.youtube.com/watch?v=_ThWtQ5JG1M)
 
 ## Collector-Backed Context
 
