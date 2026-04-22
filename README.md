@@ -127,6 +127,23 @@ curl "http://localhost/api/public/aircraft/restricted-airspace-crossings?include
 This public endpoint is intentionally callable without a browser session. The
 rest of the broader archive/history surface remains private or tier-gated.
 
+### Restricted-Airspace Visualization
+
+![Restricted-airspace dashboard visualization](airspace_crossing_viz/restricted_airspace_dashboard.png)
+*Replay-derived restricted-airspace crossing candidates shown as an analyst-facing
+dashboard view for public feed evaluation and external review.*
+
+### Demo Videos
+
+GitHub-style README pages do not reliably support embedded YouTube players.
+The standard approach is a linked thumbnail or a direct watch link.
+
+[![Restricted-airspace crossings demo](https://img.youtube.com/vi/lkKAVnKr6I4/hqdefault.jpg)](https://www.youtube.com/watch?v=lkKAVnKr6I4)
+*Demo: restricted-airspace crossings workflow.*
+
+[![Phantom Tide demo](https://img.youtube.com/vi/_ThWtQ5JG1M/hqdefault.jpg)](https://www.youtube.com/watch?v=_ThWtQ5JG1M)
+*Demo: broader Phantom Tide workflow.*
+
 ## Collector-Backed Context
 
 The current release also connects collector-published datasets into the map and
