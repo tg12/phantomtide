@@ -6,6 +6,41 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## [Unreleased] — v1.78.0 planning
+
+- Build a trusted coast-station and rescue-endpoint geometry registry so more
+  DSC counterpart links can be drawn directly on the map.
+- Add analyst filters for DSC class, counterpart type, and unresolved
+  geometry.
+- Keep reducing false-absence and mixed-workspace ambiguity under degraded
+  backend pressure.
+
+## v1.77.0 - 2026-04-25
+
+### Trustworthy hazard-area geometry
+
+- Maritime hazard, NAVAREA, and SMAPS warnings now flow through a stricter
+  coordinate-binding and geometry-validation pipeline. The parser refuses to
+  combine a latitude on one line with a longitude several lines later when
+  there is no syntactic binding between them, so warnings whose narrative
+  text mentions stray coordinate-like numbers no longer produce false
+  polygons.
+- Polygons that would span ocean-scale distances (thousands of kilometres of
+  diameter or edge length) are automatically downgraded to a marker-only
+  cluster instead of being filled on the map. The downgrade reason
+  (implausible diameter, implausible edge, weak coordinate binding,
+  antimeridian artefact, or low-confidence cluster) is shown in the right-
+  panel detail so the analyst can see why a particular warning is rendered as
+  markers rather than a hazard area.
+- Real local hazard boxes (such as a 15' x 15' exclusion area) continue to
+  render as filled polygons with their geodesic area surfaced. Long missile
+  shots, firing corridors, and trajectories continue to render as lines even
+  when they cross the antimeridian, because line plausibility is now
+  separated from polygon plausibility.
+- Antimeridian crossings (lines and bounded areas near +/- 180 degrees) now
+  produce continuous geometry and a tight bounding box rather than a
+  globe-spanning artefact.
+
 ## v1.76.0 - 2026-04-22
 
 ### Bounded heavy-layer delivery and faster all-layers recovery

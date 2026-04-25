@@ -34,9 +34,9 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v1.75.0**
+Current release: **v1.77.0**
 
-Next tracked release: **v1.76.0**
+Next tracked release: **v1.78.0**
 
 Tracked next-release addition:
 
@@ -48,14 +48,19 @@ Tracked next-release addition:
 
 Recent release additions:
 
+- Hazard-area, NAVAREA, and SMAPS warnings now flow through a stricter
+  coordinate-binding and geometry-validation pipeline. Ocean-spanning
+  polygons accidentally drawn from unrelated coordinate tokens are
+  automatically downgraded to marker clusters and labelled with the reason,
+  so analysts can distinguish a real hazard area from a parser artefact.
+- Bounded delivery for the heaviest static reference layers
+  (`maritime-regions`, FAA restricted airspace) plus more honest live-refresh
+  banners that name the timed-out route instead of saying "browser deadline
+  exceeded".
 - DSC communications are now a first-class analyst workflow rather than a
-  feed-branded sidecar.
-- Vessel detail can pull linked DSC communications into the same right-side
-  panel and draw mapped counterpart links back onto the map.
-- DSC rows are classified into analyst-facing semantics such as test call,
-  safety voice handoff, routine call, distress relay, and SAR-linked urgency.
-- Public docs and screenshots now reflect the current portal surface instead
-  of the older pre-DSC workflow.
+  feed-branded sidecar; vessel detail can pull linked DSC communications into
+  the same right-side panel and draw mapped counterpart links back onto the
+  map.
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
