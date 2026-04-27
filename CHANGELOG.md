@@ -8,12 +8,59 @@ Dates are UTC. Versions follow semantic versioning.
 
 ## [Unreleased] — v1.78.0 planning
 
-- Build a trusted coast-station and rescue-endpoint geometry registry so more
-  DSC counterpart links can be drawn directly on the map.
-- Add analyst filters for DSC class, counterpart type, and unresolved
-  geometry.
-- Keep reducing false-absence and mixed-workspace ambiguity under degraded
-  backend pressure.
+### Thermal-AIS Coincidence Gap analysis
+
+- Historical batch scanning for thermal anomalies in maritime areas with absent
+  or sparse vessel identity is now available through the intelligence endpoint.
+  The scan runs on a configurable historical window and returns the highest-scoring
+  cells ranked by anomaly strength, separated into zero-AIS gaps and sparse-AIS
+  gaps. Results are refreshed on a scheduled cadence and served from cache so
+  the endpoint stays fast under load.
+- This is the historical precision path for a detection capability that is
+  already running in the live evidence engine. Promotion to live alerting
+  follows only after historical precision is confirmed against the returned
+  cell list.
+
+### Chokepoint-scale convergence resolution
+
+- Multi-source convergence weighting now resolves at strait scale rather than
+  basin scale at five named maritime chokepoints. Events that fall inside a
+  registered chokepoint boundary snap to a finer grid cell so a single strait
+  carries its own convergence score rather than sharing weighting with the
+  surrounding basin.
+- Chokepoint identity is now visible in the convergence response so analysts and
+  downstream consumers can distinguish a strait-scale score from an open-ocean
+  basin score.
+
+### Cable proximity detector
+
+- A new precursor detector fires when a vessel loiters at low speed close to a
+  submarine cable across multiple observations, with an escalation path when a
+  thermal anomaly appears near the same cable corridor within a short follow
+  window. Both tiers retain explicit negative evidence covering benign
+  alternatives such as fishing, anchoring at refuge, and station-keeping.
+
+### Source and reference data quality
+
+- Three external feed candidates completed triage: a maritime security alert
+  feed was closed as contract-restricted; a broad multi-jurisdiction warning
+  aggregation feed was declined as too noisy for bounded analyst use; a
+  historical maritime incident archive was classified as historical reference
+  only with a bounded area-report path.
+- Military installation and internet infrastructure reference datasets expanded
+  with vetted new rows and provenance backfill on all legacy entries. A
+  national meteorological authority warning polygon sidecar was added as
+  bounded area-report context.
+- The threat intelligence panel now surfaces the ranked drivers behind the
+  current risk level and provides bounded focus actions so an analyst can jump
+  directly from a threat driver to the relevant layer and map region.
+
+Planned for this release:
+- Trusted coast-station and rescue-endpoint geometry registry to draw more DSC
+  counterpart links directly on the map.
+- Analyst filters for DSC class, counterpart type, and unresolved geometry.
+- Continued reduction of false-absence and mixed-workspace ambiguity under
+  degraded backend pressure.
 
 ## v1.77.0 - 2026-04-25
 
