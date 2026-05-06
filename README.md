@@ -34,9 +34,9 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v1.77.0**
+Current release: **v1.78.0**
 
-Next tracked release: **v1.78.0**
+Next tracked release: **v1.79.0**
 
 Tracked next-release addition:
 
@@ -61,6 +61,11 @@ Recent release additions:
   feed-branded sidecar; vessel detail can pull linked DSC communications into
   the same right-side panel and draw mapped counterpart links back onto the
   map.
+- Layer recovery diagnostics now expose clearer queued/retry/degraded
+  transitions for analysts and support workflows, including explicit handling
+  of expected queued in-flight behavior versus likely stuck queued state.
+- Live AIS queued progression now has dedicated browser-proof coverage against
+  the production load path to reduce false outage interpretation in operations.
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 

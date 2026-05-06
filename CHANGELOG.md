@@ -6,7 +6,14 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.78.0 planning
+## [Unreleased] — v1.79.0 planning
+
+- carry-forward release-support work:
+  - deterministic mixed-refresh proof matrix completion
+  - remaining layer freshness-chip rollout
+  - continued reduction of mixed-workspace ambiguity under degraded pressure
+
+## v1.78.0 - 2026-05-06
 
 ### Thermal-AIS Coincidence Gap analysis
 
@@ -55,7 +62,7 @@ Dates are UTC. Versions follow semantic versioning.
   current risk level and provides bounded focus actions so an analyst can jump
   directly from a threat driver to the relevant layer and map region.
 
-Planned for this release:
+Carried forward to v1.79.0:
 - Trusted coast-station and rescue-endpoint geometry registry to draw more DSC
   counterpart links directly on the map.
 - Analyst filters for DSC class, counterpart type, and unresolved geometry.
