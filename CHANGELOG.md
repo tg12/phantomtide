@@ -12,6 +12,14 @@ Dates are UTC. Versions follow semantic versioning.
   - deterministic mixed-refresh proof matrix completion
   - remaining layer freshness-chip rollout
   - continued reduction of mixed-workspace ambiguity under degraded pressure
+- current branch status:
+  - browser proof for queued/retry/bootstrap continuity is now green across
+    the focused release-support suites
+  - nonce-mode bootstrap trust seeding was hardened so protected browser reads
+    no longer depend on a marker-only first pass
+  - deployment-shape validation is complete for both the standalone app stack
+    and the parent Hetzner compose graph; remaining deploy risk sits in secret
+    injection and environment hygiene, not compose wiring
 
 ## v1.78.0 - 2026-05-06
 

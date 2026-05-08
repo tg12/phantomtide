@@ -46,6 +46,16 @@ Tracked next-release addition:
 - keep reducing false-absence and mixed-workspace ambiguity under degraded
   backend pressure
 
+Current branch status for `v1.79.0`:
+
+- the focused browser release-proof suites are green, including queued/retry
+  lifecycle checks and mixed-refresh continuity checks
+- nonce-mode browser bootstrap trust seeding was hardened so protected reads
+  do not rely on a marker-only first pass
+- deployment-shape validation is complete for both the standalone stack and
+  the parent Hetzner compose graph; remaining risk is operational secret
+  injection, not missing router or service wiring
+
 Recent release additions:
 
 - Hazard-area, NAVAREA, and SMAPS warnings now flow through a stricter
