@@ -8,18 +8,133 @@ Dates are UTC. Versions follow semantic versioning.
 
 ## [Unreleased] — v1.79.1 planning
 
-- carry-forward release-support work:
-  - deterministic mixed-refresh proof matrix completion
-  - remaining layer freshness-chip rollout
-  - continued reduction of mixed-workspace ambiguity under degraded pressure
-- current branch status:
-  - browser proof for queued/retry/bootstrap continuity is now green across
-    the focused release-support suites
-  - nonce-mode bootstrap trust seeding was hardened so protected browser reads
-    no longer depend on a marker-only first pass
-  - deployment-shape validation is complete for both the standalone app stack
-    and the parent Hetzner compose graph; remaining deploy risk sits in secret
-    injection and environment hygiene, not compose wiring
+- Trusted coast-station and rescue-endpoint geometry registry to draw more
+  DSC counterpart links directly on the map.
+- Analyst filters for DSC class, counterpart type, and unresolved geometry.
+- Continued reduction of mixed-workspace ambiguity under degraded backend
+  pressure.
+
+## v1.79.0 - 2026-05-12
+
+### Vessel formation detection
+
+- Live AIS positions are now clustered into vessel formations and rendered on
+  the map as hull polygons. Each formation is classified as grid, linear, or
+  organic. Grid formations include an AIS spoofing advisory because tight
+  uniform spacing is a known indicator of synthesised position data.
+- Formation detail shows centroid, mean vessel spacing, and the list of
+  contributing vessels. Formations refresh every five minutes alongside the
+  live position feeds.
+
+### Decision quality scorecard
+
+- A new lane in the Intel workspace surfaces primary analyst decision-quality
+  metrics: hypothesis acceptance rate, median review latency, and high-tier
+  false-positive rate. The scorecard is always visible at the top of the lane
+  so quality state is readable without opening any detail.
+- Full breakdowns by threat class, source family, and confidence tier are
+  available under progressive disclosure. Accept, reject, and defer decisions
+  on active hypotheses are now recorded and contribute to the longitudinal
+  quality record.
+
+### Live layer freshness chips
+
+- Every standard event-source layer now shows a live freshness chip in the
+  layer rail indicating how old the displayed data is. Briefing headers and
+  the queued-briefing tray show matching inline freshness context.
+- Healthy layers now carry trust context without inflating the issue-count
+  badge, so the issue summary reflects real problems rather than routine
+  loaded state.
+
+### IMO visible in vessel quick-popup
+
+- Vessel map popups now display the IMO number alongside MMSI when the
+  identity can be resolved from the analyst's loaded context. IMO is omitted
+  when no seven-digit identifier is available. This closes a common
+  cross-reference gap where analysts needed to open the full detail panel to
+  obtain a vessel's IMO.
+
+### DART ocean buoy positions always shown
+
+- DART ocean buoy stations are now always plotted on the map, not only during
+  anomaly events. Normal readings and anomaly readings both produce visible
+  positions; anomaly detections continue to receive higher source confidence
+  weighting in the evidence engine.
+
+### GPS interference layer unified
+
+- The three separate GPS interference source toggles (daily grid, jamming
+  reports, spoofing reports) are now consolidated into a single GPS
+  Interference layer. H3 hex cells render with the correct geographic
+  footprint; spoofing markers render separately within the same layer.
+  The consolidated layer uses partial-success loading, so a degraded upstream
+  source does not hide the remaining data.
+
+### Thermal anomaly and geometry markers now open detail directly
+
+- Clicking a VIIRS thermal anomaly circle or a geometry anomaly track marker
+  on the map now opens the detail side panel immediately. Previously these
+  markers did not participate in the click-to-detail workflow.
+
+### Cleaner backend health language
+
+- Backend health messages are translated to plain English throughout the
+  dashboard. Archive backlog reasons are grouped into a single consolidated
+  summary line rather than one raw string per affected source. The ClickHouse
+  status label is now "Archive write" to make its role clearer to analysts
+  who are not familiar with internal infrastructure names.
+
+### Chokepoint collector context loads faster
+
+- Collector-backed chokepoint points now render to the map as soon as their
+  artifact resolves rather than waiting behind slower unrelated collector
+  overlays. The default collector subfilter prioritises chokepoints while
+  leaving heavier NATS and infrastructure sidecars opt-in.
+
+### UX: Visual hierarchy applied across all surfaces
+
+- Three visual weight tiers are now applied consistently across the whole
+  dashboard. The map stage, active incident alerts, and time-window controls
+  are visually dominant. The layer rail, header metadata, and legend are
+  quieter. Analysts scanning the dashboard for the first time should reach
+  the map and the active alert strip before the layer controls.
+
+### UX: Active state indicators are now colorblind-safe
+
+- Time-window buttons and history-mode controls now carry a two-pixel
+  underline emphasis on the active state in addition to color changes. The
+  underline is color-independent so the active control is always
+  distinguishable without relying on hue alone.
+
+### UX: Layer count detail hidden until needed
+
+- Secondary count metadata (loaded count versus rendered count breakdowns)
+  is now hidden by default and appears on hover or row expansion. A pulsing
+  indicator replaces the zero-count badge during initial load, removing
+  false-empty states during the first refresh cycle.
+
+### UX: Threat severity signaled by border color
+
+- Each row in the Maritime Threat panel now carries a color-coded left border
+  reflecting the threat type: red for piracy and armed robbery; amber for GPS
+  disruption; purple for dark-fleet and seized-fleet activity; blue for other
+  advisories. Zero-count or unavailable categories render with a muted neutral
+  border so they do not compete with active threats visually.
+
+### UX: Watchlist empty state now actionable
+
+- When the watchlist panel contains no visible entities, it now shows guidance
+  and an "Enable Live Watchlist" button that directly enables the relevant
+  tracking layers. The previous behavior was a static empty message with no
+  action path.
+
+### UX: Focus rings and mobile chips stabilized
+
+- Keyboard focus rings now come from a single CSS source, removing
+  inconsistency between surfaces. Mobile header context chips display the
+  current time window and replay status and update dynamically on state
+  change. Display state throughout the dashboard is now fully CSS-driven
+  rather than mixed with JavaScript inline-style manipulation.
 
 ## v1.78.0 - 2026-05-06
 
