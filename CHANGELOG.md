@@ -6,7 +6,7 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.79.0 planning
+## [Unreleased] — v1.79.1 planning
 
 - carry-forward release-support work:
   - deterministic mixed-refresh proof matrix completion

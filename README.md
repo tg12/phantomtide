@@ -34,9 +34,9 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v1.78.0**
+Current release: **v1.79.0**
 
-Next tracked release: **v1.79.0**
+Next tracked release: **v1.79.1**
 
 Tracked next-release addition:
 
