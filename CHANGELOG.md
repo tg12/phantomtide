@@ -6,13 +6,50 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.79.1 planning
+## [Unreleased] — v1.80.0 planning
 
 - Trusted coast-station and rescue-endpoint geometry registry to draw more
   DSC counterpart links directly on the map.
 - Analyst filters for DSC class, counterpart type, and unresolved geometry.
 - Continued reduction of mixed-workspace ambiguity under degraded backend
   pressure.
+
+---
+
+## v1.79.1 — 2026-05-21
+
+### Area intelligence report: significantly faster
+
+- The area intelligence report, traffic query, and reference context endpoint
+  now respond in under a millisecond for warm queries, down from up to 39
+  seconds in the previous release. The improvement comes from a spatial index
+  that pre-filters geographic candidates before distance computation and from
+  fixing a cache bypass that was re-reading the same large reference files
+  from disk on every call.
+- Cold start on first access builds the spatial index once. All subsequent
+  calls use the cached index. An index built for one query is shared across
+  all concurrent requests for the same reference dataset.
+- The traffic query and reference context query now share the same area
+  reference cache when called for the same coordinates. The right-click
+  area workflow no longer recomputes reference context twice for the same
+  point.
+
+### Onboarding: email-only intake
+
+- The first-visit identifier field now accepts only a valid email address.
+  Free-text names and placeholder entries are rejected at entry. The field
+  is still optional; skipping it bypasses the requirement entirely.
+
+### Under-the-hood quality and reliability
+
+- Test suite: all 1225 automated tests pass. Three classes of cross-test
+  interference were identified and fixed: archive drop-count contamination,
+  storage health state surviving test file boundaries, and a spatial index
+  cache that returned stale data when test fixtures redirected the reference
+  data path. The fixes address real isolation contracts in the production
+  code, not only test scaffolding.
+
+---
 
 ## v1.79.0 - 2026-05-12
 
