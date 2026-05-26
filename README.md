@@ -87,6 +87,7 @@ Start here if you want the task-shaped workflow rather than the platform brief:
 
 - Live operator guide: [phantom.labs.jamessawyer.co.uk/docs/guide/](https://phantom.labs.jamessawyer.co.uk/docs/guide/)
 - About page: [phantom.labs.jamessawyer.co.uk/about/](https://phantom.labs.jamessawyer.co.uk/about/)
+- Follow Phantom Tide on X: [x.com/_phantomtide](https://x.com/_phantomtide)
 
 The guide explains:
 
@@ -464,6 +465,13 @@ This repository is the public interface for feedback. Application code is not pu
 | [Request access](https://github.com/tg12/phantomtide/issues/new?template=access_request.md) | Ask for expanded access beyond the starter tier |
 | [General feedback](https://github.com/tg12/phantomtide/issues/new?template=feedback.md) | Workflow notes, questions, or review comments |
 | [All open issues](https://github.com/tg12/phantomtide/issues) | Existing public feedback |
+
+## Follow
+
+Follow Phantom Tide on X for product updates, release notes, and new public
+workflows:
+
+- [x.com/_phantomtide](https://x.com/_phantomtide)
 
 ---
 

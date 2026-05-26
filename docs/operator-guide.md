@@ -4,6 +4,9 @@ Use this page if you need the working loop, not the product brief.
 
 Live guide: https://phantom.labs.jamessawyer.co.uk/docs/guide/
 
+Follow Phantom Tide on X for release and workflow updates:
+https://x.com/_phantomtide
+
 ## Start with the map
 
 - World zoom is a triage surface, not a complete traffic plot.
