@@ -6,13 +6,95 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.80.0 planning
+## [Unreleased] — v1.81.0 planning
 
 - Trusted coast-station and rescue-endpoint geometry registry to draw more
   DSC counterpart links directly on the map.
 - Analyst filters for DSC class, counterpart type, and unresolved geometry.
 - Continued reduction of mixed-workspace ambiguity under degraded backend
   pressure.
+
+---
+
+## v1.80.0 — 2026-05-28
+
+### Strategic tide stations
+
+- A new layer covers strategic ports and maritime chokepoints with near-real-time
+  water level observations from NOAA CO-OPS tide stations. Each station shows the
+  latest measured water level, the nearest 6-minute tidal prediction, deviation
+  from predicted, tidal datum, and station context.
+- Useful for understanding port-side access conditions and tidal anomalies without
+  needing a full global sea-level archive. The layer is operator-discoverable and
+  toggleable from the Layers panel as `Strategic Tide Stations`.
+
+### Coastal exposure context (SEDAC)
+
+- Low-elevation coastal zone data from the NASA SEDAC LECZ v3 dataset now appears
+  as a static layer covering the same strategic port set as the tide stations. Each
+  point identifies whether a port or chokepoint sits within a documented low-elevation
+  coastal zone and records the dominant LECZ class and sampled share of cells within
+  10m elevation.
+- Surfaces in the Area Intelligence Report so area queries can explain which strategic
+  ports carry physical coastal exposure risk alongside live maritime feeds.
+
+### Intel workspace: briefing retry from status chips
+
+- Status chips in the Intel workspace now act as retry controls for their own
+  briefing lane. Clicking a delayed, stale, or failed chip reloads that specific
+  briefing without requiring a full workspace refresh or hunting for the global
+  reload control.
+- Delayed-state empty panels now include an explicit `Reload briefing` action.
+  The queued-briefing toolbar copy clarifies that promoting a queued briefing
+  also reloads it.
+
+### Decision scorecard: per-analyst scoping and explicit outcomes
+
+- Decision telemetry is now scoped to the contributing analyst rather than pooled
+  across all users. The scorecard states exactly what the analyst is seeing: "this
+  browser session only," "current analyst session," or "global analyst scope."
+  Cross-analyst reads require premium access.
+- Scorecard aggregates now track `accept`, `reject`, and non-final outcomes
+  separately. Zero-valued outcomes are preserved rather than collapsed to null, so
+  all-reject sessions show correct zero acceptance rather than appearing empty.
+- Invalid decision payloads are rejected at the API boundary with HTTP 422. Internal
+  write failures return opaque 500 errors rather than leaking backend detail.
+  Detail-panel decision posts now route through the shared trusted API wrapper so
+  onboarding and auth retry behavior is preserved.
+- The `Last recorded` freshness label in the scorecard updates in-session immediately
+  after a successful decision, without waiting for the next deferred refresh cycle.
+
+### WMS proxy: bounded tile requests
+
+- The EMODnet WMS proxy now enforces limits on tile dimensions, pixel count, image
+  format, CRS, and bounding box shape. The proxy remains a tile relay for the
+  existing UI rather than an open-ended render or export surface.
+
+### Collector credential precedence made explicit
+
+- The scheduler now consistently prefers non-empty environment overrides over values
+  stored in the secrets file when building collectors that accept both. This removes
+  a hidden configuration drift that could cause a stale token in the secrets file to
+  override a newer environment token and silently break dependent collectors after
+  a rebuild.
+
+### Under-the-hood quality and reliability
+
+- Whole-stack dependency refresh: FastAPI, Uvicorn, Pydantic, SQLAlchemy, Psycopg,
+  NumPy, Pandas, Playwright, and other runtime packages updated to current upstream
+  versions. Infrastructure images (Redis, ClickHouse, Caddy, PostgreSQL) updated.
+- Entity-feed hot-path caching: watchlist-hit and ranked-intelligence snapshots are
+  now keyed on the current refresh revision, reducing per-request rescans of the
+  full entity cache under repeated reads.
+- GPSwise startup cache preload restored: spoofing and jamming snapshots warm
+  correctly on API and worker boot instead of logging non-fatal preload failures.
+- FAA restricted-airspace fast path: requests that already span the full world
+  extent are short-circuited at the API layer, removing the per-feature slicing
+  cost from initial map bootstrap.
+- Maritime-context startup warning now emits once per cold boot instead of once per
+  request, removing routine log spam while preserving the signal when relevant.
+- Frontend tooling: Biome upgraded from 1.9.4 to 2.4.15 with config migrated to the
+  current schema.
 
 ---
 

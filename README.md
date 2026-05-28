@@ -34,48 +34,35 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v1.79.0**
+Current release: **v1.80.0**
 
-Next tracked release: **v1.79.1**
+Next tracked release: **v1.81.0**
 
-Tracked next-release addition:
+Tracked next-release additions:
 
-- build a trusted coast-station and rescue-endpoint geometry registry so more
-  DSC counterpart links can be drawn directly on the map
-- add analyst filters for DSC class, counterpart type, and unresolved geometry
-- keep reducing false-absence and mixed-workspace ambiguity under degraded
-  backend pressure
-
-Current branch status for `v1.79.0`:
-
-- the focused browser release-proof suites are green, including queued/retry
-  lifecycle checks and mixed-refresh continuity checks
-- nonce-mode browser bootstrap trust seeding was hardened so protected reads
-  do not rely on a marker-only first pass
-- deployment-shape validation is complete for both the standalone stack and
-  the parent Hetzner compose graph; remaining risk is operational secret
-  injection, not missing router or service wiring
+- Trusted coast-station and rescue-endpoint geometry registry to draw more
+  DSC counterpart links directly on the map.
+- Analyst filters for DSC class, counterpart type, and unresolved geometry.
+- Continued reduction of mixed-workspace ambiguity under degraded backend
+  pressure.
 
 Recent release additions:
 
-- Hazard-area, NAVAREA, and SMAPS warnings now flow through a stricter
-  coordinate-binding and geometry-validation pipeline. Ocean-spanning
-  polygons accidentally drawn from unrelated coordinate tokens are
-  automatically downgraded to marker clusters and labelled with the reason,
-  so analysts can distinguish a real hazard area from a parser artefact.
-- Bounded delivery for the heaviest static reference layers
-  (`maritime-regions`, FAA restricted airspace) plus more honest live-refresh
-  banners that name the timed-out route instead of saying "browser deadline
-  exceeded".
-- DSC communications are now a first-class analyst workflow rather than a
-  feed-branded sidecar; vessel detail can pull linked DSC communications into
-  the same right-side panel and draw mapped counterpart links back onto the
-  map.
-- Layer recovery diagnostics now expose clearer queued/retry/degraded
-  transitions for analysts and support workflows, including explicit handling
-  of expected queued in-flight behavior versus likely stuck queued state.
-- Live AIS queued progression now has dedicated browser-proof coverage against
-  the production load path to reduce false outage interpretation in operations.
+- Strategic tide stations: NOAA CO-OPS near-real-time water levels at
+  strategic ports and chokepoints, now a toggleable layer with tidal
+  prediction deviation and station context in the detail view.
+- Coastal exposure context: NASA SEDAC LECZ low-elevation coastal zone data
+  surfaces in the layers panel and in Area Intelligence Reports for the same
+  strategic port set.
+- Intel workspace briefing chips now act as retry controls: clicking a
+  delayed or stale chip reloads that specific briefing lane without a
+  full workspace reload.
+- Decision scorecard now scopes telemetry per analyst and labels the
+  visible scope explicitly. Invalid decision payloads are rejected at the
+  API boundary rather than returning silent error responses.
+- Whole-stack dependency refresh: runtime packages, infrastructure images,
+  and frontend tooling updated. GPSwise preload and FAA restricted-airspace
+  fast path restored.
 
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 
