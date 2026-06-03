@@ -6,13 +6,81 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v1.81.0 planning
+## v1.81.0 — 2026-06-03
 
-- Trusted coast-station and rescue-endpoint geometry registry to draw more
-  DSC counterpart links directly on the map.
-- Analyst filters for DSC class, counterpart type, and unresolved geometry.
-- Continued reduction of mixed-workspace ambiguity under degraded backend
-  pressure.
+### Operator fleet track search
+
+- A new header search field lets analysts pull historical tracks for an entire
+  airline or operator fleet by ICAO callsign prefix (for example, all United
+  Airlines or Ryanair aircraft active in the archive window).
+- Each matching aircraft is rendered as a coloured polyline on a dedicated
+  fleet-track layer. Track points carry per-segment timestamps and speed.
+- Available at premium tier. Starter sessions receive a gated empty state with
+  a clear tier indicator rather than an error.
+
+### DSC distress alerting always active
+
+- The DSC distress banner now updates every 90 seconds regardless of whether the
+  Intel workspace is open. Previously the alert only fired when the Intel panel
+  was in view, so analysts working map-only could miss an active distress event.
+- Active distress positions now render with a pulsing visual ring so they are
+  immediately distinguishable from static event markers at all zoom levels.
+- Vessel names in the distress banner are resolved correctly when the summary
+  payload is absent, closing a path where the banner showed "Unknown vessel"
+  instead of the actual callsign or name.
+- The stale-workspace banner no longer fires in manual refresh mode.
+
+### Thermal-AIS coincidence gap zones on the map
+
+- The thermal-AIS coincidence gap analysis, which identifies maritime areas where
+  VIIRS thermal activity is present but vessel identity is absent or very sparse,
+  is now visible as a map layer.
+- Cells are colour-coded by anomaly severity (critical, high, moderate, low).
+  Each cell popup shows gap type, fire radiative power, detection count, and AIS
+  vessel count inside the scan radius.
+- The layer refreshes every six hours via background scheduling and is available
+  at premium tier from the Layers panel as `Thermal-AIS Gap Zones`.
+
+### Vessel Formations correctly listed under vessel feed
+
+- The Vessel Formations indicator in the layer rail was appearing underneath the
+  aircraft positions entry. It is now correctly placed beneath the global vessel
+  snapshot feed that it derives from.
+
+### Maritime thermals filter always produces results
+
+- Enabling `Maritime thermals only` while the thermal fire sub-toggle was off
+  silently produced an empty map because the filter had nothing to act on.
+  The toggle now implicitly re-enables thermal fires when maritime focus is
+  switched on, so the filter always has data to filter.
+
+### Performance improvements
+
+- Maritime region and EEZ layer requests that cover the full world extent are
+  now short-circuited before any per-feature work, reducing response time from
+  several seconds to under 50 ms on the world-scale load.
+- The thermal-AIS batch job now uses a tighter AIS query window that fits within
+  the per-query memory budget, eliminating intermittent out-of-memory failures
+  on busy archive days.
+
+### Infrastructure and dependency updates
+
+- ClickHouse upgraded from 26.3 to 26.5. Two new query indexes are added on the
+  evidence store: a set index on source identifier for faster per-source scans,
+  and a bloom filter on entity ID arrays for entity-correlated lookups. A grace
+  hash-join memory spill setting is also enabled so large join queries degrade
+  gracefully rather than failing.
+- Python runtime dependencies refreshed: starlette, clickhouse-connect, faker,
+  and h3 updated to current releases.
+
+### Reliability
+
+- GDACS volcano and wildfire hazard types removed. Both endpoints have been
+  returning 404 for an extended period; removing them eliminates recurring
+  collector error noise and speeds up the hazard collection cycle.
+- Collector credential loading now consistently prefers environment variable
+  overrides over stored secrets-file values, removing a configuration drift
+  that could silently keep a stale credential active after a rebuild.
 
 ---
 
