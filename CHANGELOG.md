@@ -6,7 +6,7 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## v1.81.0 — 2026-06-03
+## v1.90.0 — 2026-06-03
 
 ### Operator fleet track search
 
@@ -65,13 +65,15 @@ Dates are UTC. Versions follow semantic versioning.
 
 ### Infrastructure and dependency updates
 
-- ClickHouse upgraded from 26.3 to 26.5. Two new query indexes are added on the
-  evidence store: a set index on source identifier for faster per-source scans,
-  and a bloom filter on entity ID arrays for entity-correlated lookups. A grace
-  hash-join memory spill setting is also enabled so large join queries degrade
-  gracefully rather than failing.
-- Python runtime dependencies refreshed: starlette, clickhouse-connect, faker,
-  and h3 updated to current releases.
+- Archive database upgraded to the latest stable release. Two new query indexes
+  reduce scan cost for per-source queries and entity-correlated lookups. A
+  memory-spill setting for large join operations is now active so those queries
+  degrade gracefully under pressure rather than failing.
+- Python runtime dependencies refreshed: starlette 1.1.0 ---> 1.2.1,
+  clickhouse-connect 1.1.0 ---> 1.1.1,
+  h3 4.4.2 ---> 4.5.0. An unmaintained alpha proxy-discovery package removed;
+  proxy discovery continues to work via the direct proxy pool and built-in
+  discovery path.
 
 ### Reliability
 
