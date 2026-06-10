@@ -11,15 +11,8 @@ Dates are UTC. Versions follow semantic versioning.
 ### Registration hardening
 
 Sign-up now runs a multi-layer check before an account is created, following a
-small number of sign-ups from disposable and invalid accounts.
-
-- Structurally invalid addresses are rejected.
-- Known disposable and temporary email services are blocked.
-- Generic placeholder local parts are refused.
-- The email domain is checked for working mail exchange records. Domains that
-  do not resolve are blocked at the point of entry.
-
-Real addresses are not affected. If a sign-up is refused in error,
+small number of sign-ups from disposable and invalid accounts. Real addresses
+are not affected. If a sign-up is refused in error,
 [open a registration issue](https://github.com/tg12/phantomtide/issues/new?template=registration_blocked.md).
 
 ### Aircraft labels corrected
