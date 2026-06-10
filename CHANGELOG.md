@@ -6,6 +6,47 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.0 — 2026-06-10
+
+### Registration hardening
+
+Sign-up now runs a multi-layer filter before an account is created. The
+controls were introduced following a small number of sign-ups from disposable
+and invalid accounts. Genuine registrations from real addresses are not affected.
+
+- Structurally invalid addresses are rejected immediately.
+- Known disposable and temporary email services are blocked.
+- Generic placeholder local parts are refused.
+- The email domain is verified to have working mail exchange records. Domains
+  that do not resolve are rejected at the point of entry.
+
+If a legitimate sign-up is refused, contact the operator directly.
+
+### Aircraft labels corrected
+
+A data quality issue was causing some aircraft category labels to display as
+single characters rather than the full category name. Labels now consistently
+show the correct operational category — Cargo, Military, Tactical Transport,
+Government, and others.
+
+A review of the aircraft dataset also removed a set of informal entries that had
+accumulated over time. Labels throughout the platform now reflect established
+operational classification.
+
+### Label chips
+
+Aircraft popup label chips carry lighter borders and lower contrast so they read
+as supporting context rather than competing with callsign and identity
+information.
+
+### Reliability
+
+A broad backend correctness pass resolved a number of edge-case issues across
+the intelligence engine, data processing paths, and supporting infrastructure.
+No user-visible behaviour changes on normal inputs.
+
+---
+
 ## v1.90.0 — 2026-06-03
 
 ### Operator fleet track search
