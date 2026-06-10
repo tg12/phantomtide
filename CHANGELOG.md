@@ -10,40 +10,38 @@ Dates are UTC. Versions follow semantic versioning.
 
 ### Registration hardening
 
-Sign-up now runs a multi-layer filter before an account is created. The
-controls were introduced following a small number of sign-ups from disposable
-and invalid accounts. Genuine registrations from real addresses are not affected.
+Sign-up now runs a multi-layer check before an account is created, following a
+small number of sign-ups from disposable and invalid accounts.
 
-- Structurally invalid addresses are rejected immediately.
+- Structurally invalid addresses are rejected.
 - Known disposable and temporary email services are blocked.
 - Generic placeholder local parts are refused.
-- The email domain is verified to have working mail exchange records. Domains
-  that do not resolve are rejected at the point of entry.
+- The email domain is checked for working mail exchange records. Domains that
+  do not resolve are blocked at the point of entry.
 
-If a legitimate sign-up is refused, contact the operator directly.
+Real addresses are not affected. If a sign-up is refused in error,
+[open a registration issue](https://github.com/tg12/phantomtide/issues/new?template=registration_blocked.md).
 
 ### Aircraft labels corrected
 
-A data quality issue was causing some aircraft category labels to display as
-single characters rather than the full category name. Labels now consistently
-show the correct operational category — Cargo, Military, Tactical Transport,
+Some aircraft category labels were displaying as single characters (A, G, R, S)
+instead of the full category name. This was a data issue; it has been corrected.
+Labels now show the right category: Cargo, Military, Tactical Transport,
 Government, and others.
 
-A review of the aircraft dataset also removed a set of informal entries that had
-accumulated over time. Labels throughout the platform now reflect established
-operational classification.
+The dataset was also audited for informal tag entries that had built up over
+time. Labels now reflect operational category rather than editorial shorthand.
 
 ### Label chips
 
-Aircraft popup label chips carry lighter borders and lower contrast so they read
-as supporting context rather than competing with callsign and identity
-information.
+Aircraft label chips have lighter borders and lower contrast so they sit behind
+the callsign and identity fields rather than competing with them.
 
 ### Reliability
 
-A broad backend correctness pass resolved a number of edge-case issues across
-the intelligence engine, data processing paths, and supporting infrastructure.
-No user-visible behaviour changes on normal inputs.
+A correctness pass across the backend resolved a number of edge-case bugs in
+the intelligence and data processing layers. Behaviour on normal inputs is
+unchanged.
 
 ---
 
