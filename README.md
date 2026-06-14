@@ -54,7 +54,7 @@ Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 ### Analyst Notebook
 
 Each authenticated user now has a personal notebook. Any event visible on the
-dashboard — vessel contact, aircraft track, VIIRS thermal detection, NOTAM,
+dashboard — vessel contact, aircraft track, thermal detection, airspace notice,
 convergence hypothesis, nav warning, or piracy incident — can be saved with
 a timestamp, optional free-text note, and user-applied tags.
 
@@ -71,83 +71,40 @@ sessions, is private to the user, and is queryable and exportable.
   sidebar panel.
 - Tier-gated: Starter 50 entries, Premium 500, Enterprise unlimited.
 
-### Performance
+### Faster Load Times
 
-- Maritime-regions bounding-box scan: endpoint latency reduced from ~5s to
-  under 50ms for world-scale load. Feature bounding boxes are precomputed once
-  at startup; global-extent requests short-circuit to raw bytes without
-  per-feature intersection work.
-- Entity-feed hot path: the API no longer rereads and reparses the local
-  snapshot payload on every shared-state token change when the file itself is
-  unchanged. In-memory streaming events are preserved during split-runtime sync
-  when only reference or health state changed, reducing latency bursts during
-  startup.
-- Thermal-AIS batch memory: the batch AIS query window is now 1 day rather
-  than 7, keeping the ClickHouse per-query memory within budget without
-  degrading spatial matching quality.
+- World-scale map layer requests now load in under 50ms, down from several
+  seconds on the previous release.
+- Workspace startup latency reduced on busy deployments: shared state syncs
+  no longer rebuild streaming data when only reference or health state changed.
+- Thermal-vessel gap batch operations stay within memory budget without
+  degrading spatial matching coverage.
 
-### New and Extended Data Sources
+### Extended Coverage
 
-- **NOAA Strategic Tide Stations**: NOAA CO-OPS near-real-time water levels
-  at strategic ports and chokepoints. Each station snapshot carries the latest
-  observed level, nearest 6-minute prediction, deviation, datum, and port
-  context. Toggleable layer in the sidebar; tidal prediction deviation is
-  visible in the detail panel.
-- **Coastal Exposure (SEDAC)**: NASA SEDAC LECZ low-elevation coastal zone
-  data at the same strategic port set. Surfaces in the Layers panel and in
-  Area Intelligence Reports to explain which ports sit in low-elevation coastal
-  zones.
-- **Fleet / Operator Tracks**: `GET /api/history/fleet?callsign_prefix=UAL&hours=24`
-  returns per-aircraft track points for any ICAO airline prefix. Renders as
-  coloured polylines on a dedicated fleet track layer. Premium tier.
-- **Thermal-AIS Gap Zones**: backend-scored 3-degree cells where thermal
-  detections and AIS coverage diverge. Each cell popup shows gap type
-  (zero-AIS vs sparse-AIS), VIIRS fire radiative power, detection count, and
-  vessel count. Previously computed but invisible; now a toggleable premium
-  layer refreshed every 6 hours.
-- **GPSwise** startup preload restored: spoofing and jamming snapshots warm
-  correctly from the cache at boot instead of logging non-fatal failures.
+- **Tide stations**: near-real-time water levels at a curated set of strategic
+  ports and chokepoints. Each station snapshot includes observed level,
+  prediction deviation, datum, and port context. Toggleable sidebar layer;
+  deviation visible in the detail panel.
+- **Coastal elevation context**: low-elevation coastal zone data at the same
+  strategic port set. Surfaces in the Layers panel and in Area Intelligence
+  Reports to show which ports sit in low-elevation coastal zones.
+- **Fleet and operator tracks**: per-aircraft track history for a given airline
+  prefix over a rolling time window, rendered as coloured polylines on a
+  dedicated layer. Premium tier.
+- **Thermal-vessel gap zones**: scored grid cells where thermal detections and
+  vessel coverage diverge. Each cell shows gap type, detection count, and
+  vessel count. Now a toggleable premium layer refreshed every 6 hours.
 
-### DSC Distress Alert System
+### DSC Distress Alerts
 
-- Distress summary polled every 90 seconds regardless of whether the Intel
-  panel is open. The distress banner now fires on the map-only view, not only
-  when the Intel workspace is visible.
-- Active DSC distress positions render with a pulsing CSS ring so they are
-  visually distinct from static event markers at all zoom levels.
-- Banner renders in the critical-severity colour (red) rather than the default
-  incident colour.
-
-### Intel Workspace Retry Controls
-
-- Visible Intel status chips now act as retry controls. Clicking a delayed or
-  stale chip reloads that specific briefing lane without a full workspace reload.
-- Delayed briefing empty states include an explicit `Reload briefing` action.
-
-### Decision Scorecard Scoping
-
-- Decision telemetry is now scoped per analyst. Starter scorecards are limited
-  to self-scope; cross-analyst reads require premium access.
-- The UI labels what the analyst is seeing (`this browser session only`,
-  `current analyst session`, `global analyst scope`).
-- Invalid decision payloads fail at the API boundary (HTTP 422) rather than
-  returning silent `200 {"status":"error"}` responses.
-
-### Aircraft Label Quality
-
-- `planes_master.json` entries where tag arrays had degraded to single
-  characters (A, G, R, S) are corrected to full operational strings
-  (Cargo, Military, Tactical Transport).
-- Informal and pop-culture tags removed.
-- Aircraft popup label chips: border weight and opacity reduced so chips read
-  as secondary annotation, not primary emphasis.
-
-### Registration Hardening
-
-- Email validation at registration: format check, ~600-domain disposable
-  blocklist, placeholder local-part reject, and MX record verification via
-  dnspython. Concrete rejections include mailinator.com, example.com, and any
-  domain returning NXDOMAIN.
+- Distress positions now render with a pulsing ring so active distress contacts
+  are visually distinct from static event markers at all zoom levels.
+- Distress summary polled continuously regardless of whether the Intel panel
+  is open — the banner fires on the map-only view, not only when the Intel
+  workspace is visible.
+- Distress banner renders in critical-severity colour (red) separate from the
+  default incident colour.
 
 ---
 
@@ -235,22 +192,22 @@ dashboard view for public feed evaluation and external review.*
 The current release connects collector-published datasets into the map and
 detail workflow:
 
-- optional map layers for chokepoints, NATS airspace, ports, pipelines,
+- optional map layers for chokepoints, airspace, ports, pipelines,
   refineries, desalination sites, and seaport/terminal infrastructure
 - selected vessel and aircraft detail explains nearest chokepoint,
   infrastructure, and airspace context from loaded map layers
-- vessel and aircraft intelligence rows include dark-vessel, U.S. Navy,
-  sanctioned, military, and emergency context where available
+- vessel and aircraft intelligence rows include dark-vessel, sanctioned,
+  military, and emergency context where available
 - DSC communications feed an analyst table and vessel-linked detail context,
   including mapped counterpart links when the other ship or coast station has
   usable geometry
-- NOAA strategic tide stations at ports and chokepoints with tidal deviation
-  and prediction context
-- NASA SEDAC coastal exposure zones identify which strategic ports sit in
-  low-elevation coastal zones
-- fleet/operator track history renders per-aircraft polylines for a given
+- tide level stations at strategic ports and chokepoints with deviation and
+  prediction context
+- coastal elevation context at strategic ports surfaced in layers and area
+  reports
+- fleet and operator track history renders per-aircraft polylines for a given
   airline prefix over a rolling time window (premium)
-- thermal-AIS gap zones mark cells where VIIRS fire detections and AIS
+- thermal-vessel gap zones mark areas where thermal detections and vessel
   coverage diverge
 - artifact freshness, reuse, mixed-run state, and scan caps remain visible so
   data presence is not confused with current or complete context
@@ -325,17 +282,16 @@ and reference geometry into a single operational surface.
 - Intel tables for high-value notice, disruption, and advisory queues
 - DSC communications table with analyst ranking across mapped and unmapped
   traffic, plus vessel-linked comms context in the detail panel, with pulsing
-  distress markers for active DSC distress positions
-- DSC distress banner polled independently of the Intel panel so it fires on
+  distress markers for active distress positions
+- Distress banner polled independently of the Intel panel so it fires on
   the map-only view
-- Intel status chips as retry controls for individual briefing lanes
 - Advisory rows that jump the map to relevant coordinates without a manual search
 - Rule-based hypotheses with evidence references and confidence tiers
 - Analyst Notebook: save any event with notes and tags; query, filter, and
   export across sessions
 - Tracked aircraft workflow with mission cues, callsign-family enrichment,
   watchlist context, alert banners, and free-text quick jump
-- Fleet / operator track history by ICAO airline prefix (premium)
+- Fleet and operator track history by airline prefix (premium)
 - Stable workspace sync with explicit `New data`, `Live paused`, stale-state,
   and manual refresh ownership
 - Space-environment context for geomagnetic and communications-disruption risk
@@ -343,10 +299,10 @@ and reference geometry into a single operational surface.
   context together
 - Ocean-state and wind context rendered as a continuous field, not isolated
   station markers
-- NOAA strategic tide stations with tidal deviation and prediction context at
-  ports and chokepoints
-- NASA SEDAC coastal exposure zones at strategic ports
-- Thermal-AIS gap zones: cells where thermal detections and AIS coverage diverge
+- Tide level stations at strategic ports and chokepoints with deviation and
+  prediction context
+- Coastal elevation context at strategic ports
+- Thermal-vessel gap zones: areas where thermal detections and vessel coverage diverge
 - Detail panel with observation time, ingest time, expiry, and geometry context
 - Source health reporting with explicit live, cache-backed, and failed states
 - Layer toggles that reflect stale, degraded, and down source conditions directly
@@ -369,8 +325,8 @@ and reference geometry into a single operational surface.
   to whom in the current comms graph
 - Plain-language advisory popups replacing raw aviation and maritime codes
 - Per-feature tier gating across starter, premium, and enterprise tiers
-- Performance: response pre-serialisation, conditional HTTP caching on
-  high-frequency routes, and sub-50ms maritime-regions bounding-box queries
+- Performance: sub-50ms world-scale map layer loads, pre-serialised responses,
+  and conditional HTTP caching on high-frequency routes
 
 **Non-goals:**
 
@@ -491,8 +447,8 @@ Some deployments use a tiered access model:
 - **Starter** — core investigative workflow, primary live layers, advisory tables,
   Analyst Notebook (50 entries)
 - **Premium** — extended reference overlays, watchlist correlation, environmental
-  context layers, entity tracking, fleet tracks, Thermal-AIS Gap Zones,
-  Analyst Notebook (500 entries)
+  context layers, entity tracking, fleet and operator tracks, thermal-vessel
+  gap zones, Analyst Notebook (500 entries)
 - **Enterprise** — port and terminal data, highest-volume reference datasets,
   Analyst Notebook (unlimited)
 
