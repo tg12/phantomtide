@@ -7,25 +7,24 @@ Cross-domain maritime and airspace intelligence from open signals.
 Phantom Tide is a geospatial OSINT tool for analysts who need to answer one
 question quickly: what deserves attention right now, and why?
 
-It is not just a map of feeds. It does three specific jobs:
+Three jobs:
 
 1. Rank cross-source hotspots instead of showing every signal as equal.
 2. Keep time, freshness, and degraded-state truth visible.
 3. Move from map anomaly to usable context in a few clicks.
 
-What is special about it:
-
-- It scores overlap between sources instead of treating every feed as a
+- Scores overlap between sources instead of treating every feed as a
   separate product.
-- It defaults to a stable analyst workspace instead of a noisy auto-refreshing
+- Defaults to a stable analyst workspace instead of a noisy auto-refreshing
   map.
-- It treats aircraft as an analyst workflow, not just an ADS-B layer.
-- It treats maritime communications as analyst context, not just another
-  plotted feed.
-- It ships fast pivots such as proximity query, Area Intelligence Report, and
+- Surfaces aircraft as an analyst workflow with mission cues, watchlist
+  context, and map-focus jumps, not a passive ADS-B layer.
+- Classifies maritime communications by type so radio checks do not read
+  like incidents.
+- Ships fast pivots: proximity query, Area Intelligence Report, and
   infrastructure-aware thermal context.
-- It exposes stale, degraded, cached, and tier-limited states directly instead
-  of quietly flattening them into a healthy-looking map.
+- Exposes stale, degraded, cached, and tier-limited states directly instead
+  of flattening them into a healthy-looking map.
 
 What this public repository is:
 
@@ -34,9 +33,9 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v1.80.0**
+Current release: **v2.0.0**
 
-Next tracked release: **v1.81.0**
+Next tracked release: **v2.1.0**
 
 Tracked next-release additions:
 
@@ -46,25 +45,109 @@ Tracked next-release additions:
 - Continued reduction of mixed-workspace ambiguity under degraded backend
   pressure.
 
-Recent release additions:
-
-- Strategic tide stations: NOAA CO-OPS near-real-time water levels at
-  strategic ports and chokepoints, now a toggleable layer with tidal
-  prediction deviation and station context in the detail view.
-- Coastal exposure context: NASA SEDAC LECZ low-elevation coastal zone data
-  surfaces in the layers panel and in Area Intelligence Reports for the same
-  strategic port set.
-- Intel workspace briefing chips now act as retry controls: clicking a
-  delayed or stale chip reloads that specific briefing lane without a
-  full workspace reload.
-- Decision scorecard now scopes telemetry per analyst and labels the
-  visible scope explicitly. Invalid decision payloads are rejected at the
-  API boundary rather than returning silent error responses.
-- Whole-stack dependency refresh: runtime packages, infrastructure images,
-  and frontend tooling updated. GPSwise preload and FAA restricted-airspace
-  fast path restored.
-
 Live: [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
+
+---
+
+## What's New in v2.0
+
+### Analyst Notebook
+
+Each authenticated user now has a personal notebook. Any event visible on the
+dashboard — vessel contact, aircraft track, VIIRS thermal detection, NOTAM,
+convergence hypothesis, nav warning, or piracy incident — can be saved with
+a timestamp, optional free-text note, and user-applied tags.
+
+The notebook is a saved-evidence dossier, not a feed. It persists across
+sessions, is private to the user, and is queryable and exportable.
+
+- `Add to Notebook` appears on every event popup and detail panel.
+- Saving a duplicate returns the existing entry rather than creating noise.
+- `GET /api/notebook/entries` returns the user's full notebook, filterable by
+  source, tag, and date range.
+- `GET /api/notebook/export` streams a CSV of event_id, source_id,
+  display_name, user_note, and tags.
+- `GET /api/notebook/summary` returns per-source entry counts for the
+  sidebar panel.
+- Tier-gated: Starter 50 entries, Premium 500, Enterprise unlimited.
+
+### Performance
+
+- Maritime-regions bounding-box scan: endpoint latency reduced from ~5s to
+  under 50ms for world-scale load. Feature bounding boxes are precomputed once
+  at startup; global-extent requests short-circuit to raw bytes without
+  per-feature intersection work.
+- Entity-feed hot path: the API no longer rereads and reparses the local
+  snapshot payload on every shared-state token change when the file itself is
+  unchanged. In-memory streaming events are preserved during split-runtime sync
+  when only reference or health state changed, reducing latency bursts during
+  startup.
+- Thermal-AIS batch memory: the batch AIS query window is now 1 day rather
+  than 7, keeping the ClickHouse per-query memory within budget without
+  degrading spatial matching quality.
+
+### New and Extended Data Sources
+
+- **NOAA Strategic Tide Stations**: NOAA CO-OPS near-real-time water levels
+  at strategic ports and chokepoints. Each station snapshot carries the latest
+  observed level, nearest 6-minute prediction, deviation, datum, and port
+  context. Toggleable layer in the sidebar; tidal prediction deviation is
+  visible in the detail panel.
+- **Coastal Exposure (SEDAC)**: NASA SEDAC LECZ low-elevation coastal zone
+  data at the same strategic port set. Surfaces in the Layers panel and in
+  Area Intelligence Reports to explain which ports sit in low-elevation coastal
+  zones.
+- **Fleet / Operator Tracks**: `GET /api/history/fleet?callsign_prefix=UAL&hours=24`
+  returns per-aircraft track points for any ICAO airline prefix. Renders as
+  coloured polylines on a dedicated fleet track layer. Premium tier.
+- **Thermal-AIS Gap Zones**: backend-scored 3-degree cells where thermal
+  detections and AIS coverage diverge. Each cell popup shows gap type
+  (zero-AIS vs sparse-AIS), VIIRS fire radiative power, detection count, and
+  vessel count. Previously computed but invisible; now a toggleable premium
+  layer refreshed every 6 hours.
+- **GPSwise** startup preload restored: spoofing and jamming snapshots warm
+  correctly from the cache at boot instead of logging non-fatal failures.
+
+### DSC Distress Alert System
+
+- Distress summary polled every 90 seconds regardless of whether the Intel
+  panel is open. The distress banner now fires on the map-only view, not only
+  when the Intel workspace is visible.
+- Active DSC distress positions render with a pulsing CSS ring so they are
+  visually distinct from static event markers at all zoom levels.
+- Banner renders in the critical-severity colour (red) rather than the default
+  incident colour.
+
+### Intel Workspace Retry Controls
+
+- Visible Intel status chips now act as retry controls. Clicking a delayed or
+  stale chip reloads that specific briefing lane without a full workspace reload.
+- Delayed briefing empty states include an explicit `Reload briefing` action.
+
+### Decision Scorecard Scoping
+
+- Decision telemetry is now scoped per analyst. Starter scorecards are limited
+  to self-scope; cross-analyst reads require premium access.
+- The UI labels what the analyst is seeing (`this browser session only`,
+  `current analyst session`, `global analyst scope`).
+- Invalid decision payloads fail at the API boundary (HTTP 422) rather than
+  returning silent `200 {"status":"error"}` responses.
+
+### Aircraft Label Quality
+
+- `planes_master.json` entries where tag arrays had degraded to single
+  characters (A, G, R, S) are corrected to full operational strings
+  (Cargo, Military, Tactical Transport).
+- Informal and pop-culture tags removed.
+- Aircraft popup label chips: border weight and opacity reduced so chips read
+  as secondary annotation, not primary emphasis.
+
+### Registration Hardening
+
+- Email validation at registration: format check, ~600-domain disposable
+  blocklist, placeholder local-part reject, and MX record verification via
+  dnspython. Concrete rejections include mailinator.com, example.com, and any
+  domain returning NXDOMAIN.
 
 ---
 
@@ -117,7 +200,7 @@ Default response shape is intentionally simple:
 - `what`
 - `where`
 
-If you need freshness, reference-state, and contract diagnostics, request:
+For freshness, reference-state, and contract diagnostics:
 
 ```bash
 curl "https://phantom.labs.jamessawyer.co.uk/api/public/aircraft/restricted-airspace-crossings?include_meta=true"
@@ -132,8 +215,8 @@ curl "http://localhost/api/public/aircraft/restricted-airspace-crossings?sample_
 curl "http://localhost/api/public/aircraft/restricted-airspace-crossings?include_meta=true"
 ```
 
-This public endpoint is intentionally callable without a browser session. The
-rest of the broader archive/history surface remains private or tier-gated.
+This public endpoint is callable without a browser session. The rest of the
+archive/history surface remains private or tier-gated.
 
 ### Restricted-Airspace Visualization
 
@@ -149,18 +232,26 @@ dashboard view for public feed evaluation and external review.*
 
 ## Collector-Backed Context
 
-The current release also connects collector-published datasets into the map and
+The current release connects collector-published datasets into the map and
 detail workflow:
 
 - optional map layers for chokepoints, NATS airspace, ports, pipelines,
   refineries, desalination sites, and seaport/terminal infrastructure
-- selected vessel and aircraft detail now explains nearest chokepoint,
+- selected vessel and aircraft detail explains nearest chokepoint,
   infrastructure, and airspace context from loaded map layers
-- vessel and aircraft intelligence rows can include high-level dark-vessel,
-  U.S. Navy, sanctioned, military, and emergency context
-- DSC communications now feed both an analyst table and vessel-linked detail
-  context, including mapped counterpart links when the other ship or coast
-  station has usable geometry
+- vessel and aircraft intelligence rows include dark-vessel, U.S. Navy,
+  sanctioned, military, and emergency context where available
+- DSC communications feed an analyst table and vessel-linked detail context,
+  including mapped counterpart links when the other ship or coast station has
+  usable geometry
+- NOAA strategic tide stations at ports and chokepoints with tidal deviation
+  and prediction context
+- NASA SEDAC coastal exposure zones identify which strategic ports sit in
+  low-elevation coastal zones
+- fleet/operator track history renders per-aircraft polylines for a given
+  airline prefix over a rolling time window (premium)
+- thermal-AIS gap zones mark cells where VIIRS fire detections and AIS
+  coverage diverge
 - artifact freshness, reuse, mixed-run state, and scan caps remain visible so
   data presence is not confused with current or complete context
 
@@ -169,53 +260,48 @@ detail workflow:
 Not every source updates at the same interval.
 
 - Movement and notice feeds update frequently.
-- Environmental and reference feeds usually update every `15-60 minutes`.
+- Environmental and reference feeds usually update every 15–60 minutes.
 - Large reference datasets and some advisories update hourly or daily.
-- The browser now defaults to a stable manual workspace and only applies new
-  state when the analyst refreshes or explicitly enables live mode.
-- The shell still checks lightweight visible-lane change markers in the
-  background, but that does not mean the workspace itself moved.
+- The browser defaults to a stable manual workspace and only applies new state
+  when the analyst refreshes or explicitly enables live mode.
+- The shell checks lightweight visible-lane change markers in the background,
+  but that does not mean the workspace itself moved.
 
 Freshness is explicit:
 
-- `Live` means the latest ingest for that source succeeded and is within its expected freshness window.
-- `Degraded` means the source answered but quality, completeness, or subtype fidelity fell.
-- `Stale` means older or cached data is still being shown for continuity and should not be treated as current truth.
-- `Tier-limited` means the feature exists but the current access level intentionally caps it.
-- `New data available` means the visible workspace changed in the backend, but
-  the current view has not applied that state yet.
-- `Live paused` means live mode is enabled, but the browser is intentionally
-  holding changes while you inspect detail, type, or manipulate the map.
+- `Live` — the latest ingest for that source succeeded and is within its expected freshness window.
+- `Degraded` — the source answered but quality, completeness, or subtype fidelity fell.
+- `Stale` — older or cached data is shown for continuity and should not be treated as current truth.
+- `Tier-limited` — the feature exists but the current access level intentionally caps it.
+- `New data available` — the visible workspace changed in the backend but the current view has not applied that state yet.
+- `Live paused` — live mode is enabled but the browser is holding changes while you inspect detail, type, or manipulate the map.
 
 The public operator guide explains how to read those states. The internal
-scheduler remains the authoritative timing source.
+scheduler is the authoritative timing source.
 
 ---
 
 ## Analytical Primitives
 
-Phantom Tide is built around a few product primitives rather than a long feed
-catalog:
-
-- **Scored convergence zones**: multi-source overlap is ranked with explicit
+- **Scored convergence zones**: multi-source overlap ranked with explicit
   contributor weights and evidence counts so the map answers where to look
   first, not just what exists.
-- **Tracked aircraft as an analyst workflow**: aircraft are surfaced with
-  mission cues, watchlist context, alert banners, free-text quick jump, and
-  map-focus jumps rather than as a passive ADS-B layer.
-- **Communications as operational context**: DSC traffic is classified into
-  test, safety, routine, distress, and SAR-linked semantics so radio checks do
-  not read like incidents and vessel-to-counterpart links can be inspected in
-  the main workflow.
+- **Analyst Notebook**: per-user saved-evidence dossier. Save any event with
+  notes and tags; query and export across sessions. Separate from system
+  alerts and hypotheses.
+- **Tracked aircraft as an analyst workflow**: aircraft surfaced with mission
+  cues, watchlist context, alert banners, free-text quick jump, and map-focus
+  jumps rather than a passive ADS-B layer.
+- **Communications as operational context**: DSC traffic classified into test,
+  safety, routine, distress, and SAR-linked semantics so radio checks do not
+  read like incidents and vessel-to-counterpart links can be inspected in the
+  main workflow.
 - **Stable workspace sync**: the shell checks for visible-lane changes without
-  redrawing underneath an active investigation, and live mode pauses itself
-  while the analyst is inspecting detail or manipulating the map.
-- **Fast context pivots**: proximity query, Area Intelligence Report, thermal-
-  to-infrastructure pivots, and drill-down detail views are built to compress
-  analyst thought into a few clicks.
-
-The value is not "more feeds." The value is less analyst time spent stitching
-those feeds together by hand.
+  redrawing underneath an active investigation; live mode pauses while the
+  analyst is inspecting detail or manipulating the map.
+- **Fast context pivots**: proximity query, Area Intelligence Report,
+  thermal-to-infrastructure pivots, and drill-down detail views compress the
+  steps from anomaly to briefing.
 
 ---
 
@@ -238,62 +324,79 @@ and reference geometry into a single operational surface.
 - Geometry-aware rendering for points, circles, routes, and polygons
 - Intel tables for high-value notice, disruption, and advisory queues
 - DSC communications table with analyst ranking across mapped and unmapped
-  traffic, plus vessel-linked comms context in the detail panel
+  traffic, plus vessel-linked comms context in the detail panel, with pulsing
+  distress markers for active DSC distress positions
+- DSC distress banner polled independently of the Intel panel so it fires on
+  the map-only view
+- Intel status chips as retry controls for individual briefing lanes
 - Advisory rows that jump the map to relevant coordinates without a manual search
 - Rule-based hypotheses with evidence references and confidence tiers
-- Tracked aircraft workflow with mission cues, callsign-family enrichment, watchlist context, alert banners, and free-text quick jump
-- Stable workspace sync with explicit `New data`, `Live paused`, stale-state, and manual refresh ownership
+- Analyst Notebook: save any event with notes and tags; query, filter, and
+  export across sessions
+- Tracked aircraft workflow with mission cues, callsign-family enrichment,
+  watchlist context, alert banners, and free-text quick jump
+- Fleet / operator track history by ICAO airline prefix (premium)
+- Stable workspace sync with explicit `New data`, `Live paused`, stale-state,
+  and manual refresh ownership
 - Space-environment context for geomagnetic and communications-disruption risk
-- Navigation-disruption attribution using environmental, notice, and orbital context together
-- Ocean-state and wind context rendered as a continuous field, not isolated station markers
+- Navigation-disruption attribution using environmental, notice, and orbital
+  context together
+- Ocean-state and wind context rendered as a continuous field, not isolated
+  station markers
+- NOAA strategic tide stations with tidal deviation and prediction context at
+  ports and chokepoints
+- NASA SEDAC coastal exposure zones at strategic ports
+- Thermal-AIS gap zones: cells where thermal detections and AIS coverage diverge
 - Detail panel with observation time, ingest time, expiry, and geometry context
 - Source health reporting with explicit live, cache-backed, and failed states
 - Layer toggles that reflect stale, degraded, and down source conditions directly
 - Reference infrastructure overlays for energy, connectivity, and strategic nodes
-- Static maritime reference overlays for jurisdictional boundaries, routing measures, and infrastructure
-- Derived context in detail views: jurisdictional membership, routing context, and proximity to infrastructure
+- Static maritime reference overlays for jurisdictional boundaries, routing
+  measures, and infrastructure
+- Derived context in detail views: jurisdictional membership, routing context,
+  and proximity to infrastructure
 - Thermal anomaly alerts that pivot into nearby infrastructure context
-- Proximity query and Area Intelligence Report with explicit distance ranking across all active source types
+- Proximity query and Area Intelligence Report with explicit distance ranking
+  across all active source types
 - Vessel-in-zone correlation against watchlist and sanctioned-fleet reference data
-- Progressive zoom: dense real-time layers suppressed at world zoom, rendered on drill-down
-- Disruption events annotated with orbital visibility context to separate infrastructure effects from environmental causes
+- Progressive zoom: dense real-time layers suppressed at world zoom, rendered
+  on drill-down
+- Disruption events annotated with orbital visibility context to separate
+  infrastructure effects from environmental causes
 - Deep-ocean pressure anomaly context for underwater event triage
 - Watchlist-matched entity tracking with highlight rings on active positions
-- Vessel selection can draw mapped DSC counterpart links to show who is
-  talking to whom in the current comms graph
+- Vessel selection draws mapped DSC counterpart links to show who is talking
+  to whom in the current comms graph
 - Plain-language advisory popups replacing raw aviation and maritime codes
-- Single-source-of-truth tier access control with per-feature gating across starter, premium, and enterprise tiers
-- Performance: response pre-serialisation and conditional HTTP caching on high-frequency routes
+- Per-feature tier gating across starter, premium, and enterprise tiers
+- Performance: response pre-serialisation, conditional HTTP caching on
+  high-frequency routes, and sub-50ms maritime-regions bounding-box queries
 
 **Non-goals:**
 
-- It does not treat public commentary as a primary evidence class.
-- It does not collapse uncertainty into a single opaque score.
-- It does not confuse continuity of display with continuity of truth.
+- Public commentary is not treated as a primary evidence class.
+- Uncertainty is not collapsed into a single opaque score.
+- Continuity of display is not treated as continuity of truth.
 
 ---
 
-## Operating Thesis
+## Where Phantom Tide Is Useful
 
-Most tools are good at one of these jobs:
-
-- show vessel positions
-- show aircraft positions
-- show incidents
-- show weather
-- show advisories
-
-Phantom Tide is built for the seams between them.
+Most platforms handle vessel positions, aircraft positions, incidents, weather,
+or advisories as separate products. Phantom Tide is built for cases where those
+sources cross.
 
 Examples:
 
 - A vessel broadcasts position A while satellite detection suggests position B.
-- A disruption advisory is live, but environmental conditions suggest a natural explanation may be plausible.
+- A disruption advisory is live but environmental conditions suggest a natural
+  explanation may apply.
 - Traffic disappears from a corridor while warnings and weather remain active.
-- Aircraft hold near a maritime disruption area while the sea picture below changes.
+- Aircraft hold near a maritime disruption area while the sea picture below
+  changes.
 
-The platform is strongest when several weak signals combine into one strong
-question. Convergence is the triage layer for that question.
+Convergence is the triage layer for cases where several weak signals combine
+into one strong question.
 
 ---
 
@@ -319,13 +422,13 @@ exist because independent signals overlap, not because a designer drew it.*
 
 ![Weather mesh — North Atlantic sensor network](docs/screenshots/weather_mesh.png)
 *Wave and wind context rendered as a continuous field for operational reading
-rather than a pile of isolated station markers.*
+rather than isolated station markers.*
 
 ### North Atlantic
 
 ![North Atlantic — weather mesh and vessel density](docs/screenshots/atlantic.png)
-*Mid-zoom regional view. Environmental context changes how every movement
-pattern should be interpreted.*
+*Mid-zoom regional view. Environmental context changes how movement patterns
+should be interpreted.*
 
 ### Event Detail
 
@@ -352,25 +455,24 @@ and opens the detail panel without losing the table.*
 ### DSC Communications
 
 ![DSC communications analyst table](docs/screenshots/dsc_communications.png)
-*DSC communications are surfaced as an analyst table, not a feed-branded sidecar.
-Mapped and unmapped traffic stay visible, and vessel selection can pivot that
-same comms graph back onto the map as counterpart links. Test traffic is kept
-visible but classified separately so it does not read like an incident queue.*
+*DSC communications as an analyst table. Mapped and unmapped traffic stay
+visible. Vessel selection pivots the same comms graph back onto the map as
+counterpart links. Test traffic is classified separately so it does not read
+like an incident queue.*
 
 ![DSC communication detail](docs/screenshots/dsc_detail.png)
-*Selecting a communication opens the same right-side detail workflow used by
-the rest of the product, with party context, telecommands, timing, analyst
-classification, and map focus kept in one analyst surface.*
+*Selecting a communication opens the detail workflow with party context,
+telecommands, timing, analyst classification, and map focus in one surface.*
 
 ![Vessel detail with DSC context](docs/screenshots/dsc_vessel_workflow.png)
-*Selecting a vessel can now pull linked DSC communications into the same
-detail panel and draw mapped comms counterparts back onto the map, so the
-operator can see who is talking to whom without leaving the main workflow.*
+*Selecting a vessel pulls linked DSC communications into the detail panel and
+draws mapped comms counterparts onto the map.*
 
 ### Aircraft Quick Jump
 
 ![Aircraft quick jump search](docs/screenshots/aircraft_search.png)
-*Free-text aircraft search resolves across loaded live tracks, alerts, and tracked/watchlist aircraft so the operator can jump straight to the right signal.*
+*Free-text aircraft search resolves across loaded live tracks, alerts, and
+tracked/watchlist aircraft.*
 
 ### Proximity Query
 
@@ -386,9 +488,13 @@ operator can see who is talking to whom without leaving the main workflow.*
 
 Some deployments use a tiered access model:
 
-- **Starter** — core investigative workflow, primary live layers, advisory tables
-- **Premium** — extended reference overlays, watchlist correlation, environmental context layers, entity tracking
-- **Enterprise** — port and terminal data, highest-volume reference datasets
+- **Starter** — core investigative workflow, primary live layers, advisory tables,
+  Analyst Notebook (50 entries)
+- **Premium** — extended reference overlays, watchlist correlation, environmental
+  context layers, entity tracking, fleet tracks, Thermal-AIS Gap Zones,
+  Analyst Notebook (500 entries)
+- **Enterprise** — port and terminal data, highest-volume reference datasets,
+  Analyst Notebook (unlimited)
 
 The public-facing instance at [phantom.labs.jamessawyer.co.uk](https://phantom.labs.jamessawyer.co.uk)
 runs at starter tier by default.
@@ -400,19 +506,23 @@ To request expanded access, use the Access button in the dashboard header or
 
 ## Runtime Construction
 
-Phantom Tide is built as a split runtime:
+Phantom Tide runs as a split runtime:
 
 - a browser surface for spatial interaction and analyst workflow
 - an API path for query, gating, and evidence serving
-- a worker path for collection, normalization, scheduled refresh, and archive writes
+- a worker path for collection, normalisation, scheduled refresh, and archive
+  writes
 
-The current implementation emphasizes deterministic operational behavior:
+Current implementation priorities:
 
-- pre-serialized heavy responses and conditional HTTP revalidation on hot paths
-- lazy activation for dense layers rather than default full-paint behavior
+- pre-serialised heavy responses and conditional HTTP revalidation on hot paths
+- bounding-box precomputation for large reference datasets so world-scale
+  queries do not degrade under load
+- lazy activation for dense layers rather than default full-paint behaviour
 - explicit freshness, degraded, and stale-state semantics in the UI
 - modular frontend code separated by state, data, and rendering concerns
-- containerized execution with persistent runtime data and independent storage paths
+- containerised execution with persistent runtime data and independent storage
+  paths
 
 Third-party components and reference corpora are used under their respective
 licenses. This README describes the product surface and runtime design, not a
