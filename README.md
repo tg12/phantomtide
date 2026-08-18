@@ -35,6 +35,9 @@ What this public repository is:
 
 Current release: **v2.0.0**
 
+Queued: **v2.0.1** — data-source fixes and routine maintenance, prepared and
+pending deploy. See [CHANGELOG.md](CHANGELOG.md).
+
 Next tracked release: **v2.1.0**
 
 Tracked next-release additions:

@@ -6,6 +6,27 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.1 — 2026-08-18 (prepared, pending deploy)
+
+### GPS satellite tracking data coverage
+
+Two GPS satellite tracking (TLE) data sources used for jamming and spoofing
+cross-checks had been intermittently blocked by their upstream providers.
+Network-routing has been fixed and is already in effect on the live service.
+
+### Satellite thermal-detection data source
+
+The credential for the satellite thermal-detection (VIIRS) data source had
+lapsed, taking that source offline. It has been renewed. Takes effect on the
+next deploy.
+
+### Maintenance
+
+Routine dependency updates and a backend code-quality pass. No behaviour
+change on normal inputs. Takes effect on the next deploy.
+
+---
+
 ## v2.0.0 — 2026-06-10
 
 ### Registration hardening
