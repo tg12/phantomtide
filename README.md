@@ -33,10 +33,8 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.0.0**
-
-Queued: **v2.0.1** — data-source fixes and routine maintenance, prepared and
-pending deploy. See [CHANGELOG.md](CHANGELOG.md).
+Current release: **v2.0.1** — data-source fixes, background-collection
+reliability, and an aircraft watchlist refresh. See [CHANGELOG.md](CHANGELOG.md).
 
 Next tracked release: **v2.1.0**
 

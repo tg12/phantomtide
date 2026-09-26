@@ -6,24 +6,52 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## v2.0.1 — 2026-08-18 (prepared, pending deploy)
+## v2.0.1 — 2026-09-26
 
 ### GPS satellite tracking data coverage
 
 Two GPS satellite tracking (TLE) data sources used for jamming and spoofing
 cross-checks had been intermittently blocked by their upstream providers.
-Network-routing has been fixed and is already in effect on the live service.
+Network routing has been fixed.
 
 ### Satellite thermal-detection data source
 
 The credential for the satellite thermal-detection (VIIRS) data source had
-lapsed, taking that source offline. It has been renewed. Takes effect on the
-next deploy.
+lapsed, taking that source offline. It has been renewed.
+
+### Background collection reliability
+
+- A short outage in an internal coordination service could stop background
+  data collection until the service was restarted, while health checks still
+  reported it as healthy. Collection now rides out short outages, recovers
+  automatically after longer ones, and the health check reflects whether
+  collection is actually running.
+- Historical-archive writes that failed during a database outage could be
+  discarded when the retry path believed they had succeeded. They are now kept
+  until the archive confirms them, and are preserved across restarts.
+- Several account and notebook actions no longer stall other dashboard requests
+  while waiting on the user database.
+- Manual "re-collect" requests are now handed to the background collector
+  instead of running inside the web service.
+
+### Aircraft watchlist refresh
+
+The aircraft watchlist has been regenerated from its upstream community
+sources: 17,250 aircraft (up from 16,048), with tag vocabulary re-standardised.
+
+### Known upstream issues
+
+Three third-party feeds are currently degraded at the source, not in Phantom
+Tide. The dashboard reports each as down or empty until the provider recovers:
+
+- The live vessel-position list is returning no active ships.
+- The news-event feed is rate-limiting requests.
+- The official maritime safety-area feed is refusing connections.
 
 ### Maintenance
 
 Routine dependency updates and a backend code-quality pass. No behaviour
-change on normal inputs. Takes effect on the next deploy.
+change on normal inputs.
 
 ---
 
