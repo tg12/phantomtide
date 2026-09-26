@@ -6,6 +6,18 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.3 — 2026-09-26
+
+### Maritime safety-area notices shown again
+
+After v2.0.2 restored the connection, the safety-area layer still showed
+nothing: each notice's issue time was being read as its expiry time, so every
+notice was treated as already expired on arrival. Expiry is now read from the
+notice's cancellation or "until" wording. About 180 active notices are shown
+worldwide, most with exact positions.
+
+---
+
 ## v2.0.2 — 2026-09-26
 
 ### Maritime safety areas restored
