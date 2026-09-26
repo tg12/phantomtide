@@ -6,6 +6,38 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.2 — 2026-09-26
+
+### Maritime safety areas restored
+
+The official maritime safety-area layer had stopped updating because its
+provider's older service address was refusing connections. It now reads the
+provider's current address and is live again.
+
+### News-event layer restored
+
+The news-event layer had been rate-limited by its provider. It now reads the
+provider's published bulk data instead. Matching is stricter than before, so
+expect fewer but more relevant hotspots, and hotspots are now placed by the
+country the coverage is about rather than where it was published.
+
+### Vessel positions
+
+- New open vessel-position feed for the Baltic Sea, published by the Finnish
+  transport agency (Fintraffic, CC BY 4.0). It merges into the existing vessel
+  layer alongside the global live feed.
+- Two community vessel feeds that had started obscuring their data have been
+  retired. They were no longer contributing positions.
+
+### Still degraded
+
+The third-party live vessel list noted in v2.0.1 has moved behind a paid plan.
+Vessel positions continue to arrive from the other feeds; its extra vessel
+context (sanctions, dark-vessel and chokepoint annotations) is not yet
+reconnected.
+
+---
+
 ## v2.0.1 — 2026-09-26
 
 ### GPS satellite tracking data coverage
