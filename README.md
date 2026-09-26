@@ -33,8 +33,8 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.0.3** — maritime safety-area notices now display again,
-plus the v2.0.2 news-event and Baltic vessel-feed fixes. See [CHANGELOG.md](CHANGELOG.md).
+Current release: **v2.0.4** — faster maritime safety-area refresh, on top of the
+v2.0.2–v2.0.3 data-source fixes. See [CHANGELOG.md](CHANGELOG.md).
 
 Next tracked release: **v2.1.0**
 

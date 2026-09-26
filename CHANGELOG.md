@@ -6,6 +6,16 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.4 — 2026-09-26
+
+### Faster maritime safety-area refresh
+
+Reading expiry dates from safety-area notices had become slow enough to delay
+each refresh by several minutes. Refreshes now complete in seconds, with the
+same results.
+
+---
+
 ## v2.0.3 — 2026-09-26
 
 ### Maritime safety-area notices shown again
