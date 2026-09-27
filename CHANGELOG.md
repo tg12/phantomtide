@@ -6,6 +6,17 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.10 — 2026-09-27
+
+### Lighter load on data providers
+
+The dashboard was asking the background data service to rebuild its full
+dataset every five minutes rather than hourly, fetching from dozens of
+third-party sources each time. It now rebuilds hourly, or sooner only when its
+data goes stale, cutting request volume to those providers by about 90%.
+
+---
+
 ## v2.0.9 — 2026-09-27
 
 ### More memory headroom for the background data service
