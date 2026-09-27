@@ -6,6 +6,16 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.5 — 2026-09-27
+
+### Health status correction
+
+Since v2.0.2 the status panel could report vessel tracking as failed, and the
+overall service as degraded, while vessel positions were arriving normally. The
+check now recognises the new vessel feeds.
+
+---
+
 ## v2.0.4 — 2026-09-26
 
 ### Faster maritime safety-area refresh
