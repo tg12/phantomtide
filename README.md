@@ -33,8 +33,8 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.0.7** — stability fix for the background data service, on
-top of the v2.0.2–v2.0.6 data-source fixes. See [CHANGELOG.md](CHANGELOG.md).
+Current release: **v2.0.8** — further stability work on the background data
+service, on top of the v2.0.2–v2.0.7 fixes. See [CHANGELOG.md](CHANGELOG.md).
 
 Next tracked release: **v2.1.0**
 

@@ -6,6 +6,16 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.8 — 2026-09-27
+
+### Background data service isolation
+
+Each hourly data refresh now runs as its own short-lived process. Memory used
+by one refresh is fully released before the next, and a failed refresh can no
+longer interrupt the service that hands data to the dashboard.
+
+---
+
 ## v2.0.7 — 2026-09-27
 
 ### Background data service stability
