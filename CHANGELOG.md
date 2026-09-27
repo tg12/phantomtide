@@ -6,6 +6,18 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.7 — 2026-09-27
+
+### Background data service stability
+
+The background service that gathers vessel and aircraft data was running out
+of memory and restarting several times an hour. One vessel dataset had grown
+to over 600 MB because vessels with no recorded name were each listed against
+every other unnamed vessel. That dataset is now about 150 MB and the service's
+peak memory use is roughly halved, so it no longer restarts mid-refresh.
+
+---
+
 ## v2.0.6 — 2026-09-27
 
 ### Deep-ocean tsunami buoys restored
