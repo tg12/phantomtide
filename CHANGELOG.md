@@ -6,6 +6,16 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.9 — 2026-09-27
+
+### More memory headroom for the background data service
+
+The background data service now runs on a Python runtime that uses
+considerably less memory for this workload, and has more memory available,
+so hourly data refreshes complete with a comfortable margin.
+
+---
+
 ## v2.0.8 — 2026-09-27
 
 ### Background data service isolation
