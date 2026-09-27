@@ -6,6 +6,23 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.6 — 2026-09-27
+
+### Deep-ocean tsunami buoys restored
+
+The tsunami buoy layer was reported down most of the time. The buoys send
+their readings in batches every six hours, but the dashboard treated anything
+older than two hours as stale, so most of the time every buoy looked offline.
+The freshness window now matches the buoys' reporting schedule.
+
+### Still degraded upstream
+
+- The US maritime security advisories source is refusing requests from the
+  service; the most recent advisories remain available from cache.
+- The third-party live vessel list noted in v2.0.1 remains unavailable.
+
+---
+
 ## v2.0.5 — 2026-09-27
 
 ### Health status correction
