@@ -33,8 +33,8 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.0.10** — reduces load on third-party data providers, on top
-of the v2.0.2–v2.0.9 fixes. See [CHANGELOG.md](CHANGELOG.md).
+Current release: **v2.0.11** — dashboard layout and visual cleanup, on top of the
+v2.0.2–v2.0.10 fixes. See [CHANGELOG.md](CHANGELOG.md).
 
 Next tracked release: **v2.1.0**
 

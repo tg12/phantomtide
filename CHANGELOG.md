@@ -6,6 +6,27 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.11 — 2026-09-30
+
+### Dashboard layout and visual cleanup
+
+- The dashboard no longer extends past the browser window on laptop-sized
+  screens. The header, the detail panel and the menu for Guide, About and Help
+  are now fully visible from about 1000 px wide upward.
+- Map zoom and locate buttons are no longer covered by notices at the top of
+  the map.
+- The layer list is a plain divided list instead of a stack of boxes, so more
+  layers fit on screen.
+- Removed decorative gradients, blur effects and glow from panels, sign-in
+  pages and tracked-aircraft markers. Tracked aircraft keep a single ring.
+- Header and section labels use the normal text face; monospace is kept for
+  values such as counts, identifiers and timestamps.
+- The access-tier notice is one line stating what the tier limits.
+- The map search button is labelled "Search". The fleet box loads tracks on
+  Enter and clears them on Escape.
+
+---
+
 ## v2.0.10 — 2026-09-27
 
 ### Lighter load on data providers
