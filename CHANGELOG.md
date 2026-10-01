@@ -6,6 +6,30 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.13 — 2026-10-01
+
+### Energy, ice and radio layers
+
+- **Interconnector Flows (GB)**: live half-hourly flow on the ten subsea power
+  cables linking Great Britain to France, Belgium, the Netherlands, Norway,
+  Denmark and Ireland, pinned at the GB end. The detail panel shows direction,
+  share of capacity and a 24-hour trend. A link that sits at zero outside a
+  published outage can point to a cable fault. Data: Elexon BMRS.
+- **LNG Terminals (EU)**: daily tank inventory, send-out and regasification use
+  for about 30 European LNG import terminals, with national and EU gas-storage
+  fill alongside. Data: Gas Infrastructure Europe (ALSI and AGSI).
+- **Sea Ice Edge (NIC)**: the daily marginal ice zone and pack-ice boundary for
+  both poles from the US National Ice Center. Premium tier.
+- **Baltic Ice Restrictions**: Baltic ports and fairways where icebreaker
+  assistance requires a minimum ice class and tonnage, or is suspended. The
+  layer is seasonal and is normally empty from May to December. Data:
+  Fintraffic Digitraffic (CC BY 4.0).
+- **HF receivers (KiwiSDR)**: public shortwave receivers that can be tuned
+  remotely, under Reference Map Layers. Receivers enrolled in the KiwiSDR TDoA
+  network, which can locate an HF transmitter, are marked.
+
+---
+
 ## v2.0.12 — 2026-10-01
 
 ### Consistent interface and clearer wording

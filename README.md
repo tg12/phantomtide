@@ -33,8 +33,9 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.0.12** — consistent type, banners and buttons across the
-dashboard and help pages, on top of the v2.0.2–v2.0.11 fixes. See [CHANGELOG.md](CHANGELOG.md).
+Current release: **v2.0.13** — new energy, ice and radio layers: GB power
+interconnector flows, European LNG terminals, the daily sea-ice edge, Baltic
+ice restrictions and public HF receivers. See [CHANGELOG.md](CHANGELOG.md).
 
 Next tracked release: **v2.1.0**
 
@@ -96,6 +97,12 @@ sessions, is private to the user, and is queryable and exportable.
 - **Thermal-vessel gap zones**: scored grid cells where thermal detections and
   vessel coverage diverge. Each cell shows gap type, detection count, and
   vessel count. Now a toggleable premium layer refreshed every 6 hours.
+- **Energy infrastructure**: live flow on the ten GB subsea power
+  interconnectors, and daily inventory and send-out at European LNG import
+  terminals with national gas-storage fill.
+- **Ice**: the daily sea-ice edge for both poles (premium) and seasonal Baltic
+  icebreaker restrictions by port.
+- **HF receivers**: public KiwiSDR receivers, with TDoA-capable sites marked.
 
 ### DSC Distress Alerts
 
@@ -210,6 +217,7 @@ detail workflow:
   airline prefix over a rolling time window (premium)
 - thermal-vessel gap zones mark areas where thermal detections and vessel
   coverage diverge
+- public KiwiSDR HF receivers, refreshed with each collector run
 - artifact freshness, reuse, mixed-run state, and scan caps remain visible so
   data presence is not confused with current or complete context
 
