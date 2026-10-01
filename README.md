@@ -33,9 +33,10 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.0.13** — new energy, ice and radio layers: GB power
+Current release: **v2.0.14** — reference layers now update as soon as each
+refresh lands, on top of the v2.0.13 energy, ice and radio layers (GB power
 interconnector flows, European LNG terminals, the daily sea-ice edge, Baltic
-ice restrictions and public HF receivers. See [CHANGELOG.md](CHANGELOG.md).
+ice restrictions and public HF receivers). See [CHANGELOG.md](CHANGELOG.md).
 
 Next tracked release: **v2.1.0**
 

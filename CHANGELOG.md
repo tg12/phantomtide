@@ -6,6 +6,17 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.14 — 2026-10-01
+
+### Fresher reference layers
+
+- Port, desalination, pipeline and refinery layers, the sea-ice edge, and the
+  airspace and infrastructure context used in area reports now show each
+  refresh as soon as it lands. Previously they could keep showing older data
+  until the service restarted.
+
+---
+
 ## v2.0.13 — 2026-10-01
 
 ### Energy, ice and radio layers
