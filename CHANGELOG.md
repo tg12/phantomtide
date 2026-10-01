@@ -6,6 +6,16 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.15 — 2026-10-01
+
+### Reference layers reload after a page refresh
+
+- Reference layers that were switched on (cables, EEZ, sea ice, reference map
+  layers and others) now load again after the page is refreshed. Previously
+  they could show as loaded while drawing nothing until toggled off and on.
+
+---
+
 ## v2.0.14 — 2026-10-01
 
 ### Fresher reference layers
