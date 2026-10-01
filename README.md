@@ -377,13 +377,13 @@ exist because independent signals overlap, not because a designer drew it.*
 
 ### Ocean State
 
-![Weather mesh — North Atlantic sensor network](docs/screenshots/weather_mesh.png)
-*Wave and wind context rendered as a continuous field for operational reading
-rather than isolated station markers.*
+![Ocean observations — North Atlantic sensor network](docs/screenshots/weather_mesh.png)
+*Buoy and ship observations across the North Atlantic, read alongside vessel
+positions and active warnings.*
 
 ### North Atlantic
 
-![North Atlantic — weather mesh and vessel density](docs/screenshots/atlantic.png)
+![North Atlantic — vessel positions and airspace context](docs/screenshots/atlantic.png)
 *Mid-zoom regional view. Environmental context changes how movement patterns
 should be interpreted.*
 
@@ -425,11 +425,11 @@ telecommands, timing, analyst classification, and map focus in one surface.*
 *Selecting a vessel pulls linked DSC communications into the detail panel and
 draws mapped comms counterparts onto the map.*
 
-### Aircraft Quick Jump
+### Map Search
 
-![Aircraft quick jump search](docs/screenshots/aircraft_search.png)
-*Free-text aircraft search resolves across loaded live tracks, alerts, and
-tracked/watchlist aircraft.*
+![Map search](docs/screenshots/aircraft_search.png)
+*Free-text search across live aircraft and vessel tracks, reference places, and
+catalog matches, with freshness and confidence shown before the map moves.*
 
 ### Proximity Query
 
