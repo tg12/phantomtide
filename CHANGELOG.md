@@ -6,6 +6,19 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.16 — 2026-10-01
+
+### Faster reference layers and three restored layers
+
+- Submarine cables, marine transport lanes and vessel routing measures load in
+  seconds instead of timing out and sitting on "Queued". They now load for the
+  area you are viewing, with lighter geometry, and appear from zoom 3 (cables)
+  or zoom 4 (lanes and routing), where they become readable.
+- Danger and restricted zones, lightering zones and anchorages now show data;
+  they were previously empty.
+
+---
+
 ## v2.0.15 — 2026-10-01
 
 ### Reference layers reload after a page refresh

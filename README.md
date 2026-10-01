@@ -33,8 +33,8 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.0.15** — reference layers reload correctly after a page
-refresh and update as soon as each refresh lands, on top of the v2.0.13 energy, ice and radio layers (GB power
+Current release: **v2.0.16** — faster reference layers, restored danger zone,
+lightering and anchorage layers, correct reloads after a page refresh, on top of the v2.0.13 energy, ice and radio layers (GB power
 interconnector flows, European LNG terminals, the daily sea-ice edge, Baltic
 ice restrictions and public HF receivers). See [CHANGELOG.md](CHANGELOG.md).
 
