@@ -6,6 +6,29 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.12 — 2026-10-01
+
+### Consistent interface and clearer wording
+
+- Titles, labels and buttons use one type style across the dashboard, dialogs
+  and help pages. Monospace is kept for values such as coordinates, IDs, API
+  routes and timestamps.
+- All map notices of the same kind look the same. The "workspace partial"
+  notice now has a visible background.
+- Buttons in the signal detail panel share one style. "Save to Notebook" and
+  "Show track" no longer take the colour of the selected layer.
+- The About, Guide and License pages now load the intended fonts instead of
+  falling back to a default serif.
+- The help dialog is reorganised into workspace mode, keyboard shortcuts,
+  source status, zoom behaviour, getting started and the export API.
+- Plainer wording in the threat panel, workspace notices, Intel tables,
+  maintenance page and About page; repeated messages removed.
+- Detail panel field names are formatted consistently, and internal weather
+  lookup fields are no longer listed.
+- The header menu closes after choosing an item.
+
+---
+
 ## v2.0.11 — 2026-09-30
 
 ### Dashboard layout and visual cleanup
