@@ -6,6 +6,16 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.23 — 2026-10-02
+
+### Maintenance
+
+- Updated the web framework, database and runtime components to their latest
+  patched releases.
+- Internal code tidy-up with no change to how the dashboard behaves.
+
+---
+
 ## v2.0.22 — 2026-10-02
 
 ### Reference layers recover after maintenance
