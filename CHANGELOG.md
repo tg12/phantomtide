@@ -6,6 +6,21 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.17 — 2026-10-02
+
+### More reliable history and source status
+
+- Interconnector flows and LNG terminal readings now build a history over time
+  instead of keeping only their first reading.
+- Source status is more honest: the global vessel snapshot shows as degraded
+  when its upstream feed returns no vessels, and archive status no longer
+  reports data as lost when it was stored.
+- GPS interference layers refresh after a service restart instead of serving
+  data that could be several days old.
+- Lower disk use on the database server.
+
+---
+
 ## v2.0.16 — 2026-10-01
 
 ### Faster reference layers and three restored layers
