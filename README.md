@@ -33,7 +33,7 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.0.23** — up-to-date runtime components, map layers recover automatically after maintenance, wider deep-ocean sensor coverage, DSC
+Current release: **v2.0.24** — live U.S. maritime advisories, vessel flags from MMSI, up-to-date runtime components, map layers recover automatically after maintenance, wider deep-ocean sensor coverage, DSC
 communications back online, refreshed fallback
 routing for blocked sources,
 UKMTO maritime security warnings layer, reliable

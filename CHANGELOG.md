@@ -6,6 +6,17 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.24 — 2026-10-02
+
+### Maritime advisories and vessel flags
+
+- U.S. Maritime Advisories are live again, including the newest Red Sea and
+  Gulf advisories.
+- Vessel details show the flag state for ships whose feed does not report
+  one, worked out from the vessel's MMSI and marked as such.
+
+---
+
 ## v2.0.23 — 2026-10-02
 
 ### Maintenance
