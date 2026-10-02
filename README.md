@@ -33,7 +33,7 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.0.21** — wider deep-ocean sensor coverage, DSC
+Current release: **v2.0.22** — map layers recover automatically after maintenance, wider deep-ocean sensor coverage, DSC
 communications back online, refreshed fallback
 routing for blocked sources,
 UKMTO maritime security warnings layer, reliable

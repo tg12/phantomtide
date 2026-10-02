@@ -6,6 +6,16 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.22 — 2026-10-02
+
+### Reference layers recover after maintenance
+
+- Map layers that failed to load during a brief service restart no longer stay
+  marked Unavailable. They retry automatically, and reloading the page brings
+  them back.
+
+---
+
 ## v2.0.21 — 2026-10-02
 
 ### Wider ocean sensor coverage
