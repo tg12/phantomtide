@@ -6,6 +6,19 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.21 — 2026-10-02
+
+### Wider ocean sensor coverage
+
+- Deep-ocean pressure sensors now cover every DART buoy NOAA reports as active
+  (41, up from 17), so tsunami and seabed-pressure readings reach more of the
+  Pacific, Atlantic and Indian Ocean.
+- Marine observations no longer flag quiet regions as failed when there is
+  simply no recent data to report.
+- Retired two data feeds whose providers have shut down.
+
+---
+
 ## v2.0.20 — 2026-10-02
 
 ### DSC communications back online
