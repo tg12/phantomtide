@@ -6,6 +6,16 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.20 — 2026-10-02
+
+### DSC communications back online
+
+- DSC communications are updating again after the upstream site redesign. Some
+  station lookups the site used to publish are no longer available, so fewer
+  messages can be placed on the map; the layer status says so.
+
+---
+
 ## v2.0.19 — 2026-10-02
 
 ### More reliable fallback routing
