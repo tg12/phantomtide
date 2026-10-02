@@ -6,6 +6,18 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.19 — 2026-10-02
+
+### More reliable fallback routing
+
+- Sources that block the server's address (DSC communications, satellite
+  orbital data) can again fall back to a refreshed pool of public proxies,
+  revalidated every two hours.
+- DSC records fetched through a public proxy are labelled as such in the detail
+  panel, because that path is not verified end to end.
+
+---
+
 ## v2.0.18 — 2026-10-02
 
 ### UKMTO maritime security warnings

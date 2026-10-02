@@ -33,7 +33,8 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.0.18** — UKMTO maritime security warnings layer, reliable
+Current release: **v2.0.19** — refreshed fallback routing for blocked sources,
+UKMTO maritime security warnings layer, reliable
 layer history and source status, on top of faster reference layers, restored danger zone, lightering and anchorage
 layers, correct reloads after a page refresh, and the v2.0.13 energy, ice and radio layers (GB power
 interconnector flows, European LNG terminals, the daily sea-ice edge, Baltic
