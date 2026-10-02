@@ -6,6 +6,18 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.18 — 2026-10-02
+
+### UKMTO maritime security warnings
+
+- New **UKMTO Warnings** layer: numbered UK Maritime Trade Operations warnings
+  (attacks, suspicious activity) for the Middle East and Indian Ocean, with
+  type, source assessment, issue date, the warning text and a link to the
+  original PDF. Most warnings name an area rather than a position; those are
+  shown at the area centre and labelled as such.
+
+---
+
 ## v2.0.17 — 2026-10-02
 
 ### More reliable history and source status
