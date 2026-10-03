@@ -6,6 +6,17 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## v2.0.25 — 2026-10-03
+
+### Nautical charts
+
+- New NOAA Nautical Charts layer for US waters: shipping lanes, traffic
+  separation schemes, restricted and special areas, obstructions and
+  navigation aids from NOAA's official electronic charts. Shown from zoom 8;
+  for situational context only, not for navigation.
+
+---
+
 ## v2.0.24 — 2026-10-02
 
 ### Maritime advisories and vessel flags
