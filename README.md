@@ -33,14 +33,7 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.0.25** — NOAA nautical chart overlay, live U.S. maritime advisories, vessel flags from MMSI, up-to-date runtime components, map layers recover automatically after maintenance, wider deep-ocean sensor coverage, DSC
-communications back online, refreshed fallback
-routing for blocked sources,
-UKMTO maritime security warnings layer, reliable
-layer history and source status, on top of faster reference layers, restored danger zone, lightering and anchorage
-layers, correct reloads after a page refresh, and the v2.0.13 energy, ice and radio layers (GB power
-interconnector flows, European LNG terminals, the daily sea-ice edge, Baltic
-ice restrictions and public HF receivers). See [CHANGELOG.md](CHANGELOG.md).
+Current release: **v2.0.26** - dashboard readability, keyboard focus and reduced-motion improvements, a narrow-window Safari layout fix, and refreshed aircraft watchlist data.
 
 Next tracked release: **v2.1.0**
 

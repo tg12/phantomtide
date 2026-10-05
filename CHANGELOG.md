@@ -6,6 +6,15 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
+## [Unreleased] — v2.1.0 planning
+
+## v2.0.26 - 2026-10-05
+
+- Simplified dashboard surfaces, empty states, documentation and interface copy.
+- Improved keyboard focus and reduced-motion behavior.
+- Fixed an oversized header that reduced map space in Safari at narrow desktop widths.
+- Refreshed the aircraft watchlist from its existing upstream sources and fixed tags being split into individual letters.
+
 ## v2.0.25 — 2026-10-03
 
 ### Nautical charts
