@@ -6,7 +6,24 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v2.1.0 planning
+## [Unreleased] — v2.1.1 planning
+
+## v2.1.0 - 2026-10-21
+
+### Space layers
+
+- New Aurora Oval layer: the forecast edge of the aurora oval in each
+  hemisphere from NOAA's OVATION model, where HF radio and GNSS degradation
+  become likely.
+- New Space Launches layer: orbital launches from the last day to 30 days
+  ahead, pinned at the launch pad with time, window, vehicle, mission and orbit.
+- New Crewed Space Stations layer: current ISS and Tiangong positions with
+  about one orbit of ground track ahead.
+
+### Other
+
+- Smoother dashboard loading under heavy use.
+- Updated build and database images.
 
 ## v2.0.26 - 2026-10-05
 

@@ -33,9 +33,9 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.0.26** - dashboard readability, keyboard focus and reduced-motion improvements, a narrow-window Safari layout fix, and refreshed aircraft watchlist data.
+Current release: **v2.1.0** - new space layers (aurora oval, orbital launches, crewed space stations) and smoother loading under heavy use.
 
-Next tracked release: **v2.1.0**
+Next tracked release: **v2.1.1**
 
 Tracked next-release additions:
 
