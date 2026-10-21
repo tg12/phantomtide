@@ -6,7 +6,12 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v2.1.1 planning
+## [Unreleased] — v2.1.2 planning
+
+## v2.1.1 - 2026-10-21
+
+- Space Launches now keeps launches from the last day on the map after
+  their launch window closes.
 
 ## v2.1.0 - 2026-10-21
 

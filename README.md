@@ -33,9 +33,9 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.1.0** - new space layers (aurora oval, orbital launches, crewed space stations) and smoother loading under heavy use.
+Current release: **v2.1.1** - new space layers (aurora oval, orbital launches, crewed space stations); recently flown launches stay on the map for a day.
 
-Next tracked release: **v2.1.1**
+Next tracked release: **v2.1.2**
 
 Tracked next-release additions:
 
