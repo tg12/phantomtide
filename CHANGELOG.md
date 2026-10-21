@@ -6,7 +6,14 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v2.1.2 planning
+## [Unreleased] — v2.1.3 planning
+
+## v2.1.2 - 2026-10-21
+
+- UKMTO Warnings is current again. UKMTO changed how it publishes warnings at
+  the end of September and the layer had stopped at warning 146-26; it now
+  reads UKMTO's incident list directly and shows every report at the position
+  UKMTO gives, with the incident time and vessel type.
 
 ## v2.1.1 - 2026-10-21
 
