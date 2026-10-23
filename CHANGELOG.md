@@ -6,7 +6,18 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v2.1.3 planning
+## [Unreleased] — v2.2.1 planning
+
+## v2.2.0 - 2026-10-23
+
+- GPS Interference now includes live cells built every 15 minutes from
+  adsb.lol aircraft data: hexagons where aircraft report degraded or lost GNSS
+  position over the last 6 hours, alongside the daily GPSJam grid.
+- New Seismic Events (EMSC) layer: earthquakes of magnitude 2.5 and above from
+  the last 36 hours from the European-Mediterranean Seismological Centre, a
+  second catalogue beside USGS.
+- New Natural Hazards (EONET) layer: NASA EONET erupting volcanoes, wildfires,
+  severe storms and icebergs, pinned at the latest reported position.
 
 ## v2.1.2 - 2026-10-21
 
