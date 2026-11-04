@@ -8,6 +8,28 @@ Dates are UTC. Versions follow semantic versioning.
 
 ## [Unreleased] — v2.2.1 planning
 
+### Layer status
+
+- Enabled layers display a persistent traffic-light status: green for complete
+  current coverage, yellow for partial coverage, and red for delayed or
+  unavailable data.
+- Background refreshes retain the last confirmed status, preventing labels and
+  layout from flashing between polls.
+
+### Data collection and reliability
+
+- Restored scheduled thermal-data ingestion and added collector health reporting
+  for missing, empty, delayed, and successful runs.
+- Strengthened input validation and failure reporting at data-source boundaries.
+- Added a data-source intake review covering contract stability, licensing,
+  provenance, freshness, and unique coverage.
+
+### Maintenance
+
+- Fixed the user-reporting maintenance command on supported host runtimes.
+- Removed obsolete and duplicated execution paths, consolidated runtime
+  contracts, refreshed dependencies, and expanded regression coverage.
+
 ## v2.2.0 - 2026-10-23
 
 - GPS Interference now includes live cells built every 15 minutes from
@@ -630,7 +652,7 @@ unchanged.
 
 ## v1.79.1 — 2026-05-21
 
-### Area intelligence report: significantly faster
+### Faster area intelligence reports
 
 - The area intelligence report, traffic query, and reference context endpoint
   now respond in under a millisecond for warm queries, down from up to 39
@@ -659,7 +681,7 @@ unchanged.
   storage health state surviving test file boundaries, and a spatial index
   cache that returned stale data when test fixtures redirected the reference
   data path. The fixes address real isolation contracts in the production
-  code, not only test scaffolding.
+  production code and test scaffolding.
 
 ---
 
@@ -705,8 +727,8 @@ unchanged.
 
 ### DART ocean buoy positions always shown
 
-- DART ocean buoy stations are now always plotted on the map, not only during
-  anomaly events. Normal readings and anomaly readings both produce visible
+- DART ocean buoy stations are now plotted during normal readings and anomaly
+  events. Both reading types produce visible
   positions; anomaly detections continue to receive higher source confidence
   weighting in the evidence engine.
 
@@ -750,8 +772,8 @@ unchanged.
 
 ### UX: Active state indicators are now colorblind-safe
 
-- Time-window buttons and history-mode controls now carry a two-pixel
-  underline emphasis on the active state in addition to color changes. The
+- Time-window buttons and history-mode controls now use color and a two-pixel
+  underline to mark the active state. The
   underline is color-independent so the active control is always
   distinguishable without relying on hue alone.
 
@@ -927,7 +949,7 @@ Carried forward to v1.79.0:
 - DSC communications are now surfaced as a first-class analyst lane instead of
   a feed-branded sidecar. The intel workspace keeps mapped and unmapped
   communications visible together so the operator can inspect the comms graph,
-  not just the subset with immediate map geometry.
+  including records without immediate map geometry.
 - Selected vessels can now load linked DSC communications directly into the
   same right-side detail panel used for the rest of Phantom Tide. When the
   counterpart ship or coast station has resolvable geometry, the map draws a
@@ -940,8 +962,8 @@ Carried forward to v1.79.0:
   call`, `Safety voice handoff`, `Routine call`, `Distress relay`, and
   SAR-linked urgency or coordination. This keeps routine radio checks from
   dominating the table while preserving them as evidence.
-- SAR-linked classification is now inferred from rescue-coordination endpoint
-  identity in addition to distress/urgency protocol fields, so non-distress
+- SAR-linked classification now uses rescue-coordination endpoint identity and
+  distress/urgency protocol fields, so non-distress
   rescue coordination traffic can still be surfaced as operationally relevant
   context.
 
@@ -997,8 +1019,8 @@ Carried forward to v1.79.0:
 
 ### Proximity panel completeness and clipboard export
 
-- The right-click proximity panel now shows all sources inside the radius
-  circle, not only the first matching category.
+- The right-click proximity panel now shows every source inside the radius
+  circle across all matching categories.
 - A copy button exports a padded plain-text snapshot covering event rows
   (all sources), datacenter infrastructure hits, and entity intelligence
   hits.
@@ -1324,7 +1346,7 @@ Carried forward to v1.79.0:
   consistent with how fire detections, seized vessels, and DART buoy anomalies
   have been signalled since v1.51.x.
 - Internal spoofing triage clustering rewritten from O(n²) single-linkage to
-  O(n) H3 hex binning, significantly reducing worst-case processing time on
+  O(n) H3 hex binning, reducing worst-case processing time on
   dense unknown-MMSI buckets.
 - Dark-fleet proximity scan rebuilt with a spatial grid index reducing the
   per-detection AIS search from linear to near-constant time.
