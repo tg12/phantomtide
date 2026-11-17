@@ -6,29 +6,37 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v2.2.1 planning
+## [Unreleased] — v2.2.2 planning
 
-### Layer status
+## v2.2.1 - 2026-11-17
 
-- Enabled layers display a persistent traffic-light status: green for complete
-  current coverage, yellow for partial coverage, and red for delayed or
-  unavailable data.
-- Background refreshes retain the last confirmed status, preventing labels and
-  layout from flashing between polls.
+### Broader live coverage
 
-### Data collection and reliability
+- Added official Israeli air-defence alerts and improved aircraft and vessel
+  coverage through new regional feeds and more resilient fallback paths.
+- Added an attributed Global Fishing Watch events layer for selected maritime
+  regions, with filters to keep the map focused on recent events.
+- Retired feeds that were no longer reachable and clarified which sources
+  provide live, partial, delayed, or cached data.
 
-- Restored scheduled thermal-data ingestion and added collector health reporting
-  for missing, empty, delayed, and successful runs.
-- Strengthened input validation and failure reporting at data-source boundaries.
-- Added a data-source intake review covering contract stability, licensing,
-  provenance, freshness, and unique coverage.
+### Weather context
 
-### Maintenance
+- Added nearby official AviationWeather.gov METAR observations to selected-item
+  weather context. Weatherstack remains available when no recent nearby report
+  is returned.
+- Improved SIGMET refresh behavior so confirmed all-clear responses remove old
+  hazards, while feed outages preserve the last complete view.
 
-- Fixed the user-reporting maintenance command on supported host runtimes.
-- Removed obsolete and duplicated execution paths, consolidated runtime
-  contracts, refreshed dependencies, and expanded regression coverage.
+### Reliability and usability
+
+- Enabled layers retain a clear status for current, partial, delayed, and
+  unavailable coverage instead of flickering between refreshes.
+- Fixed cases where vessel positions and other time-sensitive map data could
+  disappear or remain visible after their source state changed.
+- Restored scheduled thermal-data ingestion, improved collector health and
+  failure reporting, and strengthened data-source validation.
+- Fixed the user-reporting maintenance command on supported host runtimes and
+  removed obsolete or duplicated execution paths.
 
 ## v2.2.0 - 2026-10-23
 

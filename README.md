@@ -33,9 +33,18 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.2.0** - live GNSS interference cells from ADS-B, a second earthquake catalogue (EMSC) and a NASA EONET natural-hazards layer.
+Current release: **v2.2.1** - broader aircraft and vessel coverage, nearby official METAR context, clearer source health, and more reliable hazard and position updates.
 
-Next tracked release: **v2.2.1**
+Release highlights:
+
+- Official Israeli air-defence alerts, wider regional AIS coverage, aircraft
+  fallbacks, and attributed Global Fishing Watch events.
+- Nearby official METAR observations in selected-item weather context, with
+  clearer SIGMET all-clear and outage handling.
+- Persistent source-health status and fixes for stale or briefly missing map
+  data.
+
+Next tracked release: **v2.2.2**
 
 Tracked next-release additions:
 
