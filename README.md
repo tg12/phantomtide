@@ -33,18 +33,18 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.2.1** - broader aircraft and vessel coverage, nearby official METAR context, clearer source health, and more reliable hazard and position updates.
+Current release: **v2.3.0** - official aviation forecast geometry, richer
+selected-aircraft weather context, improved alert areas, and new NOAA maritime
+reference context.
 
 Release highlights:
 
-- Official Israeli air-defence alerts, wider regional AIS coverage, aircraft
-  fallbacks, and attributed Global Fishing Watch events.
-- Nearby official METAR observations in selected-item weather context, with
-  clearer SIGMET all-clear and outage handling.
-- Persistent source-health status and fixes for stale or briefly missing map
-  data.
+- Official CONUS G-AIRMET forecast polygons with distinct forecast styling.
+- Nearby official METAR, TAF, and recent PIREP context for selected aircraft.
+- Recent Israeli alert recovery with official area polygons, plus NOAA Pilot
+  Boarding Areas and Deepwater Ports in maritime proximity context.
 
-Next tracked release: **v2.2.2**
+Next tracked release: **v2.3.1**
 
 Tracked next-release additions:
 

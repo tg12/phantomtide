@@ -6,7 +6,23 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v2.2.2 planning
+## [Unreleased] — v2.3.1 planning
+
+## v2.3.0 - 2026-11-20
+
+### Aviation and alert context
+
+- Added official G-AIRMET forecast polygons for CONUS aviation hazards, clearly
+  styled as forecasts rather than observations or active SIGMETs.
+- Selected aircraft now show nearby TAF and recent pilot-report context alongside
+  the existing official METAR observation.
+- Israeli air-defence alerts now recover recent history and draw official alert
+  areas where geometry is available.
+
+### Maritime context
+
+- Added NOAA Pilot Boarding Areas and Deepwater Ports to proximity context for
+  faster interpretation around regulated approaches and offshore facilities.
 
 ## v2.2.1 - 2026-11-17
 
