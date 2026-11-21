@@ -33,7 +33,7 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.3.0** - official aviation forecast geometry, richer
+Current release: **v2.3.1** - official aviation forecast geometry, richer
 selected-aircraft weather context, improved alert areas, and new NOAA maritime
 reference context.
 
@@ -44,7 +44,7 @@ Release highlights:
 - Recent Israeli alert recovery with official area polygons, plus NOAA Pilot
   Boarding Areas and Deepwater Ports in maritime proximity context.
 
-Next tracked release: **v2.3.1**
+Next tracked release: **v2.3.2**
 
 Tracked next-release additions:
 

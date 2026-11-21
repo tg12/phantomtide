@@ -6,7 +6,25 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v2.3.1 planning
+## [Unreleased] — v2.3.2 planning
+
+## v2.3.1 - 2026-11-21
+
+### Investigation workflow
+
+- Phantom Tide now opens with focused investigation tasks instead of presenting the complete layer
+  catalog first. The full 34-layer catalog remains available as an advanced control.
+- The evidence inspector stays collapsed until an item is selected, leaving more room for the map.
+- Concurrent source enrichment no longer replaces newer details with stale inspector content.
+
+### Reliability and release assurance
+
+- Scheduler work is bounded and equal-cadence collectors are staggered to reduce synchronized load.
+- Disabled optional sources remain visible without being reported as repeated collection failures.
+- Critical desktop and mobile browser workflows, typing, coverage, dependency, and build checks now
+  block releases when they fail.
+- Production deployment configuration is tracked consistently so the service definition is
+  reproducible from the repository.
 
 ## v2.3.0 - 2026-11-20
 
