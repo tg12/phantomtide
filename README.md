@@ -33,18 +33,17 @@ What this public repository is:
 - Use the hosted product and the docs here to evaluate the workflow and
   release line.
 
-Current release: **v2.3.2** - official aviation forecast geometry, richer
-selected-aircraft weather context, improved alert areas, and new NOAA maritime
-reference context.
+Current release: **v2.3.3** - expanded marine-warning coverage, selected-position
+seabed context, and bounded historical tsunami and wildfire reference layers.
 
 Release highlights:
 
-- Official CONUS G-AIRMET forecast polygons with distinct forecast styling.
-- Nearby official METAR, TAF, and recent PIREP context for selected aircraft.
-- Recent Israeli alert recovery with official area polygons, plus NOAA Pilot
-  Boarding Areas and Deepwater Ports in maritime proximity context.
+- MET Norway marine-warning polygons for Norwegian, Svalbard, and Barents waters.
+- NOAA GEBCO modeled depth context for selected maritime positions.
+- Optional NOAA historical-tsunami and French wildfire-history layers, kept
+  distinct from live warning and detection feeds.
 
-Next tracked release: **v2.3.3**
+Next tracked release: **v2.3.4**
 
 Tracked next-release additions:
 

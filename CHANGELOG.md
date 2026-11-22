@@ -6,7 +6,29 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v2.3.3 planning
+## [Unreleased] — v2.3.4 planning
+
+## v2.3.3 - 2026-11-22
+
+### Marine warning and depth context
+
+- Added MET Norway marine-warning polygons for Norwegian, Svalbard, and Barents waters, with
+  attributed cached fallback when the upstream service is unavailable.
+- Selected maritime positions now show modeled NOAA GEBCO seabed depth as supporting context,
+  explicitly labelled as non-navigational.
+
+### Historical hazard context
+
+- Added an optional NOAA historical-tsunami reference layer with 168 events.
+- Added an optional French wildfire-history layer with 230 significant commune hotspots from
+  open-licensed French government data. Historical layers remain visually and semantically
+  separate from live alerts and satellite detections.
+
+### Source discipline
+
+- Candidate feeds with unclear commercial or redistribution rights remain excluded until their
+  permissions are established. Existing adsb.fi coverage stays an attributed OpenSky fallback
+  rather than appearing as a duplicate aircraft layer.
 
 ## v2.3.2 - 2026-11-22
 
