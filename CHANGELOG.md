@@ -6,7 +6,20 @@ Dates are UTC. Versions follow semantic versioning.
 
 ---
 
-## [Unreleased] — v2.3.2 planning
+## [Unreleased] — v2.3.3 planning
+
+## v2.3.2 - 2026-11-22
+
+### Fixes
+
+- Saved layer selections now restore correctly on page load. Previously a layer saved as on could
+  stay hidden, and a layer saved as off could still draw, until it was toggled by hand.
+- Deleting a notebook entry no longer ends in a broken response after the entry has been removed.
+- Source health no longer reports a collector as freshly updated while its collection is paused
+  after repeated failures, and a source paused for three hours or more now appears as an advisory.
+- The live GNSS interference layer now samples eight 250 nm areas around major chokepoints, the
+  largest radius the adsb.lol aircraft feed accepts. The layer is unavailable until an adsb.lol
+  API key is configured for the hosted service.
 
 ## v2.3.1 - 2026-11-21
 
